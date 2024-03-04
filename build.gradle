@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.3'
 	id 'io.spring.dependency-management' version '1.1.4'
+	id 'jacoco'
 }
 
 group = 'com.tiketeer'
@@ -10,6 +11,11 @@ version = '0.0.1-SNAPSHOT'
 java {
 	sourceCompatibility = '21'
 }
+
+jacoco {
+	toolVersion = "0.8.9"
+}
+
 
 configurations {
 	compileOnly {
@@ -35,4 +41,18 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+	finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+	dependsOn test // tests are required to run before generating the report
+	reports {
+		xml.required = true
+		html.required = false
+		csv.required = false
+	}
 }
