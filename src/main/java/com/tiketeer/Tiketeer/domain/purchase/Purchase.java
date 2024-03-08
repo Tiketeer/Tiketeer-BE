@@ -34,7 +34,7 @@ public class Purchase {
 	private UUID id;
 
 	@ManyToOne
-	@JoinColumn(name = "owner_id", referencedColumnName = "member_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "member_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private Member member;
 
 	@CreatedDate
