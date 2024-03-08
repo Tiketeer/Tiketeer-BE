@@ -19,6 +19,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -33,12 +34,28 @@ public class Purchase {
 	private UUID id;
 
 	@ManyToOne
-	@JoinColumn(name = "member_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "owner_id", referencedColumnName = "member_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private Member member;
 
 	@CreatedDate
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;
+
+	@Builder
+	public Purchase(Member member) {
+		this.member = member;
+	}
+
+	public void setMember(Member member) {
+		if (this.member != null) {
+			this.member.getPurchases().remove(this);
+		}
+		this.member = member;
+		if (member == null) {
+			return;
+		}
+		this.member.getPurchases().add(this);
+	}
 
 }

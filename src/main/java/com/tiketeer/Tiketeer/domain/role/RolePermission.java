@@ -36,12 +36,12 @@ public class RolePermission {
 
 	public void setRole(Role role) {
 		if (this.role != null) {
-			this.role.getRolePermission().remove(this);
+			this.role.getRolePermissions().remove(this);
 		}
 		this.role = role;
 		if (role == null) {
 			return;
 		}
-		this.role.getRolePermission().add(this);
+		this.role.getRolePermissions().add(this);
 	}
 }

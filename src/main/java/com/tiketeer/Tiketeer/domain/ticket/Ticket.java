@@ -20,6 +20,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -45,5 +46,11 @@ public class Ticket {
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;
+
+	@Builder
+	public Ticket(Purchase purchase, Ticketing ticketing) {
+		this.purchase = purchase;
+		this.ticketing = ticketing;
+	}
 
 }

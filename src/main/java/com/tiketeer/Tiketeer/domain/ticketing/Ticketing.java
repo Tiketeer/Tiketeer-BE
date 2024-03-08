@@ -19,6 +19,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -80,5 +81,23 @@ public class Ticketing {
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;
+
+	@Builder
+	public Ticketing(
+		long price, Member member,
+		String description, String title,
+		String location, LocalDateTime eventTime,
+		String category, int runningMinutes,
+		LocalDateTime saleStart, LocalDateTime saleEnd
+	) {
+		this.price = price;
+		this.member = member;
+		this.location = location;
+		this.eventTime = eventTime;
+		this.category = category;
+		this.runningMinutes = runningMinutes;
+		this.saleStart = saleStart;
+		this.saleEnd = saleEnd;
+	}
 
 }
