@@ -1,6 +1,6 @@
 package com.tiketeer.Tiketeer.domain.role;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -39,12 +39,12 @@ public class Permission {
 	@CreationTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "created_at", nullable = false)
-	private LocalDate createdAt;
+	private LocalDateTime createdAt;
 
 	@UpdateTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "updated_at", nullable = false)
-	private LocalDate updatedAt;
+	private LocalDateTime updatedAt;
 
 	@Builder
 	public Permission(PermissionEnum name) {

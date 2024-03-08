@@ -1,6 +1,6 @@
 package com.tiketeer.Tiketeer.domain.member;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -35,11 +35,11 @@ public class Otp {
 	@CreationTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "created_at", nullable = false)
-	private LocalDate createdAt;
+	private LocalDateTime createdAt;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "expired_at", nullable = false)
-	private LocalDate expiredAt;
+	private LocalDateTime expiredAt;
 
 	@OneToOne
 	@Setter
@@ -47,7 +47,7 @@ public class Otp {
 	private Member member;
 
 	@Builder
-	public Otp(LocalDate expiredAt, Member member) {
+	public Otp(LocalDateTime expiredAt, Member member) {
 		this.expiredAt = expiredAt;
 		this.member = member;
 	}

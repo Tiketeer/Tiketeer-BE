@@ -1,6 +1,6 @@
 package com.tiketeer.Tiketeer.domain.member;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -57,12 +57,12 @@ public class Member {
 	@CreationTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "created_at", nullable = false)
-	private LocalDate createdAt;
+	private LocalDateTime createdAt;
 
 	@Setter
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "last_login_at")
-	private LocalDate lastLoginAt;
+	private LocalDateTime lastLoginAt;
 
 	@Setter
 	@ManyToOne
