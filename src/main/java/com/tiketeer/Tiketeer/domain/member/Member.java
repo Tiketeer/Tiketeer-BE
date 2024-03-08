@@ -3,8 +3,8 @@ package com.tiketeer.Tiketeer.domain.member;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import org.springframework.data.annotation.CreatedDate;
 
 import com.tiketeer.Tiketeer.domain.role.Role;
 
@@ -54,7 +54,7 @@ public class Member {
 	@Column(name = "profile_url")
 	private String profileUrl;
 
-	@CreationTimestamp
+	@CreatedDate
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;

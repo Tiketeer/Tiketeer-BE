@@ -3,8 +3,8 @@ package com.tiketeer.Tiketeer.domain.member;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import org.springframework.data.annotation.CreatedDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -32,7 +32,7 @@ public class Otp {
 	@Column(name = "password", nullable = false, updatable = false)
 	private UUID password;
 
-	@CreationTimestamp
+	@CreatedDate
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;
