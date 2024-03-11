@@ -1,11 +1,13 @@
 package com.tiketeer.Tiketeer.domain.member;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.CreatedDate;
 
+import com.tiketeer.Tiketeer.domain.purchase.Purchase;
 import com.tiketeer.Tiketeer.domain.role.Role;
 
 import jakarta.persistence.Column;
@@ -15,6 +17,7 @@ import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -63,6 +66,9 @@ public class Member {
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "last_login_at")
 	private LocalDateTime lastLoginAt;
+
+	@OneToMany(mappedBy = "member")
+	private List<Purchase> purchases;
 
 	@Setter
 	@ManyToOne

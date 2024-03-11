@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,6 +21,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "role_permissions")
 @Getter
+@EqualsAndHashCode
 public class RolePermission {
 	@Id
 	@UuidGenerator
@@ -36,12 +38,12 @@ public class RolePermission {
 
 	public void setRole(Role role) {
 		if (this.role != null) {
-			this.role.getRolePermission().remove(this);
+			this.role.getRolePermissions().remove(this);
 		}
 		this.role = role;
 		if (role == null) {
 			return;
 		}
-		this.role.getRolePermission().add(this);
+		this.role.getRolePermissions().add(this);
 	}
 }

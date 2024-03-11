@@ -39,7 +39,7 @@ public class Role {
 	private RoleEnum name;
 
 	@OneToMany(mappedBy = "role")
-	private List<RolePermission> rolePermission;
+	private List<RolePermission> rolePermissions;
 
 	@CreatedDate
 	@Temporal(TemporalType.TIMESTAMP)
