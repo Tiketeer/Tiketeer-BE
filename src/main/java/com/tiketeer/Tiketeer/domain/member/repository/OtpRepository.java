@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 import com.tiketeer.Tiketeer.domain.member.Otp;
 
 @Repository
-public interface OptRepository extends JpaRepository<Otp, UUID> {
+public interface OtpRepository extends JpaRepository<Otp, UUID> {
 }
