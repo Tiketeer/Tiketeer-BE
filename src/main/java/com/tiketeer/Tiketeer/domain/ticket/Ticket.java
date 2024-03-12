@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.tiketeer.Tiketeer.domain.purchase.Purchase;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
@@ -12,6 +13,7 @@ import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -27,6 +29,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "tickets")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 public class Ticket {
 	@Id
