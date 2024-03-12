@@ -69,14 +69,14 @@ public class TestHelper {
 	@Transactional
 	public void cleanDB() {
 		var repoListForDelete = List.of(
-			roleRepository,
-			permissionRepository,
-			rolePermissionRepository,
-			memberRepository,
-			otpRepository,
 			ticketRepository,
+			purchaseRepository,
 			ticketingRepository,
-			purchaseRepository
+			otpRepository,
+			memberRepository,
+			rolePermissionRepository,
+			roleRepository,
+			permissionRepository
 		);
 		for (var repo : repoListForDelete) {
 			repo.deleteAll();
