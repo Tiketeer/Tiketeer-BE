@@ -1,7 +1,7 @@
 package com.tiketeer.Tiketeer.domain.role;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,7 +43,7 @@ public class Role {
 	private RoleEnum name;
 
 	@OneToMany(mappedBy = "role")
-	private List<RolePermission> rolePermissions = Collections.emptyList();
+	private List<RolePermission> rolePermissions = new ArrayList<>();
 
 	@CreatedDate
 	@Temporal(TemporalType.TIMESTAMP)
