@@ -95,6 +95,8 @@ public class Ticketing {
 	) {
 		this.price = price;
 		this.member = member;
+		this.description = description;
+		this.title = title;
 		this.location = location;
 		this.eventTime = eventTime;
 		this.category = category;
