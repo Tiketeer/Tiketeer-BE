@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
+import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.role.Permission;
 import com.tiketeer.Tiketeer.domain.role.Role;
@@ -25,6 +26,8 @@ public class TestHelper {
 	private final RoleRepository roleRepository;
 	private final RolePermissionRepository rolePermissionRepository;
 	private final MemberRepository memberRepository;
+
+	private final OtpRepository otpRepository;
 	private final PurchaseRepository purchaseRepository;
 	private final TicketRepository ticketRepository;
 	private final TicketingRepository ticketingRepository;
@@ -32,12 +35,14 @@ public class TestHelper {
 	@Autowired
 	public TestHelper(PermissionRepository permissionRepository, RoleRepository roleRepository,
 		RolePermissionRepository rolePermissionRepository,
-		MemberRepository memberRepository, PurchaseRepository purchaseRepository, TicketRepository ticketRepository,
+		MemberRepository memberRepository, OtpRepository otpRepository, PurchaseRepository purchaseRepository,
+		TicketRepository ticketRepository,
 		TicketingRepository ticketingRepository) {
 		this.permissionRepository = permissionRepository;
 		this.roleRepository = roleRepository;
 		this.rolePermissionRepository = rolePermissionRepository;
 		this.memberRepository = memberRepository;
+		this.otpRepository = otpRepository;
 		this.purchaseRepository = purchaseRepository;
 		this.ticketRepository = ticketRepository;
 		this.ticketingRepository = ticketingRepository;
@@ -68,6 +73,7 @@ public class TestHelper {
 			permissionRepository,
 			rolePermissionRepository,
 			memberRepository,
+			otpRepository,
 			ticketRepository,
 			ticketingRepository,
 			purchaseRepository
