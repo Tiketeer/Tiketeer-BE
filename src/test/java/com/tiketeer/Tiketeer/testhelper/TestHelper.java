@@ -3,6 +3,7 @@ package com.tiketeer.Tiketeer.testhelper;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,11 +34,16 @@ public class TestHelper {
 	private final TicketingRepository ticketingRepository;
 
 	@Autowired
-	public TestHelper(PermissionRepository permissionRepository, RoleRepository roleRepository,
+	public TestHelper(
+		PermissionRepository permissionRepository,
+		RoleRepository roleRepository,
 		RolePermissionRepository rolePermissionRepository,
-		MemberRepository memberRepository, OtpRepository otpRepository, PurchaseRepository purchaseRepository,
+		MemberRepository memberRepository,
+		OtpRepository otpRepository,
+		PurchaseRepository purchaseRepository,
 		TicketRepository ticketRepository,
-		TicketingRepository ticketingRepository) {
+		TicketingRepository ticketingRepository
+	) {
 		this.permissionRepository = permissionRepository;
 		this.roleRepository = roleRepository;
 		this.rolePermissionRepository = rolePermissionRepository;
@@ -68,7 +74,7 @@ public class TestHelper {
 
 	@Transactional
 	public void cleanDB() {
-		var repoListForDelete = List.of(
+		List.of(
 			ticketRepository,
 			purchaseRepository,
 			ticketingRepository,
@@ -77,9 +83,6 @@ public class TestHelper {
 			rolePermissionRepository,
 			roleRepository,
 			permissionRepository
-		);
-		for (var repo : repoListForDelete) {
-			repo.deleteAll();
-		}
+		).forEach(JpaRepository::deleteAll);
 	}
 }
