@@ -17,24 +17,24 @@
   ```yml
   # src/main/resources/application.yml
   server:
-  port: # Server Port
-  servlet:
-    context-path: "/api"
+    port: # Server Port
+    servlet:
+      context-path: "/api"
 
   spring:
-  datasource:
-  driver-class-name: com.mysql.cj.jdbc.Driver
-  url: # JDBC Connection URL
-  username: ${DB_USERNAME}
-  password: ${DB_PASSWORD}
-  jpa:
-  hibernate:
-  ddl-auto: update
-  show-sql: true
+    datasource:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: # JDBC Connection URL
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+    jpa:
+      hibernate:
+        ddl-auto: update
+      show-sql: true
   
   logging:
-  level:
-  org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    level:
+      org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   ```
 
 - 서버 실행
