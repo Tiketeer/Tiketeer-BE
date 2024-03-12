@@ -1,6 +1,7 @@
 package com.tiketeer.Tiketeer.domain.member;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -71,7 +72,7 @@ public class Member {
 	private LocalDateTime lastLoginAt;
 
 	@OneToMany(mappedBy = "member")
-	private List<Purchase> purchases;
+	private List<Purchase> purchases = new ArrayList<>();
 
 	@Setter
 	@ManyToOne
