@@ -27,7 +27,6 @@ public class TestHelper {
 	private final RoleRepository roleRepository;
 	private final RolePermissionRepository rolePermissionRepository;
 	private final MemberRepository memberRepository;
-
 	private final OtpRepository otpRepository;
 	private final PurchaseRepository purchaseRepository;
 	private final TicketRepository ticketRepository;
