@@ -2,6 +2,7 @@ package com.tiketeer.Tiketeer.exception;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tiketeer.Tiketeer.domain.member.exception.DuplicatedEmailException;
@@ -15,17 +16,17 @@ import com.tiketeer.Tiketeer.exception.code.TicketingExceptionCode;
 
 @RestController
 public class DummyRestController {
-	@GetMapping("/test/exception-handler/{errorCode}")
-	public ResponseEntity throwException(String errorCode) {
-		if (errorCode.equals(CommonExceptionCode.INTERNAL_SERVER_ERROR.name())) {
+	@GetMapping(path = "/test/exception-handler/{code}")
+	public ResponseEntity throwException(@PathVariable String code) {
+		if (code.equals(CommonExceptionCode.INTERNAL_SERVER_ERROR.name())) {
 			throw new RuntimeException();
-		} else if (errorCode.equals(MemberExceptionCode.DUPLICATED_EMAIL.name())) {
+		} else if (code.equals(MemberExceptionCode.DUPLICATED_EMAIL.name())) {
 			throw new DuplicatedEmailException();
-		} else if (errorCode.equals(MemberExceptionCode.MEMBER_NOT_FOUND.name())) {
+		} else if (code.equals(MemberExceptionCode.MEMBER_NOT_FOUND.name())) {
 			throw new MemberNotFoundException();
-		} else if (errorCode.equals(TicketingExceptionCode.TICKETING_NOT_FOUND.name())) {
+		} else if (code.equals(TicketingExceptionCode.TICKETING_NOT_FOUND.name())) {
 			throw new TicketingNotFoundException();
-		} else if (errorCode.equals(TicketExceptionCode.TICKET_NOT_FOUND.name())) {
+		} else if (code.equals(TicketExceptionCode.TICKET_NOT_FOUND.name())) {
 			throw new TicketNotFoundException();
 		} else {
 			return ResponseEntity.ok().build();
