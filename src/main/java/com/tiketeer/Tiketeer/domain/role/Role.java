@@ -1,17 +1,20 @@
 package com.tiketeer.Tiketeer.domain.role;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
@@ -27,6 +30,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "roles")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 public class Role {
 	@Id
@@ -39,7 +43,7 @@ public class Role {
 	private RoleEnum name;
 
 	@OneToMany(mappedBy = "role")
-	private List<RolePermission> rolePermissions;
+	private List<RolePermission> rolePermissions = new ArrayList<>();
 
 	@CreatedDate
 	@Temporal(TemporalType.TIMESTAMP)

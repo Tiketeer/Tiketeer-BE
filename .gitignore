@@ -39,3 +39,6 @@ out/
 ### Secret ###
 .env
 src/main/resources/application.*
+
+## Database ##
+/db/

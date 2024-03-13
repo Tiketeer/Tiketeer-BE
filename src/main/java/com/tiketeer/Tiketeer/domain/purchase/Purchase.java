@@ -5,12 +5,14 @@ import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -27,6 +29,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "purchases")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @EqualsAndHashCode
 public class Purchase {
@@ -46,7 +49,7 @@ public class Purchase {
 
 	@Builder
 	public Purchase(Member member) {
-		this.member = member;
+		setMember(member);
 	}
 
 	public void setMember(Member member) {
