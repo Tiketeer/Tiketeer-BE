@@ -1,6 +1,5 @@
 package com.tiketeer.Tiketeer.response;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -9,8 +8,11 @@ import lombok.ToString;
 public class ApiResponse<T> {
 	private T data;
 
-	@Builder
-	public ApiResponse(T data) {
+	private ApiResponse(T data) {
 		this.data = data;
+	}
+
+	public static <T> ApiResponse wrap(T data) {
+		return new ApiResponse(data);
 	}
 }
