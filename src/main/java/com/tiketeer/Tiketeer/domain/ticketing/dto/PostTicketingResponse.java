@@ -21,6 +21,6 @@ public class PostTicketingResponse {
 
 	public static PostTicketingResponse convertFromDto(CreateTicketingResult dto) {
 		return PostTicketingResponse.builder()
-			.ticketingId(dto.ticketingId()).createdAt(dto.createdAt()).build();
+			.ticketingId(dto.getTicketingId()).createdAt(dto.getCreatedAt()).build();
 	}
 }

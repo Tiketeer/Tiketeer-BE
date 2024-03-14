@@ -4,9 +4,18 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import lombok.Builder;
+import lombok.Getter;
 import lombok.ToString;
 
 @ToString
-@Builder
-public record CreateTicketingResult(UUID ticketingId, LocalDateTime createdAt) {
+@Getter
+public class CreateTicketingResult {
+	private UUID ticketingId;
+	private LocalDateTime createdAt;
+
+	@Builder
+	public CreateTicketingResult(UUID ticketingId, LocalDateTime createdAt) {
+		this.ticketingId = ticketingId;
+		this.createdAt = createdAt;
+	}
 }
