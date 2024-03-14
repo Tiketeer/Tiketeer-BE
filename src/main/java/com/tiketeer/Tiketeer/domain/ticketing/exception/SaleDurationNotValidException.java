@@ -5,6 +5,6 @@ import com.tiketeer.Tiketeer.exception.code.TicketingExceptionCode;
 
 public class SaleDurationNotValidException extends DefinedException {
 	public SaleDurationNotValidException() {
-		super(TicketingExceptionCode.EVENT_TIME_NOT_VALID);
+		super(TicketingExceptionCode.SALE_DURATION_NOT_VALID);
 	}
 }
