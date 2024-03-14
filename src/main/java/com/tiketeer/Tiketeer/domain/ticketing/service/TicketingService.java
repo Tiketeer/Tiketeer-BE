@@ -78,7 +78,8 @@ public class TicketingService {
 
 		if (saleStart.isBefore(now)
 			|| saleEnd.isBefore(now)
-			|| saleEnd.isBefore(saleStart)) {
+			|| saleEnd.isBefore(saleStart)
+			|| saleEnd.isAfter(eventTime)) {
 			throw new SaleDurationNotValidException();
 		}
 
