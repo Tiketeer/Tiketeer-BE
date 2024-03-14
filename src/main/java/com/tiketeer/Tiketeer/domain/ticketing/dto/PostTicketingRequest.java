@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,15 +13,15 @@ import lombok.ToString;
 @Getter
 @ToString
 public class PostTicketingRequest {
-	@NotNull
+	@NotBlank
 	private final String title;
 
 	private final String description;
 
-	@NotNull
+	@NotBlank
 	private final String location;
 
-	@NotNull
+	@NotBlank
 	private final String category;
 
 	@NotNull
@@ -46,10 +47,10 @@ public class PostTicketingRequest {
 
 	@Builder
 	public PostTicketingRequest(
-		@NotNull String title,
+		@NotBlank String title,
 		String description,
-		@NotNull String location,
-		@NotNull String category,
+		@NotBlank String location,
+		@NotBlank String category,
 		@NotNull Integer runningMinutes,
 		@NotNull Integer stock,
 		@NotNull Long price,
