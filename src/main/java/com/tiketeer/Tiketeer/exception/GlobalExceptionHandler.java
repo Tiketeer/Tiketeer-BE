@@ -8,6 +8,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import com.tiketeer.Tiketeer.domain.member.exception.DuplicatedEmailException;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.ticket.exception.TicketNotFoundException;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
 import com.tiketeer.Tiketeer.exception.code.CommonExceptionCode;
 import com.tiketeer.Tiketeer.exception.code.ExceptionCode;
@@ -24,6 +26,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 		// Ticketing
 		TicketingNotFoundException.class,
+		EventTimeNotValidException.class,
+		SaleDurationNotValidException.class,
 
 		// Ticket
 		TicketNotFoundException.class
