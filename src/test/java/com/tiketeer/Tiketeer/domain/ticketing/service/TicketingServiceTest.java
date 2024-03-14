@@ -62,7 +62,7 @@ public class TicketingServiceTest {
 
 	@Test
 	@DisplayName("이벤트 시점이 과거 시점 > 티켓팅 생성 요청 > 실패")
-	void createTicketingWithInvalidEventTime() {
+	void createTicketingFailBecauseInvalidEventTime() {
 		// given
 		var mockEmail = "test@test.com";
 		createMember(mockEmail);
@@ -82,7 +82,7 @@ public class TicketingServiceTest {
 
 	@Test
 	@DisplayName("유효하지 않은 판매 기간 (판매 시작 시점보다 판매 종료 시점이 빠름) > 티켓팅 생성 요청 > 실패")
-	void createTicketingWithInvalidSaleDuration() {
+	void createTicketingFailBecauseInvalidSaleDuration() {
 		// given
 		var mockEmail = "test1@test.com";
 		createMember(mockEmail);
@@ -102,7 +102,7 @@ public class TicketingServiceTest {
 
 	@Test
 	@DisplayName("유효하지 않은 판매 기간 (판매 기간 종료 전 이벤트가 시작함) > 티켓팅 생성 요청 > 실패")
-	void createTicketingWithEventTimeDuringSaleDuration() {
+	void createTicketingFailBecauseEventTimeDuringSaleDuration() {
 		// given
 		var mockEmail = "test1@test.com";
 		createMember(mockEmail);
@@ -122,7 +122,7 @@ public class TicketingServiceTest {
 
 	@Test
 	@DisplayName("존재하지 않는 이메일(멤버) > 티켓팅 생성 요청 > 실패")
-	void createTicketingWithInvalidEmail() {
+	void createTicketingFailBecauseInvalidEmail() {
 		// given
 		var mockEmail = "test1@test.com";
 
@@ -141,7 +141,7 @@ public class TicketingServiceTest {
 
 	@Test
 	@DisplayName("정상 컨디션 > 티켓팅 생성 요청 > 성공")
-	void createTicketingSuccessful() {
+	void createTicketingSuccess() {
 		// given
 		var mockEmail = "test1@test.com";
 		createMember(mockEmail);
