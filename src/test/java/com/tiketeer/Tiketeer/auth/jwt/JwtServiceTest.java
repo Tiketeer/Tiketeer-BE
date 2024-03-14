@@ -50,7 +50,7 @@ class JwtServiceTest {
 	}
 
 	@Test
-	@DisplayName("create jwt token")
+	@DisplayName("페이로드 > JWT 생성 > JWT 디코드 이후 페이로드와 비교")
 	void createTokenSuccess() {
 		//given
 		Date issueDate = new Date(System.currentTimeMillis());
@@ -75,7 +75,7 @@ class JwtServiceTest {
 	}
 
 	@Test
-	@DisplayName("valid jwt - identical subject, not expired")
+	@DisplayName("페이로드 > JWT 생성 및 디코드 > sub 비교")
 	void verifyTokenSuccess() {
 		//given
 		Date issueDate = new Date(System.currentTimeMillis());
@@ -90,7 +90,7 @@ class JwtServiceTest {
 	}
 
 	@Test
-	@DisplayName("invalid jwt - bad secretkey")
+	@DisplayName("페이로드 > JWT 생성 > 디코드 중 secretKey 불일치")
 	void verifyTokenFailBadSecretKey() {
 		//given
 		Date issueDate = new Date(System.currentTimeMillis());
@@ -111,7 +111,7 @@ class JwtServiceTest {
 	}
 
 	@Test
-	@DisplayName("invalid jwt - expired")
+	@DisplayName("페이로드 > JWT 생성 > 디코드 중 유효기간 오류")
 	void verifyTokenFailExpired() {
 		//given
 		Date issueDate = new Date(System.currentTimeMillis());
