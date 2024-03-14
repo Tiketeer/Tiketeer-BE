@@ -14,14 +14,14 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tiketeer.Tiketeer.configuration.GlobalExceptionHandlerTestConfig;
+import com.tiketeer.Tiketeer.configuration.SecurityDisableForTestConfig;
 import com.tiketeer.Tiketeer.exception.code.CommonExceptionCode;
 import com.tiketeer.Tiketeer.exception.code.ExceptionCode;
 import com.tiketeer.Tiketeer.exception.code.MemberExceptionCode;
 import com.tiketeer.Tiketeer.exception.code.TicketExceptionCode;
 import com.tiketeer.Tiketeer.exception.code.TicketingExceptionCode;
 
-@Import({GlobalExceptionHandlerTestConfig.class, DummyRestController.class})
+@Import({SecurityDisableForTestConfig.class, DummyRestController.class})
 @SpringBootTest
 @AutoConfigureMockMvc
 public class GlobalExceptionHandlerTest {
