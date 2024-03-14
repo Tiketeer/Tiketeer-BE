@@ -8,7 +8,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @TestConfiguration
 public class SecurityDisableForTestConfig {
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain disableFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable()).httpBasic(c -> c.disable());
 		return http.build();
 	}

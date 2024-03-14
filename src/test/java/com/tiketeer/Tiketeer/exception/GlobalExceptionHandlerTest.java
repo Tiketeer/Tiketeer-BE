@@ -1,6 +1,6 @@
 package com.tiketeer.Tiketeer.exception;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -73,7 +73,7 @@ public class GlobalExceptionHandlerTest {
 			// then
 			.andExpect(MockMvcResultMatchers.status().is(targetExceptionCode.getHttpStatus().value()))
 			.andDo(result -> {
-				String contentString = result.getResponse().getContentAsString(Charset.defaultCharset());
+				String contentString = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
 				ErrorResponse errorResponse = objectMapper.readValue(contentString, ErrorResponse.class);
 				Assertions.assertThat(errorResponse.getCode()).isEqualTo(targetExceptionCode.name());
 				Assertions.assertThat(errorResponse.getMessage()).isEqualTo(targetExceptionCode.getMessage());
