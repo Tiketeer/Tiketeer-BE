@@ -22,11 +22,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 
-@SpringBootTest(properties = {
-	"jwt.secret-key=68895db81e621a83a1ab3d9892c24e8c6478bfe8b23fa47d324a54770c081630ed270acaf45b76456b36935c46cdffdba2d22bee94126b43a015f82c36333d3c",
-	"jwt.access-key-expiration-ms=300000",
-	"spring.application.name=tiketeer"
-})
+@SpringBootTest
 @DisplayName("JWT Service Test")
 class JwtServiceTest {
 
