@@ -49,7 +49,7 @@ public class JwtService {
 	public String createToken(JwtPayload jwtPayload) {
 		return Jwts.builder()
 			.subject(jwtPayload.email())
-			.claim("role", jwtPayload.roleEnum())
+			.claim("role", jwtPayload.roleEnum().name())
 			.issuer(issuer)
 			.issuedAt(jwtPayload.issuedAt())
 			.expiration(new Date(jwtPayload.issuedAt().getTime() + accessKeyExpirationInMs))
