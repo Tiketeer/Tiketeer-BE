@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +36,12 @@ public class RolePermission {
 	@ManyToOne
 	@JoinColumn(name = "permission_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private Permission permission;
+
+	@Builder
+	public RolePermission(Role role, Permission permission) {
+		this.permission = permission;
+		setRole(role);
+	}
 
 	public void setRole(Role role) {
 		if (this.role != null) {
