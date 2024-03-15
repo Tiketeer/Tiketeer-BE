@@ -15,8 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
+import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.exception.DuplicatedEmailException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
+import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
 import com.tiketeer.Tiketeer.domain.role.Role;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.exception.RoleNotFoundException;
@@ -40,6 +42,9 @@ class MemberRegisterServiceTest {
 
 	@Autowired
 	private MemberRepository memberRepository;
+
+	@Autowired
+	private OtpRepository otpRepository;
 
 	@PersistenceContext
 	private EntityManager em;
@@ -71,9 +76,11 @@ class MemberRegisterServiceTest {
 		RegisterMemberResponseDto registerMemberResponseDto = memberRegisterService.register(memberDto);
 
 		Optional<Member> optionalMember = memberRepository.findByEmail("test22@gmail.com");
+		Otp otp = otpRepository.findAll().getFirst();
 
 		// then
 		assertThat(optionalMember.get().getId()).isEqualTo(registerMemberResponseDto.getMemberId());
+		assertThat(otp.getMember().getId()).isEqualTo(optionalMember.get().getId());
 	}
 
 	@Test
