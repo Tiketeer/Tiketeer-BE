@@ -12,12 +12,12 @@ import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
-import com.tiketeer.Tiketeer.domain.ticketing.dto.CreateTicketingCommand;
-import com.tiketeer.Tiketeer.domain.ticketing.dto.CreateTicketingResult;
-import com.tiketeer.Tiketeer.domain.ticketing.dto.UpdateTicketingCommand;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingResultDto;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.UpdateTicketingCommand;
 
 @Service
 @Transactional(readOnly = true)
@@ -35,7 +35,7 @@ public class TicketingService {
 	}
 
 	@Transactional
-	public CreateTicketingResult createTicketing(CreateTicketingCommand command) {
+	public CreateTicketingResultDto createTicketing(CreateTicketingCommandDto command) {
 		var eventTime = command.getEventTime();
 		var saleStart = command.getSaleStart();
 		var saleEnd = command.getSaleEnd();
@@ -64,7 +64,7 @@ public class TicketingService {
 			.mapToObj(i -> Ticket.builder().ticketing(ticketing).build())
 			.toList());
 
-		return CreateTicketingResult.builder()
+		return CreateTicketingResultDto.builder()
 			.ticketingId(ticketing.getId())
 			.createdAt(ticketing.getCreatedAt())
 			.build();
@@ -72,7 +72,7 @@ public class TicketingService {
 
 	@Transactional
 	public void updateTicketing(UpdateTicketingCommand command) {
-		
+
 	}
 
 	private void validateTicketingMetadata(LocalDateTime eventTime, LocalDateTime saleStart, LocalDateTime saleEnd) {

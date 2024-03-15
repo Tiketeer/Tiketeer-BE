@@ -1,8 +1,6 @@
-package com.tiketeer.Tiketeer.domain.ticketing.dto;
+package com.tiketeer.Tiketeer.domain.ticketing.service.dto;
 
 import java.time.LocalDateTime;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -10,32 +8,22 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class PatchTicketingRequest {
+public class UpdateTicketingCommand {
+	private final String email;
 	private final String title;
-
 	private final String description;
-
 	private final String location;
-
 	private final String category;
-
 	private final Integer runningMinutes;
-
 	private final Integer stock;
-
 	private final Long price;
-
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
 	private final LocalDateTime eventTime;
-
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
 	private final LocalDateTime saleStart;
-
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/Seoul")
 	private final LocalDateTime saleEnd;
 
 	@Builder
-	public PatchTicketingRequest(
+	public UpdateTicketingCommand(
+		String email,
 		String title,
 		String description,
 		String location,
@@ -46,6 +34,7 @@ public class PatchTicketingRequest {
 		LocalDateTime eventTime,
 		LocalDateTime saleStart,
 		LocalDateTime saleEnd) {
+		this.email = email;
 		this.title = title;
 		this.description = description;
 		this.location = location;
