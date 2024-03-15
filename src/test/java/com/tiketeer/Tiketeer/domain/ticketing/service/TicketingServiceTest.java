@@ -167,7 +167,7 @@ public class TicketingServiceTest {
 		Assertions.assertThat(ticketing.getSaleStart()).isEqualTo(command.getSaleStart());
 		Assertions.assertThat(ticketing.getSaleEnd()).isEqualTo(command.getSaleEnd());
 
-		var tickets = ticketRepository.findAll();
+		var tickets = ticketRepository.findAllByTicketing(ticketing);
 		Assertions.assertThat(tickets.size()).isEqualTo(command.getStock());
 	}
 
