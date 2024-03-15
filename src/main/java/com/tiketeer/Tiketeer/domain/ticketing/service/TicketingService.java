@@ -16,6 +16,7 @@ import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingResultDto;
@@ -88,7 +89,7 @@ public class TicketingService {
 			.orElseThrow(TicketingNotFoundException::new);
 
 		if (now.isAfter(ticketing.getSaleStart())) {
-			throw new RuntimeException();
+			throw new UpdateTicketingAfterSaleStartException();
 		}
 
 		ticketing.setTitle(command.getTitle());

@@ -12,6 +12,7 @@ import com.tiketeer.Tiketeer.domain.ticket.exception.TicketNotFoundException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.exception.code.CommonExceptionCode;
 import com.tiketeer.Tiketeer.exception.code.ExceptionCode;
 
@@ -30,6 +31,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		TicketingNotFoundException.class,
 		EventTimeNotValidException.class,
 		SaleDurationNotValidException.class,
+		UpdateTicketingAfterSaleStartException.class,
 
 		// Ticket
 		TicketNotFoundException.class
