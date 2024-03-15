@@ -1,6 +1,6 @@
 package com.tiketeer.Tiketeer.exception;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -14,14 +14,14 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tiketeer.Tiketeer.configuration.GlobalExceptionHandlerTestConfig;
+import com.tiketeer.Tiketeer.configuration.SecurityDisableForTestConfig;
 import com.tiketeer.Tiketeer.exception.code.CommonExceptionCode;
 import com.tiketeer.Tiketeer.exception.code.ExceptionCode;
 import com.tiketeer.Tiketeer.exception.code.MemberExceptionCode;
 import com.tiketeer.Tiketeer.exception.code.TicketExceptionCode;
 import com.tiketeer.Tiketeer.exception.code.TicketingExceptionCode;
 
-@Import({GlobalExceptionHandlerTestConfig.class, DummyRestController.class})
+@Import({SecurityDisableForTestConfig.class, DummyRestController.class})
 @SpringBootTest
 @AutoConfigureMockMvc
 public class GlobalExceptionHandlerTest {
@@ -73,7 +73,7 @@ public class GlobalExceptionHandlerTest {
 			// then
 			.andExpect(MockMvcResultMatchers.status().is(targetExceptionCode.getHttpStatus().value()))
 			.andDo(result -> {
-				String contentString = result.getResponse().getContentAsString(Charset.defaultCharset());
+				String contentString = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
 				ErrorResponse errorResponse = objectMapper.readValue(contentString, ErrorResponse.class);
 				Assertions.assertThat(errorResponse.getCode()).isEqualTo(targetExceptionCode.name());
 				Assertions.assertThat(errorResponse.getMessage()).isEqualTo(targetExceptionCode.getMessage());
