@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,18 +25,14 @@ public class MemberRegisterService {
 	private final MemberRepository memberRepository;
 	private final RoleRepository roleRepository;
 	private final OtpRepository otpRepository;
-	private final PasswordEncoder passwordEncoder;
-
 	private final int OTP_VALID_TIME = 30;
 
 	@Autowired
 	public MemberRegisterService(MemberRepository memberRepository, RoleRepository roleRepository,
-		OtpRepository otpRepository,
-		PasswordEncoder passwordEncoder) {
+		OtpRepository otpRepository) {
 		this.memberRepository = memberRepository;
 		this.roleRepository = roleRepository;
 		this.otpRepository = otpRepository;
-		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Transactional
