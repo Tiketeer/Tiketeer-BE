@@ -17,7 +17,7 @@ import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidExce
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingResultDto;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.UpdateTicketingCommand;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.UpdateTicketingCommandDto;
 
 @Service
 @Transactional(readOnly = true)
@@ -71,7 +71,7 @@ public class TicketingService {
 	}
 
 	@Transactional
-	public void updateTicketing(UpdateTicketingCommand command) {
+	public void updateTicketing(UpdateTicketingCommandDto command) {
 
 	}
 

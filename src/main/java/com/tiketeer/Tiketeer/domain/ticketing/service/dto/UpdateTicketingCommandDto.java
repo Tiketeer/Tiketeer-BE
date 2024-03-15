@@ -8,7 +8,7 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class UpdateTicketingCommand {
+public class UpdateTicketingCommandDto {
 	private final String email;
 	private final String title;
 	private final String description;
@@ -22,7 +22,7 @@ public class UpdateTicketingCommand {
 	private final LocalDateTime saleEnd;
 
 	@Builder
-	public UpdateTicketingCommand(
+	public UpdateTicketingCommandDto(
 		String email,
 		String title,
 		String description,

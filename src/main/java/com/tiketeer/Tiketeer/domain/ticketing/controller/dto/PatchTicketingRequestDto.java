@@ -1,4 +1,4 @@
-package com.tiketeer.Tiketeer.domain.ticketing.service.dto;
+package com.tiketeer.Tiketeer.domain.ticketing.controller.dto;
 
 import java.time.LocalDateTime;
 
@@ -10,7 +10,7 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class PatchTicketingRequest {
+public class PatchTicketingRequestDto {
 	private final String title;
 
 	private final String description;
@@ -35,7 +35,7 @@ public class PatchTicketingRequest {
 	private final LocalDateTime saleEnd;
 
 	@Builder
-	public PatchTicketingRequest(
+	public PatchTicketingRequestDto(
 		String title,
 		String description,
 		String location,
