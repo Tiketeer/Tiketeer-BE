@@ -70,7 +70,7 @@ class MemberRegisterServiceTest {
 		// when
 		RegisterMemberResponseDto registerMemberResponseDto = memberRegisterService.register(memberDto);
 
-		Optional<Member> optionalMember = memberRepository.findByEmail("test@gmail.com");
+		Optional<Member> optionalMember = memberRepository.findByEmail("test22@gmail.com");
 
 		// then
 		assertThat(optionalMember.get().getId()).isEqualTo(registerMemberResponseDto.getMemberId());
