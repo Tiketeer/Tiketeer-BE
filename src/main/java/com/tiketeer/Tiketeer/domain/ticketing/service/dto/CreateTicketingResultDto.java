@@ -1,4 +1,4 @@
-package com.tiketeer.Tiketeer.domain.ticketing.dto;
+package com.tiketeer.Tiketeer.domain.ticketing.service.dto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -9,12 +9,12 @@ import lombok.ToString;
 
 @ToString
 @Getter
-public class CreateTicketingResult {
+public class CreateTicketingResultDto {
 	private UUID ticketingId;
 	private LocalDateTime createdAt;
 
 	@Builder
-	public CreateTicketingResult(UUID ticketingId, LocalDateTime createdAt) {
+	public CreateTicketingResultDto(UUID ticketingId, LocalDateTime createdAt) {
 		this.ticketingId = ticketingId;
 		this.createdAt = createdAt;
 	}

@@ -1,8 +1,9 @@
-package com.tiketeer.Tiketeer.domain.ticketing.dto;
+package com.tiketeer.Tiketeer.domain.ticketing.controller.dto;
 
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +13,7 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class PostTicketingRequest {
+public class PostTicketingRequestDto {
 	@NotBlank
 	private final String title;
 
@@ -46,7 +47,7 @@ public class PostTicketingRequest {
 	private final LocalDateTime saleEnd;
 
 	@Builder
-	public PostTicketingRequest(
+	public PostTicketingRequestDto(
 		@NotBlank String title,
 		String description,
 		@NotBlank String location,
@@ -69,8 +70,8 @@ public class PostTicketingRequest {
 		this.saleEnd = saleEnd;
 	}
 
-	public CreateTicketingCommand convertToDto(String memberEmail) {
-		return CreateTicketingCommand.builder()
+	public CreateTicketingCommandDto convertToDto(String memberEmail) {
+		return CreateTicketingCommandDto.builder()
 			.memberEmail(memberEmail)
 			.title(title)
 			.description(description)
