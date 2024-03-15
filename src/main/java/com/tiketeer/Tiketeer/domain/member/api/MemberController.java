@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tiketeer.Tiketeer.domain.member.application.MemberRegisterService;
 import com.tiketeer.Tiketeer.domain.member.dto.MemberDto.RegisterMemberDto;
 import com.tiketeer.Tiketeer.domain.member.dto.MemberDto.RegisterMemberResponseDto;
+import com.tiketeer.Tiketeer.response.ApiResponse;
 
 import jakarta.validation.Valid;
 
@@ -23,7 +24,8 @@ public class MemberController {
 	}
 
 	@PostMapping("/register")
-	public RegisterMemberResponseDto registerMember(final @Valid @RequestBody RegisterMemberDto registerMemberDto) {
-		return memberRegisterService.register(registerMemberDto);
+	public ApiResponse<RegisterMemberResponseDto> registerMember(
+		final @Valid @RequestBody RegisterMemberDto registerMemberDto) {
+		return ApiResponse.wrap(memberRegisterService.register(registerMemberDto));
 	}
 }
