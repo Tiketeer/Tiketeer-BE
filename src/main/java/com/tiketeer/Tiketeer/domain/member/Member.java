@@ -16,6 +16,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -46,7 +47,7 @@ public class Member {
 	private String email;
 
 	@Setter
-	@Column(name = "password", nullable = false)
+	@Column(name = "password")
 	private String password;
 
 	@Setter
@@ -75,7 +76,7 @@ public class Member {
 	private List<Purchase> purchases = new ArrayList<>();
 
 	@Setter
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "role_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private Role role;
 
