@@ -1,5 +1,6 @@
 package com.tiketeer.Tiketeer.domain.member.repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,4 +10,5 @@ import com.tiketeer.Tiketeer.domain.member.Member;
 
 @Repository
 public interface MemberRepository extends JpaRepository<Member, UUID> {
+	Optional<Member> findByEmail(String email);
 }
