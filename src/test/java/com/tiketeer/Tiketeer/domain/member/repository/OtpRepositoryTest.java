@@ -27,7 +27,7 @@ class OtpRepositoryTest {
 
 	@Test
 	@DisplayName("멤버, OTP 저장 > 멤버로 조회 > 조회된 멤버와 저장한 멤버 비교")
-	void findByMember() {
+	void findByMemberSuccess() {
 		Role role = roleRepository.save(new Role(RoleEnum.BUYER));
 		Member buyer = memberRepository.save(new Member("test@gmail.com", null, 0, false, null, role));
 

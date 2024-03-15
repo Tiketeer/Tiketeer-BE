@@ -24,7 +24,7 @@ class MemberRepositoryTest {
 
 	@Test
 	@DisplayName("멤버 저장 > 멤버 조회 > 저장한 값과 조회된 값 비교")
-	void findByEmail() {
+	void findByEmailSuccess() {
 		Role role = roleRepository.save(new Role(RoleEnum.BUYER));
 		Member saved = memberRepository.save(
 			new Member("test@gmail.com", "asdf1234", 0L, false, null, role));
