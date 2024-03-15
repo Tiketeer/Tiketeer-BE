@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tiketeer.Tiketeer.domain.member.controller.dto.AuthEmailRequestDto;
+import com.tiketeer.Tiketeer.domain.member.controller.dto.SetPasswordWithOtpRequestDto;
 import com.tiketeer.Tiketeer.domain.member.service.MemberService;
-import com.tiketeer.Tiketeer.domain.member.service.dto.AuthMemberWithEmailOtpCommandDto;
+import com.tiketeer.Tiketeer.domain.member.service.dto.InitMemberPasswordWithOtpCommandDto;
 
 import jakarta.validation.Valid;
 
@@ -22,11 +22,12 @@ public class AuthController {
 	}
 
 	@PostMapping(path = "/auth/otp/email")
-	public ResponseEntity authEmailWithOtp(@Valid @RequestBody AuthEmailRequestDto request) {
-		memberService.authMemberWithEmailOtp(
-			AuthMemberWithEmailOtpCommandDto
+	public ResponseEntity setPasswordWithOtp(@Valid @RequestBody SetPasswordWithOtpRequestDto request) {
+		memberService.initPasswordWithOtp(
+			InitMemberPasswordWithOtpCommandDto
 				.builder()
 				.otp(request.getOtp())
+				.password(request.getPassword())
 				.build()
 		);
 		return ResponseEntity.ok().build();

@@ -8,11 +8,13 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class AuthMemberWithEmailOtpCommandDto {
+public class InitMemberPasswordWithOtpCommandDto {
 	private final UUID otp;
+	private final String password;
 
 	@Builder
-	public AuthMemberWithEmailOtpCommandDto(UUID otp) {
+	public InitMemberPasswordWithOtpCommandDto(UUID otp, String password) {
 		this.otp = otp;
+		this.password = password;
 	}
 }

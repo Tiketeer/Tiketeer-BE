@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
@@ -18,7 +19,7 @@ import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidOtpException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
-import com.tiketeer.Tiketeer.domain.member.service.dto.AuthMemberWithEmailOtpCommandDto;
+import com.tiketeer.Tiketeer.domain.member.service.dto.InitMemberPasswordWithOtpCommandDto;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
@@ -31,16 +32,18 @@ public class MemberServiceTest {
 	private final RoleRepository roleRepository;
 	private final MemberRepository memberRepository;
 	private final OtpRepository otpRepository;
+	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
 	public MemberServiceTest(TestHelper testHelper, MemberService memberService, RoleRepository roleRepository,
 		MemberRepository memberRepository,
-		OtpRepository otpRepository) {
+		OtpRepository otpRepository, PasswordEncoder passwordEncoder) {
 		this.testHelper = testHelper;
 		this.memberService = memberService;
 		this.roleRepository = roleRepository;
 		this.memberRepository = memberRepository;
 		this.otpRepository = otpRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@BeforeEach
@@ -71,7 +74,7 @@ public class MemberServiceTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			memberService.authMemberWithEmailOtp(AuthMemberWithEmailOtpCommandDto.builder().otp(invalidOtp).build());
+			memberService.initPasswordWithOtp(InitMemberPasswordWithOtpCommandDto.builder().otp(invalidOtp).build());
 			// then
 		}).isInstanceOf(InvalidOtpException.class);
 	}
@@ -90,16 +93,19 @@ public class MemberServiceTest {
 				.expiredAt(LocalDateTime.of(9999, 12, 31, 0, 0))
 				.build());
 
+		var mockPwd = "1qwertasdcxz";
+
 		// when
-		memberService.authMemberWithEmailOtp(
-			AuthMemberWithEmailOtpCommandDto.builder().otp(otp.getPassword()).build());
+		memberService.initPasswordWithOtp(
+			InitMemberPasswordWithOtpCommandDto.builder().otp(otp.getPassword()).password(mockPwd).build());
 
 		// then
-		var memberAfterEmailAuthOtp = memberRepository.findByEmail(mockEmail);
-		Assertions.assertThat(memberAfterEmailAuthOtp.isPresent()).isTrue();
+		var memberAfterEmailAuthOpt = memberRepository.findByEmail(mockEmail);
+		Assertions.assertThat(memberAfterEmailAuthOpt.isPresent()).isTrue();
 
-		var memberAfterEmailAuth = memberAfterEmailAuthOtp.get();
+		var memberAfterEmailAuth = memberAfterEmailAuthOpt.get();
 		Assertions.assertThat(memberAfterEmailAuth.isEnabled()).isTrue();
+		Assertions.assertThat(passwordEncoder.matches(mockPwd, memberAfterEmailAuth.getPassword())).isTrue();
 
 		Assertions.assertThat(otpRepository.findById(otp.getPassword()).isPresent()).isFalse();
 	}
