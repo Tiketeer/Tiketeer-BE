@@ -6,13 +6,13 @@ import lombok.ToString;
 @Getter
 @ToString
 public class ApiResponse<T> {
-	private T data;
+	private final T data;
 
 	private ApiResponse(T data) {
 		this.data = data;
 	}
 
-	public static <T> ApiResponse wrap(T data) {
-		return new ApiResponse(data);
+	public static <T> ApiResponse<T> wrap(T data) {
+		return new ApiResponse<>(data);
 	}
 }

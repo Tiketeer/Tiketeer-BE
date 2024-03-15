@@ -9,5 +9,5 @@ import com.tiketeer.Tiketeer.domain.role.Role;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 
 public interface RoleRepository extends JpaRepository<Role, UUID> {
-	Optional<Role> findByName(RoleEnum name);
+	Optional<Role> findByName(RoleEnum roleEnum);
 }
