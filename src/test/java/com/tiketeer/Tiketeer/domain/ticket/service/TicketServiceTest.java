@@ -74,13 +74,15 @@ public class TicketServiceTest {
 	@DisplayName("유효한 티케팅 > 티케팅 하위 티켓 리스트 호출 > 정상 동작")
 	void listTicketByTicketingSuccess() {
 		// given
+		var now = LocalDateTime.now();
+
 		var mockEmail = "test@test.com";
 		createMember(mockEmail);
 
 		var mockStock = 30;
-		var createTicketingCommand = createTicketingCommand(mockEmail, mockStock);
 
-		var ticketingId = ticketingService.createTicketing(createTicketingCommand).getTicketingId();
+		var ticketingId = createTicketingAndReturnId(mockEmail, mockStock, now.plusYears(1), now.plusYears(2),
+			now.plusYears(3));
 		var listTicketCommand = new ListTicketByTicketingCommandDto(ticketingId);
 
 		// when
@@ -108,14 +110,15 @@ public class TicketServiceTest {
 	@DisplayName("이미 판매 기간에 돌입한 티케팅 > 하위 티켓 생성 요청 > 실패")
 	void createTicketsFailBecauseSaleDurationHasBeenStarted() {
 		// given
+		var now = LocalDateTime.now();
+
 		var mockEmail = "test@test.com";
 		createMember(mockEmail);
 
 		var mockStock = 10;
-		var createTicketingCommand = createTicketingCommand(mockEmail, mockStock);
-
-		var ticketingId = ticketingService.createTicketing(createTicketingCommand).getTicketingId();
-		var saleStart = createTicketingCommand.getSaleStart();
+		var saleStart = now.plusYears(1);
+		var ticketingId = createTicketingAndReturnId(mockEmail, mockStock, saleStart, now.plusYears(2),
+			now.plusYears(3));
 		var createTicketCommand = CreateTicketCommandDto.builder()
 			.ticketingId(ticketingId)
 			.numOfTickets(20)
@@ -133,13 +136,15 @@ public class TicketServiceTest {
 	@DisplayName("유효한 티케팅 (기존 티켓 10) > 추가 하위 티켓 생성 요청 (20) > 성공 및 총 재고 10 + 20")
 	void createTicketsSuccess() {
 		// given
+		var now = LocalDateTime.now();
+
 		var mockEmail = "test@test.com";
 		createMember(mockEmail);
 
 		var mockStock = 10;
-		var createTicketingCommand = createTicketingCommand(mockEmail, mockStock);
+		var ticketingId = createTicketingAndReturnId(mockEmail, mockStock, now.plusYears(1), now.plusYears(2),
+			now.plusYears(3));
 
-		var ticketingId = ticketingService.createTicketing(createTicketingCommand).getTicketingId();
 		var addTickets = 20;
 		var createTicketCommand = CreateTicketCommandDto.builder()
 			.ticketingId(ticketingId)
@@ -176,15 +181,17 @@ public class TicketServiceTest {
 	@DisplayName("이미 판매가 시작된 티케팅 > 티켓 삭제 요청 > 실패")
 	void dropTicketsFailBecauseSaleDurationHasBeenStarted() {
 		// given
+		var now = LocalDateTime.now();
+
 		var mockEmail = "test@test.com";
 		createMember(mockEmail);
 
 		var mockStock = 30;
-		var createTicketingCommand = createTicketingCommand(mockEmail, mockStock);
+		var saleStart = now.plusYears(1);
+		var ticketingId = createTicketingAndReturnId(mockEmail, mockStock, saleStart, now.plusYears(2),
+			now.plusYears(3));
 
-		var ticketingId = ticketingService.createTicketing(createTicketingCommand).getTicketingId();
-		var saleStart = createTicketingCommand.getSaleStart();
-		var deleteTicketCommand = DropNumOfTicketsUnderSomeTicketingCommandDto.builder()
+		var dropTicketCommand = DropNumOfTicketsUnderSomeTicketingCommandDto.builder()
 			.ticketingId(ticketingId)
 			.numOfTickets(20)
 			.commandCreatedAt(saleStart.plusDays(1))
@@ -192,7 +199,7 @@ public class TicketServiceTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketService.dropNumOfTicketsUnderSomeTicketing(deleteTicketCommand);
+			ticketService.dropNumOfTicketsUnderSomeTicketing(dropTicketCommand);
 			// then
 		}).isInstanceOf(UpdateTicketingAfterSaleStartException.class);
 	}
@@ -201,13 +208,16 @@ public class TicketServiceTest {
 	@DisplayName("유효한 티케팅 (기존 10) > 티켓 삭제 요청 (5) > 잔여 티켓 (5)")
 	void dropTicketsSuccess() {
 		// given
+		var now = LocalDateTime.now();
+
 		var mockEmail = "test@test.com";
 		createMember(mockEmail);
 
 		var mockStock = 10;
-		var createTicketingCommand = createTicketingCommand(mockEmail, mockStock);
 
-		var ticketingId = ticketingService.createTicketing(createTicketingCommand).getTicketingId();
+		var ticketingId = createTicketingAndReturnId(mockEmail, mockStock, now.plusYears(1), now.plusYears(2),
+			now.plusYears(3));
+
 		var deleteTickets = 5;
 		var dropTicketCommand = DropNumOfTicketsUnderSomeTicketingCommandDto.builder()
 			.ticketingId(ticketingId)
@@ -222,17 +232,17 @@ public class TicketServiceTest {
 		Assertions.assertThat(tickets.getTickets().size()).isEqualTo(mockStock - deleteTickets);
 	}
 
-	private Member createMember(String email) {
+	private void createMember(String email) {
 		var role = roleRepository.findByName(RoleEnum.SELLER).orElseThrow();
 		var memberForSave = Member.builder()
 			.email(email)
 			.password("1234456eqeqw").role(role).build();
-		return memberRepository.save(memberForSave);
+		memberRepository.save(memberForSave);
 	}
 
-	private CreateTicketingCommandDto createTicketingCommand(String email, int stock) {
-		var now = LocalDateTime.now();
-		return CreateTicketingCommandDto.builder()
+	private UUID createTicketingAndReturnId(String email, int stock, LocalDateTime saleStart, LocalDateTime saleEnd,
+		LocalDateTime eventTime) {
+		var createTicketingCommand = CreateTicketingCommandDto.builder()
 			.memberEmail(email)
 			.title("음악회")
 			.location("서울 강남역 8번 출구")
@@ -240,9 +250,11 @@ public class TicketServiceTest {
 			.runningMinutes(100)
 			.price(10000L)
 			.stock(stock)
-			.eventTime(LocalDateTime.of(now.getYear() + 3, 1, 1, 12, 0))
-			.saleStart(LocalDateTime.of(now.getYear() + 1, 1, 1, 12, 0))
-			.saleEnd(LocalDateTime.of(now.getYear() + 2, 1, 1, 12, 0))
+			.saleStart(saleStart)
+			.saleEnd(saleEnd)
+			.eventTime(eventTime)
 			.build();
+
+		return ticketingService.createTicketing(createTicketingCommand).getTicketingId();
 	}
 }
