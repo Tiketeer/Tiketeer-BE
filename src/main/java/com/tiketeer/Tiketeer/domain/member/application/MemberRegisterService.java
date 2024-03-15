@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.dto.MemberDto.RegisterMemberDto;
@@ -17,6 +18,7 @@ import com.tiketeer.Tiketeer.domain.role.exception.RoleNotFoundException;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 
 @Service
+@Transactional(readOnly = true)
 public class MemberRegisterService {
 	private final MemberRepository memberRepository;
 	private final RoleRepository roleRepository;
@@ -30,6 +32,7 @@ public class MemberRegisterService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
+	@Transactional
 	public RegisterMemberResponseDto register(RegisterMemberDto registerMemberDto) {
 		Optional<Member> optionalMember = memberRepository.findByEmail(registerMemberDto.getEmail());
 		if (optionalMember.isPresent()) {
