@@ -14,6 +14,7 @@ import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.dto.CreateTicketingCommand;
 import com.tiketeer.Tiketeer.domain.ticketing.dto.CreateTicketingResult;
+import com.tiketeer.Tiketeer.domain.ticketing.dto.UpdateTicketingCommand;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
@@ -67,6 +68,11 @@ public class TicketingService {
 			.ticketingId(ticketing.getId())
 			.createdAt(ticketing.getCreatedAt())
 			.build();
+	}
+
+	@Transactional
+	public void updateTicketing(UpdateTicketingCommand command) {
+		
 	}
 
 	private void validateTicketingMetadata(LocalDateTime eventTime, LocalDateTime saleStart, LocalDateTime saleEnd) {
