@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,9 +37,11 @@ public class TicketingController {
 	}
 
 	@PatchMapping(path = "/ticketings/{ticketing_id}")
-	public ResponseEntity patchTicketing(@RequestBody PatchTicketingRequestDto request) {
+	public ResponseEntity patchTicketing(@PathVariable String ticketingId,
+		@RequestBody PatchTicketingRequestDto request) {
 		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
 		var memberEmail = "mock@mock.com";
+		ticketingService.updateTicketing(request.convertToDto(memberEmail));
 		return ResponseEntity.ok().build();
 	}
 }
