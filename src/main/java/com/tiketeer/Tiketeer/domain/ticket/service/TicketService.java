@@ -38,7 +38,7 @@ public class TicketService {
 
 	@Transactional
 	public void createTickets(CreateTicketCommandDto command) {
-		var ticketing = ticketingRepository.findById(command.getTicketId())
+		var ticketing = ticketingRepository.findById(command.getTicketingId())
 			.orElseThrow(TicketingNotFoundException::new);
 
 		if (command.getCommandCreatedAt().isAfter(ticketing.getSaleStart())) {
@@ -52,6 +52,20 @@ public class TicketService {
 
 	@Transactional
 	public void deleteTickets(DeleteTicketCommandDto command) {
-		ticketRepository.deleteAllById(command.getTicketIds());
+		var ticketing = ticketingRepository.findById(command.getTicketingId())
+			.orElseThrow(TicketingNotFoundException::new);
+
+		if (command.getCommandCreatedAt().isAfter(ticketing.getSaleStart())) {
+			throw new UpdateTicketingAfterSaleStartException();
+		}
+
+		var tickets = listTicketByTicketing(
+			ListTicketByTicketingCommandDto.builder().ticketingId(ticketing.getId()).build()).getTickets();
+
+		var ticketIdsForDelete = tickets.stream()
+			.limit(command.getNumOfTickets())
+			.map(Ticket::getId).toList();
+
+		ticketRepository.deleteAllById(ticketIdsForDelete);
 	}
 }

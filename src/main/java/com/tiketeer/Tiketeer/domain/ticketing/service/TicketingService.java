@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.service.TicketService;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.DeleteTicketCommandDto;
@@ -68,7 +67,7 @@ public class TicketingService {
 
 		ticketService.createTickets(
 			CreateTicketCommandDto.builder()
-				.ticketId(ticketing.getId())
+				.ticketingId(ticketing.getId())
 				.numOfTickets(command.getStock())
 				.commandCreatedAt(now)
 				.build());
@@ -106,7 +105,7 @@ public class TicketingService {
 		ticketing.setSaleEnd(saleEnd);
 		ticketing.setCategory(command.getCategory());
 		ticketing.setRunningMinutes(command.getRunningMinutes());
-		updateStock(ticketing, command.getStock());
+		updateStock(ticketing, command.getStock(), now);
 	}
 
 	private void validateTicketingMetadataBeforeSave(LocalDateTime now, LocalDateTime eventTime,
@@ -139,24 +138,23 @@ public class TicketingService {
 		return eventTime.isAfter(saleEnd);
 	}
 
-	private void updateStock(Ticketing ticketing, int newStock) {
+	private void updateStock(Ticketing ticketing, int newStock, LocalDateTime now) {
 		var tickets = ticketService.listTicketByTicketing(
 				ListTicketByTicketingCommandDto.builder().ticketingId(ticketing.getId()).build())
 			.getTickets();
 
 		var numOfTickets = tickets.size();
 		if (numOfTickets > newStock) {
-			var ticketIdsForDelete = tickets.stream()
-				.limit(numOfTickets - newStock)
-				.map(Ticket::getId).toList();
 			ticketService.deleteTickets(DeleteTicketCommandDto.builder()
-				.ticketIds(ticketIdsForDelete).build());
-			
+				.ticketingId(ticketing.getId())
+				.numOfTickets(numOfTickets - newStock)
+				.commandCreatedAt(now).build());
+
 		} else if (numOfTickets < newStock) {
 			ticketService.createTickets(CreateTicketCommandDto.builder()
-				.ticketId(ticketing.getId())
+				.ticketingId(ticketing.getId())
 				.numOfTickets(newStock - numOfTickets)
-				.build());
+				.commandCreatedAt(now).build());
 		}
 		return;
 	}

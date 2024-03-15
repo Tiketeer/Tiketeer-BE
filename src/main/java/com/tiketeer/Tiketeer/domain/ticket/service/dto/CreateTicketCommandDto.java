@@ -10,13 +10,13 @@ import lombok.ToString;
 @Getter
 @ToString
 public class CreateTicketCommandDto {
-	private final UUID ticketId;
+	private final UUID ticketingId;
 	private final int numOfTickets;
 	private LocalDateTime commandCreatedAt = LocalDateTime.now();
 
 	@Builder
-	public CreateTicketCommandDto(UUID ticketId, int numOfTickets, LocalDateTime commandCreatedAt) {
-		this.ticketId = ticketId;
+	public CreateTicketCommandDto(UUID ticketingId, int numOfTickets, LocalDateTime commandCreatedAt) {
+		this.ticketingId = ticketingId;
 		this.numOfTickets = numOfTickets;
 		if (commandCreatedAt != null) {
 			this.commandCreatedAt = commandCreatedAt;
