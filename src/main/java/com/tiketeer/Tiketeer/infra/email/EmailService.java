@@ -5,6 +5,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import com.tiketeer.Tiketeer.infra.email.exception.MessagingRuntimeException;
+
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
@@ -19,14 +21,18 @@ public class EmailService {
 		this.helperFactory = helperFactory;
 	}
 
-	public void sendEmail(String toEmail, String title, String text) throws MessagingException {
+	public void sendEmail(String toEmail, String title, String text) {
 		MimeMessage message = emailSender.createMimeMessage();
 
-		MimeMessageHelper helper = helperFactory.createMimeMessageHelper(message);
-		helper.setTo(toEmail);
-		helper.setSubject(title);
+		try {
+			MimeMessageHelper helper = helperFactory.createMimeMessageHelper(message);
+			helper.setTo(toEmail);
+			helper.setSubject(title);
 
-		helper.setText(text, true);
+			helper.setText(text, true);
+		} catch (MessagingException ex) {
+			throw new MessagingRuntimeException(toEmail, ex.getMessage());
+		}
 
 		emailSender.send(message);
 	}
