@@ -31,7 +31,23 @@
       hibernate:
         ddl-auto: update
       show-sql: true
-  
+    mail:
+      host: smtp.gmail.com
+      port: 587
+      username: ${EMAIL_ACCOUNT}
+      password: ${EMAIL_PASSWORD}
+      properties:
+        mail:
+          smtp:
+            auth: true
+            starttls:
+              enable: true
+              required: true
+            connectiontimeout: 5000
+            timeout: 5000
+            writetimeout: 5000
+          mime:
+            charset: UTF-8
   logging:
     level:
       org.hibernate.type.descriptor.sql.BasicBinder: TRACE
