@@ -1,8 +1,8 @@
-package com.tiketeer.Tiketeer.domain.member.application;
+package com.tiketeer.Tiketeer.domain.member.service;
 
-import static com.tiketeer.Tiketeer.domain.member.dto.MemberDto.*;
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.assertj.core.api.Assertions;
@@ -16,9 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
+import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterRequestDto;
 import com.tiketeer.Tiketeer.domain.member.exception.DuplicatedEmailException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
+import com.tiketeer.Tiketeer.domain.member.service.dto.MemberRegisterCommandDto;
+import com.tiketeer.Tiketeer.domain.member.service.dto.MemberRegisterResultDto;
 import com.tiketeer.Tiketeer.domain.role.Role;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.exception.RoleNotFoundException;
@@ -52,6 +55,8 @@ class MemberRegisterServiceTest {
 	private Member buyer;
 	private Role buyerRole;
 
+	private Otp otp;
+
 	@BeforeEach
 	void init() {
 		testHelper.initDB();
@@ -59,6 +64,9 @@ class MemberRegisterServiceTest {
 		Optional<Role> role = roleRepository.findByName(RoleEnum.BUYER);
 		buyerRole = role.get();
 		buyer = memberRepository.save(new Member("test@gmail.com", "asdf1234", 0, false, null, buyerRole));
+
+		Otp otp1 = new Otp(LocalDateTime.of(2025, 3, 15, 15, 15, 15), buyer);
+		otp = otpRepository.save(otp1);
 	}
 
 	@AfterEach
@@ -70,16 +78,17 @@ class MemberRegisterServiceTest {
 	@DisplayName("회원정보 > 회원가입 > 저장된 값과 회원정보 비교")
 	void registerSuccess() {
 		// given
-		RegisterMemberDto memberDto = new RegisterMemberDto("test22@gmail.com", "asdf1234", false);
+		MemberRegisterRequestDto memberDto = new MemberRegisterRequestDto("test22@gmail.com", false);
 
 		// when
-		RegisterMemberResponseDto registerMemberResponseDto = memberRegisterService.register(memberDto);
+		MemberRegisterResultDto registerMemberResultDto = memberRegisterService.register(
+			MemberRegisterCommandDto.builder().email(memberDto.getEmail()).isSeller(memberDto.getIsSeller()).build());
 
 		Optional<Member> optionalMember = memberRepository.findByEmail("test22@gmail.com");
-		Otp otp = otpRepository.findAll().getFirst();
+		Otp otp = otpRepository.findByMember(optionalMember.get()).orElseThrow();
 
 		// then
-		assertThat(optionalMember.get().getId()).isEqualTo(registerMemberResponseDto.getMemberId());
+		assertThat(optionalMember.get().getId()).isEqualTo(registerMemberResultDto.getMemberId());
 		assertThat(otp.getMember().getId()).isEqualTo(optionalMember.get().getId());
 	}
 
@@ -87,15 +96,18 @@ class MemberRegisterServiceTest {
 	@DisplayName("회원정보 > 회원가입 > 이미 가입되어 있지만 비활성화 상태")
 	void registerSuccessAlreadyRegistered() {
 		// given
-		RegisterMemberDto memberDto = new RegisterMemberDto("test@gmail.com", "asdf1234", false);
+		MemberRegisterRequestDto memberDto = new MemberRegisterRequestDto("test@gmail.com", false);
 
 		// when
-		RegisterMemberResponseDto registerMemberResponseDto = memberRegisterService.register(memberDto);
-
-		Optional<Member> optionalMember = memberRepository.findByEmail("test@gmail.com");
+		MemberRegisterResultDto registerMemberResponseDto = memberRegisterService.register(
+			MemberRegisterCommandDto.builder().email(memberDto.getEmail()).isSeller(memberDto.getIsSeller()).build());
 
 		// then
+		Optional<Member> optionalMember = memberRepository.findByEmail("test@gmail.com");
 		assertThat(optionalMember.get().getId()).isEqualTo(buyer.getId());
+
+		Otp otp2 = otpRepository.findByMember(optionalMember.get()).orElseThrow();
+		assertThat(otp2.getPassword()).isNotEqualTo(otp.getPassword());
 	}
 
 	@Test
@@ -103,12 +115,14 @@ class MemberRegisterServiceTest {
 	void registerFailNotFoundRule() {
 		// given
 		testHelper.cleanDB();
-		RegisterMemberDto memberDto = new RegisterMemberDto("test@gmail.com", "asdf1234", false);
+		MemberRegisterRequestDto memberDto = new MemberRegisterRequestDto("test@gmail.com", false);
 
 		// when
 		// then
-		Assertions.assertThatThrownBy(() -> memberRegisterService.register(memberDto)).isInstanceOf(
-			RoleNotFoundException.class);
+		Assertions.assertThatThrownBy(() -> memberRegisterService.register(
+				MemberRegisterCommandDto.builder().email(memberDto.getEmail()).isSeller(memberDto.getIsSeller()).build()))
+			.isInstanceOf(
+				RoleNotFoundException.class);
 	}
 
 	@Test
@@ -120,11 +134,13 @@ class MemberRegisterServiceTest {
 		em.flush();
 		em.clear();
 
-		RegisterMemberDto memberDto = new RegisterMemberDto("test@gmail.com", "asdf1234", false);
+		MemberRegisterRequestDto memberDto = new MemberRegisterRequestDto("test@gmail.com", false);
 
 		// when
 		// then
-		Assertions.assertThatThrownBy(() -> memberRegisterService.register(memberDto)).isInstanceOf(
-			DuplicatedEmailException.class);
+		Assertions.assertThatThrownBy(() -> memberRegisterService.register(
+				MemberRegisterCommandDto.builder().email(memberDto.getEmail()).isSeller(memberDto.getIsSeller()).build()))
+			.isInstanceOf(
+				DuplicatedEmailException.class);
 	}
 }

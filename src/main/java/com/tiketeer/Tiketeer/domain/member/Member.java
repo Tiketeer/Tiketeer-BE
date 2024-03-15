@@ -47,7 +47,7 @@ public class Member {
 	private String email;
 
 	@Setter
-	@Column(name = "password", nullable = false)
+	@Column(name = "password")
 	private String password;
 
 	@Setter
