@@ -10,6 +10,8 @@ public class SecurityDisableForTestConfig {
 	@Bean
 	public SecurityFilterChain disableFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable()).httpBasic(c -> c.disable());
+
+		System.out.println("TTTTTTTTTTTTTTTTTTTTTTTTTTTT");
 		return http.build();
 	}
 }

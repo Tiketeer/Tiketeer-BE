@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +27,7 @@ class JwtFilterExceptionResolverTest {
 	JwtFilterExceptionResolver jwtFilterExceptionResolver;
 
 	@Test
+	@DisplayName("모킹된 ServletResponse > resolver 통과 > 일치여부 검사")
 	void setResponse() throws IOException {
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		JwtException exception = new JwtException("invalid jwt");

@@ -42,17 +42,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			GrantedAuthority authority = new SimpleGrantedAuthority(role);
 			Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, List.of(authority));
 			SecurityContextHolder.getContext().setAuthentication(authentication);
+			filterChain.doFilter(request, response);
 
 		} catch (JwtException ex) {
 			logger.info("Failed to authorize/authenticate with JWT due to " + ex.getMessage());
 			jwtFilterExceptionResolver.setResponse(response, ex);
 		}
 
-		filterChain.doFilter(request, response);
 	}
 
 	private String getAccessTokenFromCookie(HttpServletRequest request) {
 		Cookie[] cookies = request.getCookies();
+		if (cookies == null) {
+			throw new JwtException("Missing cookie");
+		}
+
 		for (Cookie cookie : cookies) {
 			if (cookie.getName().equals(JwtMetadata.ACCESS_TOKEN)) {
 				return cookie.getValue();
