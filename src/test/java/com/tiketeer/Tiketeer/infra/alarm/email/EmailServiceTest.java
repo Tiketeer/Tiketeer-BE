@@ -26,7 +26,7 @@ class EmailServiceTest {
 
 	@Test
 	void sendEmail() throws MessagingException {
-		emailService.sendEmail("gns8167@naver.com", "test1", "<!DOCTYPE html>\n"
+		emailService.sendEmail("tiketest@gmail.com", "test1", "<!DOCTYPE html>\n"
 			+ "<html>\n"
 			+ "<head>\n"
 			+ "    <title>POST 요청 예제</title>\n"

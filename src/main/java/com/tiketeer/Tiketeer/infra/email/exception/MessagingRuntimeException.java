@@ -1,7 +1,10 @@
 package com.tiketeer.Tiketeer.infra.email.exception;
 
-public class MessagingRuntimeException extends RuntimeException {
+import com.tiketeer.Tiketeer.exception.DefinedException;
+import com.tiketeer.Tiketeer.exception.code.EmailExceptionCode;
+
+public class MessagingRuntimeException extends DefinedException {
 	public MessagingRuntimeException(String target, String message) {
-		super("Mail sending failure: [" + target + "] - " + message);
+		super(EmailExceptionCode.CREATE_MAIL_HELPER_FAIL, "Mail sending failure: [" + target + "] - " + message);
 	}
 }
