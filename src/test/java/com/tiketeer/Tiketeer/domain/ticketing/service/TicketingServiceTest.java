@@ -25,6 +25,7 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
 @SpringBootTest
+@DisplayName("TicketingService Test")
 public class TicketingServiceTest {
 	private final TestHelper testHelper;
 	private final TicketingService ticketingService;
