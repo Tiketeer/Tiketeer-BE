@@ -168,9 +168,9 @@ public class TicketingServiceTest {
 		Assertions.assertThat(ticketing.getTitle()).isEqualTo(command.getTitle());
 		Assertions.assertThat(ticketing.getDescription()).isEqualTo(command.getDescription());
 		Assertions.assertThat(ticketing.getCategory()).isEqualTo(command.getCategory());
-		Assertions.assertThat(ticketing.getEventTime().isEqual(command.getEventTime())).isTrue();
-		Assertions.assertThat(ticketing.getSaleStart().isEqual(command.getSaleStart())).isTrue();
-		Assertions.assertThat(ticketing.getSaleEnd().isEqual(command.getSaleEnd())).isTrue();
+		Assertions.assertThat(ticketing.getEventTime()).isEqualToIgnoringNanos(command.getEventTime());
+		Assertions.assertThat(ticketing.getSaleStart()).isEqualToIgnoringNanos(command.getSaleStart());
+		Assertions.assertThat(ticketing.getSaleEnd()).isEqualToIgnoringNanos(command.getSaleEnd());
 
 		var tickets = ticketRepository.findAllByTicketing(ticketing);
 		Assertions.assertThat(tickets.size()).isEqualTo(command.getStock());
@@ -391,9 +391,9 @@ public class TicketingServiceTest {
 		Assertions.assertThat(updatedTicketing.getLocation()).isEqualTo(newLocation);
 		Assertions.assertThat(updatedTicketing.getRunningMinutes()).isEqualTo(newRunningMinutes);
 		Assertions.assertThat(updatedTicketing.getPrice()).isEqualTo(newPrice);
-		Assertions.assertThat(updatedTicketing.getEventTime().isEqual(newEventTime)).isTrue();
-		Assertions.assertThat(updatedTicketing.getSaleStart().isEqual(newSaleStart)).isTrue();
-		Assertions.assertThat(updatedTicketing.getSaleEnd().isEqual(newSaleEnd)).isTrue();
+		Assertions.assertThat(updatedTicketing.getEventTime()).isEqualToIgnoringNanos(newEventTime);
+		Assertions.assertThat(updatedTicketing.getSaleStart()).isEqualToIgnoringNanos(newSaleStart);
+		Assertions.assertThat(updatedTicketing.getSaleEnd()).isEqualToIgnoringNanos(newSaleEnd);
 
 		var tickets = ticketRepository.findAllByTicketing(updatedTicketing);
 		Assertions.assertThat(tickets.size()).isEqualTo(newStock);
