@@ -57,9 +57,9 @@ public class MemberServiceTest {
 	}
 
 	@Test
-	@DisplayName("유효하지 않은 OTP > MemberService.authMemberWithEmailOtp 호출 > 실패")
+	@DisplayName("유효하지 않은 OTP > MemberService.initPasswordWithOtp 호출 > 실패")
 	@Transactional
-	void authMemberWithEmailOtpFailBecauseInvalidOtp() {
+	void initPasswordWithOtpFailBecauseInvalidOtp() {
 		// given
 		var mockEmail = "test@test.com";
 		var member = createMember(mockEmail);
@@ -80,9 +80,9 @@ public class MemberServiceTest {
 	}
 
 	@Test
-	@DisplayName("유효한 OTP > MemberService.authMemberWithEmailOtp 호출 > 성공")
+	@DisplayName("유효한 OTP > MemberService.initPasswordWithOtp 호출 > 성공")
 	@Transactional
-	void authMemberWithEmailOtpSuccess() {
+	void initPasswordWithOtpSuccess() {
 		// given
 		var mockEmail = "test@test.com";
 		var member = createMember(mockEmail);
