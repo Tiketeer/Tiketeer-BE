@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tiketeer.Tiketeer.domain.ticketing.dto.PostTicketingRequest;
-import com.tiketeer.Tiketeer.domain.ticketing.dto.PostTicketingResponse;
+import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PostTicketingRequestDto;
+import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PostTicketingResponseDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 
@@ -24,12 +24,12 @@ public class TicketingController {
 	}
 
 	@PostMapping(path = "/ticketings")
-	public ResponseEntity<ApiResponse<PostTicketingResponse>> postTicketing(
-		@Valid @RequestBody PostTicketingRequest postCommand) {
+	public ResponseEntity<ApiResponse<PostTicketingResponseDto>> postTicketing(
+		@Valid @RequestBody PostTicketingRequestDto postCommand) {
 		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
 		var memberEmail = "mock@mock.com";
 		var result = ticketingService.createTicketing(postCommand.convertToDto(memberEmail));
-		var responseBody = ApiResponse.wrap(PostTicketingResponse.convertFromDto(result));
+		var responseBody = ApiResponse.wrap(PostTicketingResponseDto.convertFromDto(result));
 		return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
 	}
 }

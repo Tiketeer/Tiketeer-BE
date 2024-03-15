@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tiketeer.Tiketeer.domain.member.dto.AuthEmailRequest;
-import com.tiketeer.Tiketeer.domain.member.dto.AuthMemberWithEmailOtpCommand;
+import com.tiketeer.Tiketeer.domain.member.controller.dto.AuthEmailRequestDto;
 import com.tiketeer.Tiketeer.domain.member.service.MemberService;
+import com.tiketeer.Tiketeer.domain.member.service.dto.AuthMemberWithEmailOtpCommandDto;
 
 import jakarta.validation.Valid;
 
@@ -22,9 +22,9 @@ public class AuthController {
 	}
 
 	@PostMapping(path = "/auth/otp/email")
-	public ResponseEntity authEmailWithOtp(@Valid @RequestBody AuthEmailRequest request) {
+	public ResponseEntity authEmailWithOtp(@Valid @RequestBody AuthEmailRequestDto request) {
 		memberService.authMemberWithEmailOtp(
-			AuthMemberWithEmailOtpCommand
+			AuthMemberWithEmailOtpCommandDto
 				.builder()
 				.otp(request.getOtp())
 				.build()

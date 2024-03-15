@@ -1,4 +1,4 @@
-package com.tiketeer.Tiketeer.domain.member.dto;
+package com.tiketeer.Tiketeer.domain.member.controller.dto;
 
 import java.util.UUID;
 
@@ -9,12 +9,12 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class AuthEmailRequest {
+public class AuthEmailRequestDto {
 	@NotNull
 	private final UUID otp;
 
 	@Builder
-	public AuthEmailRequest(@NotNull UUID otp) {
+	public AuthEmailRequestDto(@NotNull UUID otp) {
 		this.otp = otp;
 	}
 }

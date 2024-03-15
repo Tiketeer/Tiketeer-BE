@@ -17,10 +17,10 @@ import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
-import com.tiketeer.Tiketeer.domain.ticketing.dto.CreateTicketingCommand;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
@@ -179,9 +179,9 @@ public class TicketingServiceTest {
 		return memberRepository.save(memberForSave);
 	}
 
-	private CreateTicketingCommand createTicketingCommand(String email, LocalDateTime eventTime,
+	private CreateTicketingCommandDto createTicketingCommand(String email, LocalDateTime eventTime,
 		LocalDateTime saleStart, LocalDateTime saleEnd) {
-		return CreateTicketingCommand.builder()
+		return CreateTicketingCommandDto.builder()
 			.memberEmail(email)
 			.title("음악회")
 			.location("서울 강남역 8번 출구")

@@ -15,10 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
-import com.tiketeer.Tiketeer.domain.member.dto.AuthMemberWithEmailOtpCommand;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidOtpException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
+import com.tiketeer.Tiketeer.domain.member.service.dto.AuthMemberWithEmailOtpCommandDto;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
@@ -71,7 +71,7 @@ public class MemberServiceTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			memberService.authMemberWithEmailOtp(AuthMemberWithEmailOtpCommand.builder().otp(invalidOtp).build());
+			memberService.authMemberWithEmailOtp(AuthMemberWithEmailOtpCommandDto.builder().otp(invalidOtp).build());
 			// then
 		}).isInstanceOf(InvalidOtpException.class);
 	}
@@ -92,7 +92,7 @@ public class MemberServiceTest {
 
 		// when
 		memberService.authMemberWithEmailOtp(
-			AuthMemberWithEmailOtpCommand.builder().otp(otp.getPassword()).build());
+			AuthMemberWithEmailOtpCommandDto.builder().otp(otp.getPassword()).build());
 
 		// then
 		var memberAfterEmailAuthOtp = memberRepository.findByEmail(mockEmail);

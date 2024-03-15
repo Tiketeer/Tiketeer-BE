@@ -1,4 +1,4 @@
-package com.tiketeer.Tiketeer.domain.member.dto;
+package com.tiketeer.Tiketeer.domain.member.service.dto;
 
 import java.util.UUID;
 
@@ -8,11 +8,11 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class AuthMemberWithEmailOtpCommand {
+public class AuthMemberWithEmailOtpCommandDto {
 	private final UUID otp;
 
 	@Builder
-	public AuthMemberWithEmailOtpCommand(UUID otp) {
+	public AuthMemberWithEmailOtpCommandDto(UUID otp) {
 		this.otp = otp;
 	}
 }
