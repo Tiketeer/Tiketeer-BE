@@ -1,7 +1,6 @@
 package com.tiketeer.Tiketeer.domain.ticketing.service;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,7 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.ticket.Ticket;
-import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
+import com.tiketeer.Tiketeer.domain.ticket.service.TicketService;
+import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
@@ -24,14 +25,14 @@ import com.tiketeer.Tiketeer.domain.ticketing.service.dto.UpdateTicketingCommand
 @Transactional(readOnly = true)
 public class TicketingService {
 	private final TicketingRepository ticketingRepository;
-	private final TicketRepository ticketRepository;
+	private final TicketService ticketService;
 	private final MemberRepository memberRepository;
 
 	@Autowired
-	public TicketingService(TicketingRepository ticketingRepository, TicketRepository ticketRepository,
+	public TicketingService(TicketingRepository ticketingRepository, TicketService ticketService,
 		MemberRepository memberRepository) {
 		this.ticketingRepository = ticketingRepository;
-		this.ticketRepository = ticketRepository;
+		this.ticketService = ticketService;
 		this.memberRepository = memberRepository;
 	}
 
@@ -63,18 +64,13 @@ public class TicketingService {
 				.saleEnd(saleEnd)
 				.build());
 
-		createNumOfTickets(ticketing, command.getStock());
+		ticketService.createTickets(
+			CreateTicketCommandDto.builder().ticketId(ticketing.getId()).numOfTickets(command.getStock()).build());
 
 		return CreateTicketingResultDto.builder()
 			.ticketingId(ticketing.getId())
 			.createdAt(ticketing.getCreatedAt())
 			.build();
-	}
-
-	private void createNumOfTickets(Ticketing ticketing, int num) {
-		ticketRepository.saveAll(Arrays.stream(new int[num])
-			.mapToObj(i -> Ticket.builder().ticketing(ticketing).build())
-			.toList());
 	}
 
 	@Transactional
@@ -140,15 +136,20 @@ public class TicketingService {
 	}
 
 	private void updateStock(Ticketing ticketing, int newStock) {
-		var tickets = ticketRepository.findAllByTicketing(ticketing);
+		var tickets = ticketService.listTicketByTicketing(
+				ListTicketByTicketingCommandDto.builder().ticketingId(ticketing.getId()).build())
+			.getTickets();
 		var numOfTickets = tickets.size();
 		if (numOfTickets > newStock) {
 			var ticketIdsForDelete = tickets.stream()
 				.limit(numOfTickets - newStock)
 				.map(Ticket::getId).toList();
-			ticketRepository.deleteAllById(ticketIdsForDelete);
+			ticketService.deleteTickets(ticketIdsForDelete);
 		} else if (numOfTickets < newStock) {
-			createNumOfTickets(ticketing, newStock - numOfTickets);
+			ticketService.createTickets(CreateTicketCommandDto.builder()
+				.ticketId(ticketing.getId())
+				.numOfTickets(newStock - numOfTickets)
+				.build());
 		}
 		return;
 	}
