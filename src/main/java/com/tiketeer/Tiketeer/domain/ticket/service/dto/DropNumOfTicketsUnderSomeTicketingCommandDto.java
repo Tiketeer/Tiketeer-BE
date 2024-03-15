@@ -9,13 +9,14 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class DeleteTicketCommandDto {
+public class DropNumOfTicketsUnderSomeTicketingCommandDto {
 	private final UUID ticketingId;
 	private final int numOfTickets;
 	private LocalDateTime commandCreatedAt = LocalDateTime.now();
 
 	@Builder
-	public DeleteTicketCommandDto(UUID ticketingId, int numOfTickets, LocalDateTime commandCreatedAt) {
+	public DropNumOfTicketsUnderSomeTicketingCommandDto(UUID ticketingId, int numOfTickets,
+		LocalDateTime commandCreatedAt) {
 		this.ticketingId = ticketingId;
 		this.numOfTickets = numOfTickets;
 		if (commandCreatedAt != null) {

@@ -10,7 +10,7 @@ import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.ticket.service.TicketService;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
-import com.tiketeer.Tiketeer.domain.ticket.service.dto.DeleteTicketCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropNumOfTicketsUnderSomeTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
@@ -144,7 +144,7 @@ public class TicketingService {
 
 		var numOfTickets = tickets.size();
 		if (numOfTickets > newStock) {
-			ticketService.deleteTickets(DeleteTicketCommandDto.builder()
+			ticketService.dropNumOfTicketsUnderSomeTicketing(DropNumOfTicketsUnderSomeTicketingCommandDto.builder()
 				.ticketingId(ticketing.getId())
 				.numOfTickets(numOfTickets - newStock)
 				.commandCreatedAt(now).build());

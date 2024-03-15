@@ -1,6 +1,7 @@
 package com.tiketeer.Tiketeer.domain.ticket.service;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,9 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
-import com.tiketeer.Tiketeer.domain.ticket.service.dto.DeleteTicketCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropNumOfTicketsUnderSomeTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingResultDto;
+import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
@@ -29,8 +31,7 @@ public class TicketService {
 	}
 
 	public ListTicketByTicketingResultDto listTicketByTicketing(ListTicketByTicketingCommandDto command) {
-		var ticketing = ticketingRepository.findById(command.getTicketingId())
-			.orElseThrow(TicketingNotFoundException::new);
+		var ticketing = findTicketingById(command.getTicketingId());
 		return ListTicketByTicketingResultDto.builder()
 			.tickets(ticketRepository.findAllByTicketing(ticketing))
 			.build();
@@ -38,8 +39,7 @@ public class TicketService {
 
 	@Transactional
 	public void createTickets(CreateTicketCommandDto command) {
-		var ticketing = ticketingRepository.findById(command.getTicketingId())
-			.orElseThrow(TicketingNotFoundException::new);
+		var ticketing = findTicketingById(command.getTicketingId());
 
 		if (command.getCommandCreatedAt().isAfter(ticketing.getSaleStart())) {
 			throw new UpdateTicketingAfterSaleStartException();
@@ -51,9 +51,8 @@ public class TicketService {
 	}
 
 	@Transactional
-	public void deleteTickets(DeleteTicketCommandDto command) {
-		var ticketing = ticketingRepository.findById(command.getTicketingId())
-			.orElseThrow(TicketingNotFoundException::new);
+	public void dropNumOfTicketsUnderSomeTicketing(DropNumOfTicketsUnderSomeTicketingCommandDto command) {
+		var ticketing = findTicketingById(command.getTicketingId());
 
 		if (command.getCommandCreatedAt().isAfter(ticketing.getSaleStart())) {
 			throw new UpdateTicketingAfterSaleStartException();
@@ -67,5 +66,9 @@ public class TicketService {
 			.map(Ticket::getId).toList();
 
 		ticketRepository.deleteAllById(ticketIdsForDelete);
+	}
+
+	private Ticketing findTicketingById(UUID ticketingId) {
+		return ticketingRepository.findById(ticketingId).orElseThrow(TicketingNotFoundException::new);
 	}
 }

@@ -17,7 +17,7 @@ import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
-import com.tiketeer.Tiketeer.domain.ticket.service.dto.DeleteTicketCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropNumOfTicketsUnderSomeTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
@@ -156,22 +156,25 @@ public class TicketServiceTest {
 
 	@Test
 	@DisplayName("유효하지 않은 티케팅 > 티켓 삭제 요청 > 실패")
-	void deleteTicketsFailBecauseNotExistTicketing() {
+	void dropTicketsFailBecauseNotExistTicketing() {
 		// given
 		var invalidTicketingId = UUID.randomUUID();
 
-		var command = DeleteTicketCommandDto.builder().ticketingId(invalidTicketingId).numOfTickets(10).build();
+		var command = DropNumOfTicketsUnderSomeTicketingCommandDto.builder()
+			.ticketingId(invalidTicketingId)
+			.numOfTickets(10)
+			.build();
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketService.deleteTickets(command);
+			ticketService.dropNumOfTicketsUnderSomeTicketing(command);
 			// then
 		}).isInstanceOf(TicketingNotFoundException.class);
 	}
 
 	@Test
 	@DisplayName("이미 판매가 시작된 티케팅 > 티켓 삭제 요청 > 실패")
-	void deleteTicketsFailBecauseSaleDurationHasBeenStarted() {
+	void dropTicketsFailBecauseSaleDurationHasBeenStarted() {
 		// given
 		var mockEmail = "test@test.com";
 		createMember(mockEmail);
@@ -181,7 +184,7 @@ public class TicketServiceTest {
 
 		var ticketingId = ticketingService.createTicketing(createTicketingCommand).getTicketingId();
 		var saleStart = createTicketingCommand.getSaleStart();
-		var deleteTicketCommand = DeleteTicketCommandDto.builder()
+		var deleteTicketCommand = DropNumOfTicketsUnderSomeTicketingCommandDto.builder()
 			.ticketingId(ticketingId)
 			.numOfTickets(20)
 			.commandCreatedAt(saleStart.plusDays(1))
@@ -189,14 +192,14 @@ public class TicketServiceTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketService.deleteTickets(deleteTicketCommand);
+			ticketService.dropNumOfTicketsUnderSomeTicketing(deleteTicketCommand);
 			// then
 		}).isInstanceOf(UpdateTicketingAfterSaleStartException.class);
 	}
 
 	@Test
 	@DisplayName("유효한 티케팅 (기존 10) > 티켓 삭제 요청 (5) > 잔여 티켓 (5)")
-	void deleteTicketsSuccess() {
+	void dropTicketsSuccess() {
 		// given
 		var mockEmail = "test@test.com";
 		createMember(mockEmail);
@@ -206,13 +209,13 @@ public class TicketServiceTest {
 
 		var ticketingId = ticketingService.createTicketing(createTicketingCommand).getTicketingId();
 		var deleteTickets = 5;
-		var deleteTicketCommand = DeleteTicketCommandDto.builder()
+		var dropTicketCommand = DropNumOfTicketsUnderSomeTicketingCommandDto.builder()
 			.ticketingId(ticketingId)
 			.numOfTickets(deleteTickets)
 			.build();
 
 		// when
-		ticketService.deleteTickets(deleteTicketCommand);
+		ticketService.dropNumOfTicketsUnderSomeTicketing(dropTicketCommand);
 
 		// then
 		var tickets = ticketService.listTicketByTicketing(new ListTicketByTicketingCommandDto(ticketingId));
