@@ -14,6 +14,7 @@ import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingResultDto;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 
 @Service
@@ -40,6 +41,10 @@ public class TicketService {
 	public void createTickets(CreateTicketCommandDto command) {
 		var ticketing = ticketingRepository.findById(command.getTicketId())
 			.orElseThrow(TicketingNotFoundException::new);
+
+		if (command.getCommandCreatedAt().isAfter(ticketing.getSaleStart())) {
+			throw new UpdateTicketingAfterSaleStartException();
+		}
 
 		ticketRepository.saveAll(Arrays.stream(new int[command.getNumOfTickets()])
 			.mapToObj(i -> Ticket.builder().ticketing(ticketing).build())

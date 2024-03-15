@@ -20,6 +20,7 @@ public class CreateTicketingCommandDto {
 	private LocalDateTime eventTime;
 	private LocalDateTime saleStart;
 	private LocalDateTime saleEnd;
+	private LocalDateTime commandCreatedAt = LocalDateTime.now();
 
 	@Builder
 	public CreateTicketingCommandDto(
@@ -33,7 +34,7 @@ public class CreateTicketingCommandDto {
 		Long price,
 		LocalDateTime eventTime,
 		LocalDateTime saleStart,
-		LocalDateTime saleEnd) {
+		LocalDateTime saleEnd, LocalDateTime commandCreatedAt) {
 		this.memberEmail = memberEmail;
 		this.title = title;
 		this.description = description;
@@ -45,5 +46,8 @@ public class CreateTicketingCommandDto {
 		this.eventTime = eventTime;
 		this.saleStart = saleStart;
 		this.saleEnd = saleEnd;
+		if (commandCreatedAt != null) {
+			this.commandCreatedAt = commandCreatedAt;
+		}
 	}
 }

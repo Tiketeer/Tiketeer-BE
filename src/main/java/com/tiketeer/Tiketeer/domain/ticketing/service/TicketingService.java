@@ -43,7 +43,7 @@ public class TicketingService {
 		var saleStart = command.getSaleStart();
 		var saleEnd = command.getSaleEnd();
 
-		var now = LocalDateTime.now();
+		var now = command.getCommandCreatedAt();
 
 		validateTicketingMetadataBeforeSave(now, eventTime, saleStart, saleEnd);
 
@@ -66,7 +66,11 @@ public class TicketingService {
 				.build());
 
 		ticketService.createTickets(
-			CreateTicketCommandDto.builder().ticketId(ticketing.getId()).numOfTickets(command.getStock()).build());
+			CreateTicketCommandDto.builder()
+				.ticketId(ticketing.getId())
+				.numOfTickets(command.getStock())
+				.commandCreatedAt(now)
+				.build());
 
 		return CreateTicketingResultDto.builder()
 			.ticketingId(ticketing.getId())
@@ -80,7 +84,7 @@ public class TicketingService {
 		var saleStart = command.getSaleStart();
 		var saleEnd = command.getSaleEnd();
 
-		var now = LocalDateTime.now();
+		var now = command.getCommandCreatedAt();
 
 		validateTicketingMetadataBeforeSave(now, eventTime, saleStart, saleEnd);
 
