@@ -73,9 +73,9 @@ public class TicketingServiceTest {
 		createMember(mockEmail);
 
 		var now = LocalDateTime.now();
-		var eventTime = LocalDateTime.of(1970, 1, 1, 12, 0);
-		var saleStart = LocalDateTime.of(now.getYear() + 1, 1, 1, 0, 0);
-		var saleEnd = LocalDateTime.of(now.getYear() + 2, 1, 1, 0, 0);
+		var saleStart = now.plusYears(1);
+		var saleEnd = now.plusYears(2);
+		var eventTime = now.minusYears(20);
 		var command = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
 		Assertions.assertThatThrownBy(() -> {
@@ -93,9 +93,9 @@ public class TicketingServiceTest {
 		createMember(mockEmail);
 
 		var now = LocalDateTime.now();
-		var eventTime = LocalDateTime.of(now.getYear() + 3, 1, 1, 12, 0);
-		var saleStart = LocalDateTime.of(now.getYear() + 2, 1, 1, 0, 0);
-		var saleEnd = LocalDateTime.of(now.getYear() + 1, 1, 1, 0, 0);
+		var saleStart = now.plusYears(2);
+		var saleEnd = now.plusYears(1);
+		var eventTime = now.plusYears(3);
 		var command = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
 		Assertions.assertThatThrownBy(() -> {
@@ -113,9 +113,9 @@ public class TicketingServiceTest {
 		createMember(mockEmail);
 
 		var now = LocalDateTime.now();
-		var eventTime = LocalDateTime.of(now.getYear() + 2, 1, 1, 12, 0);
-		var saleStart = LocalDateTime.of(now.getYear() + 1, 1, 1, 0, 0);
-		var saleEnd = LocalDateTime.of(now.getYear() + 3, 1, 1, 0, 0);
+		var saleStart = now.plusYears(1);
+		var saleEnd = now.plusYears(3);
+		var eventTime = now.plusYears(2);
 		var command = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
 		Assertions.assertThatThrownBy(() -> {
@@ -132,9 +132,9 @@ public class TicketingServiceTest {
 		var mockEmail = "test1@test.com";
 
 		var now = LocalDateTime.now();
-		var eventTime = LocalDateTime.of(now.getYear() + 3, 1, 1, 12, 0);
-		var saleStart = LocalDateTime.of(now.getYear() + 1, 1, 1, 0, 0);
-		var saleEnd = LocalDateTime.of(now.getYear() + 2, 1, 1, 0, 0);
+		var saleStart = now.plusYears(1);
+		var saleEnd = now.plusYears(2);
+		var eventTime = now.plusYears(3);
 		var command = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
 		Assertions.assertThatThrownBy(() -> {
@@ -152,9 +152,9 @@ public class TicketingServiceTest {
 		createMember(mockEmail);
 
 		var now = LocalDateTime.now();
-		var eventTime = LocalDateTime.of(now.getYear() + 3, 1, 1, 12, 0);
-		var saleStart = LocalDateTime.of(now.getYear() + 1, 1, 1, 0, 0);
-		var saleEnd = LocalDateTime.of(now.getYear() + 2, 1, 1, 0, 0);
+		var saleStart = now.plusYears(1);
+		var saleEnd = now.plusYears(2);
+		var eventTime = now.plusYears(3);
 		var command = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
 		// when
@@ -199,9 +199,9 @@ public class TicketingServiceTest {
 		createMember(mockEmail);
 
 		var now = LocalDateTime.now();
-		var eventTime = LocalDateTime.of(now.getYear() + 3, 1, 1, 12, 0);
-		var saleStart = LocalDateTime.of(now.getYear() + 1, 1, 1, 0, 0);
-		var saleEnd = LocalDateTime.of(now.getYear() + 2, 1, 1, 0, 0);
+		var saleStart = now.plusYears(1);
+		var saleEnd = now.plusYears(2);
+		var eventTime = now.plusYears(3);
 		var createCmd = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
 		var ticketingId = ticketingService.createTicketing(createCmd).getTicketingId();
@@ -218,7 +218,7 @@ public class TicketingServiceTest {
 			.saleStart(createCmd.getSaleStart())
 			.saleEnd(createCmd.getSaleEnd())
 			.eventTime(createCmd.getEventTime())
-			.commandCreatedAt(createCmd.getSaleStart().plusDays(1))
+			.commandCreatedAt(saleStart.plusDays(1))
 			.build();
 
 		Assertions.assertThatThrownBy(() -> {
@@ -236,9 +236,9 @@ public class TicketingServiceTest {
 		createMember(mockEmail);
 
 		var now = LocalDateTime.now();
-		var eventTime = LocalDateTime.of(now.getYear() + 3, 1, 1, 12, 0);
-		var saleStart = LocalDateTime.of(now.getYear() + 1, 1, 1, 0, 0);
-		var saleEnd = LocalDateTime.of(now.getYear() + 2, 1, 1, 0, 0);
+		var saleStart = now.plusYears(1);
+		var saleEnd = now.plusYears(2);
+		var eventTime = now.plusYears(3);
 		var createCmd = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
 		var ticketingId = ticketingService.createTicketing(createCmd).getTicketingId();
@@ -254,7 +254,7 @@ public class TicketingServiceTest {
 			.stock(createCmd.getStock())
 			.saleStart(createCmd.getSaleStart())
 			.saleEnd(createCmd.getSaleEnd())
-			.eventTime(LocalDateTime.now().minusDays(1))
+			.eventTime(now.minusDays(1))
 			.build();
 
 		Assertions.assertThatThrownBy(() -> {
@@ -272,9 +272,9 @@ public class TicketingServiceTest {
 		createMember(mockEmail);
 
 		var now = LocalDateTime.now();
-		var eventTime = LocalDateTime.of(now.getYear() + 3, 1, 1, 12, 0);
-		var saleStart = LocalDateTime.of(now.getYear() + 1, 1, 1, 0, 0);
-		var saleEnd = LocalDateTime.of(now.getYear() + 2, 1, 1, 0, 0);
+		var saleStart = now.plusYears(1);
+		var saleEnd = now.plusYears(2);
+		var eventTime = now.plusYears(3);
 		var createCmd = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
 		var ticketingId = ticketingService.createTicketing(createCmd).getTicketingId();
@@ -288,9 +288,9 @@ public class TicketingServiceTest {
 			.category(createCmd.getCategory())
 			.runningMinutes(createCmd.getRunningMinutes())
 			.stock(createCmd.getStock())
-			.saleStart(createCmd.getSaleEnd())
-			.saleEnd(createCmd.getSaleStart())
-			.eventTime(createCmd.getEventTime())
+			.saleStart(saleEnd)
+			.saleEnd(saleStart)
+			.eventTime(eventTime)
 			.build();
 
 		Assertions.assertThatThrownBy(() -> {
@@ -308,9 +308,9 @@ public class TicketingServiceTest {
 		createMember(mockEmail);
 
 		var now = LocalDateTime.now();
-		var eventTime = LocalDateTime.of(now.getYear() + 3, 1, 1, 12, 0);
-		var saleStart = LocalDateTime.of(now.getYear() + 1, 1, 1, 0, 0);
-		var saleEnd = LocalDateTime.of(now.getYear() + 2, 1, 1, 0, 0);
+		var saleStart = now.plusYears(1);
+		var saleEnd = now.plusYears(2);
+		var eventTime = now.plusYears(3);
 		var createCmd = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
 		var ticketingId = ticketingService.createTicketing(createCmd).getTicketingId();
@@ -324,9 +324,9 @@ public class TicketingServiceTest {
 			.category(createCmd.getCategory())
 			.runningMinutes(createCmd.getRunningMinutes())
 			.stock(createCmd.getStock())
-			.saleStart(createCmd.getSaleStart())
-			.saleEnd(createCmd.getSaleEnd())
-			.eventTime(createCmd.getSaleEnd().minusDays(1))
+			.saleStart(saleStart)
+			.saleEnd(saleEnd)
+			.eventTime(saleEnd.minusDays(1))
 			.build();
 
 		Assertions.assertThatThrownBy(() -> {
@@ -344,9 +344,9 @@ public class TicketingServiceTest {
 		createMember(mockEmail);
 
 		var now = LocalDateTime.now();
-		var eventTime = LocalDateTime.of(now.getYear() + 3, 1, 1, 12, 0);
-		var saleStart = LocalDateTime.of(now.getYear() + 1, 1, 1, 0, 0);
-		var saleEnd = LocalDateTime.of(now.getYear() + 2, 1, 1, 0, 0);
+		var saleStart = now.plusYears(1);
+		var saleEnd = now.plusYears(2);
+		var eventTime = now.plusYears(3);
 		var createCmd = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
 		var ticketingId = ticketingService.createTicketing(createCmd).getTicketingId();
@@ -355,6 +355,7 @@ public class TicketingServiceTest {
 		var newDescription = "New!!!";
 		var newPrice = createCmd.getPrice() * 2;
 		var newCategory = createCmd.getCategory() + "!";
+		var newLocation = createCmd.getLocation() + "!";
 		var newRunningMinutes = createCmd.getRunningMinutes() * 2;
 		var newStock = createCmd.getStock() + 10;
 		var newSaleStart = createCmd.getSaleStart().plusMonths(1);
@@ -366,7 +367,7 @@ public class TicketingServiceTest {
 			.email(createCmd.getMemberEmail())
 			.title(newTitle)
 			.price(newPrice)
-			.location(createCmd.getLocation() + "!")
+			.location(newLocation)
 			.description(newDescription)
 			.category(newCategory)
 			.runningMinutes(newRunningMinutes)
@@ -382,8 +383,20 @@ public class TicketingServiceTest {
 		// then
 		var updatedTicketingOpt = ticketingRepository.findById(ticketingId);
 		Assertions.assertThat(updatedTicketingOpt.isPresent()).isTrue();
+
 		var updatedTicketing = updatedTicketingOpt.get();
 		Assertions.assertThat(updatedTicketing.getTitle()).isEqualTo(newTitle);
+		Assertions.assertThat(updatedTicketing.getDescription()).isEqualTo(newDescription);
+		Assertions.assertThat(updatedTicketing.getCategory()).isEqualTo(newCategory);
+		Assertions.assertThat(updatedTicketing.getLocation()).isEqualTo(newLocation);
+		Assertions.assertThat(updatedTicketing.getEventTime()).isEqualTo(newEventTime);
+		Assertions.assertThat(updatedTicketing.getSaleStart()).isEqualTo(newSaleStart);
+		Assertions.assertThat(updatedTicketing.getSaleEnd()).isEqualTo(newSaleEnd);
+		Assertions.assertThat(updatedTicketing.getRunningMinutes()).isEqualTo(newRunningMinutes);
+		Assertions.assertThat(updatedTicketing.getPrice()).isEqualTo(newPrice);
+
+		var tickets = ticketRepository.findAllByTicketing(updatedTicketing);
+		Assertions.assertThat(tickets.size()).isEqualTo(newStock);
 	}
 
 	private Member createMember(String email) {
