@@ -1,6 +1,7 @@
 package com.tiketeer.Tiketeer.domain.ticketing.service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -19,8 +20,11 @@ import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.UpdateTicketingCommandDto;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
@@ -170,6 +174,216 @@ public class TicketingServiceTest {
 
 		var tickets = ticketRepository.findAllByTicketing(ticketing);
 		Assertions.assertThat(tickets.size()).isEqualTo(command.getStock());
+	}
+
+	@Test
+	@DisplayName("존재하지 않는 티케팅 > 티케팅 수정 요청 > 실패")
+	void updateTicketingFailBecauseTicketingNotExist() {
+		// given
+		var invalidTicketingId = UUID.randomUUID();
+
+		var updateTicketingCommand = UpdateTicketingCommandDto.builder().ticketingId(invalidTicketingId).build();
+
+		Assertions.assertThatThrownBy(() -> {
+			// when
+			ticketingService.updateTicketing(updateTicketingCommand);
+			// then
+		}).isInstanceOf(TicketingNotFoundException.class);
+	}
+
+	@Test
+	@DisplayName("이미 판매를 시작한 티케팅 > 티케팅 수정 요청 > 실패")
+	void updateTicketingFailBecauseSaleDurationHasBeenStarted() {
+		// given
+		var mockEmail = "test@test.com";
+		createMember(mockEmail);
+
+		var now = LocalDateTime.now();
+		var eventTime = LocalDateTime.of(now.getYear() + 3, 1, 1, 12, 0);
+		var saleStart = LocalDateTime.of(now.getYear() + 1, 1, 1, 0, 0);
+		var saleEnd = LocalDateTime.of(now.getYear() + 2, 1, 1, 0, 0);
+		var createCmd = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
+
+		var ticketingId = ticketingService.createTicketing(createCmd).getTicketingId();
+
+		var updateTicketingCommand = UpdateTicketingCommandDto.builder()
+			.ticketingId(ticketingId)
+			.email(createCmd.getMemberEmail())
+			.title(createCmd.getTitle())
+			.price(createCmd.getPrice())
+			.description(createCmd.getDescription())
+			.category(createCmd.getCategory())
+			.runningMinutes(createCmd.getRunningMinutes())
+			.stock(createCmd.getStock())
+			.saleStart(createCmd.getSaleStart())
+			.saleEnd(createCmd.getSaleEnd())
+			.eventTime(createCmd.getEventTime())
+			.commandCreatedAt(createCmd.getSaleStart().plusDays(1))
+			.build();
+
+		Assertions.assertThatThrownBy(() -> {
+			// when
+			ticketingService.updateTicketing(updateTicketingCommand);
+			// then
+		}).isInstanceOf(UpdateTicketingAfterSaleStartException.class);
+	}
+
+	@Test
+	@DisplayName("수정될 이벤트 시점이 과거 시점 > 티케팅 수정 요청 > 실패")
+	void updateTicketingFailBecauseInvalidEventTime() {
+		// given
+		var mockEmail = "test@test.com";
+		createMember(mockEmail);
+
+		var now = LocalDateTime.now();
+		var eventTime = LocalDateTime.of(now.getYear() + 3, 1, 1, 12, 0);
+		var saleStart = LocalDateTime.of(now.getYear() + 1, 1, 1, 0, 0);
+		var saleEnd = LocalDateTime.of(now.getYear() + 2, 1, 1, 0, 0);
+		var createCmd = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
+
+		var ticketingId = ticketingService.createTicketing(createCmd).getTicketingId();
+
+		var updateTicketingCommand = UpdateTicketingCommandDto.builder()
+			.ticketingId(ticketingId)
+			.email(createCmd.getMemberEmail())
+			.title(createCmd.getTitle())
+			.price(createCmd.getPrice())
+			.description(createCmd.getDescription())
+			.category(createCmd.getCategory())
+			.runningMinutes(createCmd.getRunningMinutes())
+			.stock(createCmd.getStock())
+			.saleStart(createCmd.getSaleStart())
+			.saleEnd(createCmd.getSaleEnd())
+			.eventTime(LocalDateTime.now().minusDays(1))
+			.build();
+
+		Assertions.assertThatThrownBy(() -> {
+			// when
+			ticketingService.updateTicketing(updateTicketingCommand);
+			// then
+		}).isInstanceOf(EventTimeNotValidException.class);
+	}
+
+	@Test
+	@DisplayName("유효하지 않은 판매 기간 (판매 시작 시점보다 판매 종료 시점이 빠름) > 티케팅 수정 요청 > 실패")
+	void updateTicketingFailBecauseSaleDurationNotValid() {
+		// given
+		var mockEmail = "test@test.com";
+		createMember(mockEmail);
+
+		var now = LocalDateTime.now();
+		var eventTime = LocalDateTime.of(now.getYear() + 3, 1, 1, 12, 0);
+		var saleStart = LocalDateTime.of(now.getYear() + 1, 1, 1, 0, 0);
+		var saleEnd = LocalDateTime.of(now.getYear() + 2, 1, 1, 0, 0);
+		var createCmd = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
+
+		var ticketingId = ticketingService.createTicketing(createCmd).getTicketingId();
+
+		var updateTicketingCommand = UpdateTicketingCommandDto.builder()
+			.ticketingId(ticketingId)
+			.email(createCmd.getMemberEmail())
+			.title(createCmd.getTitle())
+			.price(createCmd.getPrice())
+			.description(createCmd.getDescription())
+			.category(createCmd.getCategory())
+			.runningMinutes(createCmd.getRunningMinutes())
+			.stock(createCmd.getStock())
+			.saleStart(createCmd.getSaleEnd())
+			.saleEnd(createCmd.getSaleStart())
+			.eventTime(createCmd.getEventTime())
+			.build();
+
+		Assertions.assertThatThrownBy(() -> {
+			// when
+			ticketingService.updateTicketing(updateTicketingCommand);
+			// then
+		}).isInstanceOf(SaleDurationNotValidException.class);
+	}
+
+	@Test
+	@DisplayName("유효하지 않은 판매 기간 (판매 기간 종료 전 이벤트가 시작함) > 티케팅 수정 요청 > 실패")
+	void updateTicketingFailBecauseEventTimeBeforeSaleEnd() {
+		// given
+		var mockEmail = "test@test.com";
+		createMember(mockEmail);
+
+		var now = LocalDateTime.now();
+		var eventTime = LocalDateTime.of(now.getYear() + 3, 1, 1, 12, 0);
+		var saleStart = LocalDateTime.of(now.getYear() + 1, 1, 1, 0, 0);
+		var saleEnd = LocalDateTime.of(now.getYear() + 2, 1, 1, 0, 0);
+		var createCmd = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
+
+		var ticketingId = ticketingService.createTicketing(createCmd).getTicketingId();
+
+		var updateTicketingCommand = UpdateTicketingCommandDto.builder()
+			.ticketingId(ticketingId)
+			.email(createCmd.getMemberEmail())
+			.title(createCmd.getTitle())
+			.price(createCmd.getPrice())
+			.description(createCmd.getDescription())
+			.category(createCmd.getCategory())
+			.runningMinutes(createCmd.getRunningMinutes())
+			.stock(createCmd.getStock())
+			.saleStart(createCmd.getSaleStart())
+			.saleEnd(createCmd.getSaleEnd())
+			.eventTime(createCmd.getSaleEnd().minusDays(1))
+			.build();
+
+		Assertions.assertThatThrownBy(() -> {
+			// when
+			ticketingService.updateTicketing(updateTicketingCommand);
+			// then
+		}).isInstanceOf(SaleDurationNotValidException.class);
+	}
+
+	@Test
+	@DisplayName("정상 수정 요청 > 티케팅 수정 > 성공")
+	void updateTicketingSuccess() {
+		// given
+		var mockEmail = "test@test.com";
+		createMember(mockEmail);
+
+		var now = LocalDateTime.now();
+		var eventTime = LocalDateTime.of(now.getYear() + 3, 1, 1, 12, 0);
+		var saleStart = LocalDateTime.of(now.getYear() + 1, 1, 1, 0, 0);
+		var saleEnd = LocalDateTime.of(now.getYear() + 2, 1, 1, 0, 0);
+		var createCmd = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
+
+		var ticketingId = ticketingService.createTicketing(createCmd).getTicketingId();
+
+		var newTitle = "New Title!";
+		var newDescription = "New!!!";
+		var newPrice = createCmd.getPrice() * 2;
+		var newCategory = createCmd.getCategory() + "!";
+		var newRunningMinutes = createCmd.getRunningMinutes() * 2;
+		var newStock = createCmd.getStock() + 10;
+		var newSaleStart = createCmd.getSaleStart().plusMonths(1);
+		var newSaleEnd = createCmd.getSaleEnd().plusMonths(1);
+		var newEventTime = createCmd.getEventTime().plusMonths(1);
+
+		var updateTicketingCommand = UpdateTicketingCommandDto.builder()
+			.ticketingId(ticketingId)
+			.email(createCmd.getMemberEmail())
+			.title(newTitle)
+			.price(newPrice)
+			.location(createCmd.getLocation() + "!")
+			.description(newDescription)
+			.category(newCategory)
+			.runningMinutes(newRunningMinutes)
+			.stock(newStock)
+			.saleStart(newSaleStart)
+			.saleEnd(newSaleEnd)
+			.eventTime(newEventTime)
+			.build();
+
+		// when
+		ticketingService.updateTicketing(updateTicketingCommand);
+
+		// then
+		var updatedTicketingOpt = ticketingRepository.findById(ticketingId);
+		Assertions.assertThat(updatedTicketingOpt.isPresent()).isTrue();
+		var updatedTicketing = updatedTicketingOpt.get();
+		Assertions.assertThat(updatedTicketing.getTitle()).isEqualTo(newTitle);
 	}
 
 	private Member createMember(String email) {

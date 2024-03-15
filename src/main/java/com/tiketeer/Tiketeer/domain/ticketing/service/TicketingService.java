@@ -80,21 +80,20 @@ public class TicketingService {
 
 	@Transactional
 	public void updateTicketing(UpdateTicketingCommandDto command) {
-		var eventTime = command.getEventTime();
-		var saleStart = command.getSaleStart();
-		var saleEnd = command.getSaleEnd();
-
-		var now = command.getCommandCreatedAt();
-
-		validateTicketingMetadataBeforeSave(now, eventTime, saleStart, saleEnd);
-
 		var ticketingId = command.getTicketingId();
 		var ticketing = ticketingRepository.findById(ticketingId)
 			.orElseThrow(TicketingNotFoundException::new);
 
+		var now = command.getCommandCreatedAt();
 		if (now.isAfter(ticketing.getSaleStart())) {
 			throw new UpdateTicketingAfterSaleStartException();
 		}
+
+		var eventTime = command.getEventTime();
+		var saleStart = command.getSaleStart();
+		var saleEnd = command.getSaleEnd();
+
+		validateTicketingMetadataBeforeSave(now, eventTime, saleStart, saleEnd);
 
 		ticketing.setTitle(command.getTitle());
 		ticketing.setDescription(command.getDescription());
