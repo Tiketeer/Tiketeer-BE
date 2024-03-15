@@ -92,9 +92,7 @@ public class TicketingService {
 		}
 
 		ticketing.setTitle(command.getTitle());
-		if (command.getDescription() != null) {
-			ticketing.setDescription(command.getDescription());
-		}
+		ticketing.setDescription(command.getDescription());
 		ticketing.setPrice(command.getPrice());
 		ticketing.setLocation(command.getLocation());
 		ticketing.setEventTime(eventTime);
