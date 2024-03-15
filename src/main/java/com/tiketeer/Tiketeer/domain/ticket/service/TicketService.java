@@ -1,8 +1,6 @@
 package com.tiketeer.Tiketeer.domain.ticket.service;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.service.dto.DeleteTicketCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingResultDto;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
@@ -52,7 +51,7 @@ public class TicketService {
 	}
 
 	@Transactional
-	public void deleteTickets(List<UUID> ticketsIds) {
-		ticketRepository.deleteAllById(ticketsIds);
+	public void deleteTickets(DeleteTicketCommandDto command) {
+		ticketRepository.deleteAllById(command.getTicketIds());
 	}
 }

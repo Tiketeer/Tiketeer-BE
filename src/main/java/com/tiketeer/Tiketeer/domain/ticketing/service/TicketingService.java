@@ -11,6 +11,7 @@ import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.service.TicketService;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.service.dto.DeleteTicketCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
@@ -142,12 +143,15 @@ public class TicketingService {
 		var tickets = ticketService.listTicketByTicketing(
 				ListTicketByTicketingCommandDto.builder().ticketingId(ticketing.getId()).build())
 			.getTickets();
+
 		var numOfTickets = tickets.size();
 		if (numOfTickets > newStock) {
 			var ticketIdsForDelete = tickets.stream()
 				.limit(numOfTickets - newStock)
 				.map(Ticket::getId).toList();
-			ticketService.deleteTickets(ticketIdsForDelete);
+			ticketService.deleteTickets(DeleteTicketCommandDto.builder()
+				.ticketIds(ticketIdsForDelete).build());
+			
 		} else if (numOfTickets < newStock) {
 			ticketService.createTickets(CreateTicketCommandDto.builder()
 				.ticketId(ticketing.getId())
