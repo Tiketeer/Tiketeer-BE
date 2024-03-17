@@ -41,7 +41,7 @@ public class TicketingController {
 		@RequestBody PatchTicketingRequestDto request) {
 		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
 		var memberEmail = "mock@mock.com";
-		ticketingService.updateTicketing(request.convertToDto(memberEmail));
+		ticketingService.updateTicketing(request.convertToDto(ticketingId, memberEmail));
 		return ResponseEntity.ok().build();
 	}
 }

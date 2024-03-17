@@ -1,6 +1,7 @@
 package com.tiketeer.Tiketeer.domain.ticketing.controller.dto;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.UpdateTicketingCommandDto;
@@ -70,8 +71,9 @@ public class PatchTicketingRequestDto {
 		this.saleEnd = saleEnd;
 	}
 
-	public UpdateTicketingCommandDto convertToDto(String memberEmail) {
+	public UpdateTicketingCommandDto convertToDto(String ticketingId, String memberEmail) {
 		return UpdateTicketingCommandDto.builder()
+			.ticketingId(UUID.fromString(ticketingId))
 			.email(memberEmail)
 			.title(title)
 			.description(description)
