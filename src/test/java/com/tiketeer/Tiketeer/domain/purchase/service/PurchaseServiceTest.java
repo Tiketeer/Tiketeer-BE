@@ -165,9 +165,9 @@ public class PurchaseServiceTest {
 		var member = memberRepository.findById(memberId).orElseThrow();
 
 		var now = LocalDateTime.now();
-		var eventTime = LocalDateTime.of(now.getYear() + saleStartAfterYears + 2, 1, 1, 12, 0);
-		var saleStart = LocalDateTime.of(now.getYear() + saleStartAfterYears, 1, 1, 0, 0);
-		var saleEnd = LocalDateTime.of(now.getYear() + saleStartAfterYears + 1, 1, 1, 0, 0);
+		var eventTime = now.plusYears(saleStartAfterYears + 2);
+		var saleStart = now.plusYears(saleStartAfterYears);
+		var saleEnd = now.plusYears(saleStartAfterYears + 1);
 		var ticketing = Ticketing.builder()
 			.price(1000)
 			.title("test")
