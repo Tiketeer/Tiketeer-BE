@@ -3,10 +3,13 @@ package com.tiketeer.Tiketeer.domain.ticketing.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PatchTicketingRequestDto;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PostTicketingRequestDto;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PostTicketingResponseDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
@@ -25,11 +28,20 @@ public class TicketingController {
 
 	@PostMapping(path = "/ticketings")
 	public ResponseEntity<ApiResponse<PostTicketingResponseDto>> postTicketing(
-		@Valid @RequestBody PostTicketingRequestDto postCommand) {
+		@Valid @RequestBody PostTicketingRequestDto request) {
 		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
 		var memberEmail = "mock@mock.com";
-		var result = ticketingService.createTicketing(postCommand.convertToDto(memberEmail));
+		var result = ticketingService.createTicketing(request.convertToDto(memberEmail));
 		var responseBody = ApiResponse.wrap(PostTicketingResponseDto.convertFromDto(result));
 		return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
+	}
+
+	@PatchMapping(path = "/ticketings/{ticketingId}")
+	public ResponseEntity patchTicketing(@PathVariable String ticketingId,
+		@RequestBody PatchTicketingRequestDto request) {
+		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
+		var memberEmail = "mock@mock.com";
+		ticketingService.updateTicketing(request.convertToDto(ticketingId, memberEmail));
+		return ResponseEntity.ok().build();
 	}
 }

@@ -1,6 +1,7 @@
 package com.tiketeer.Tiketeer.domain.ticketing.service.dto;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -8,23 +9,25 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class CreateTicketingCommandDto {
-	private String memberEmail;
-	private String title;
-	private String description;
-	private String location;
-	private String category;
-	private Integer runningMinutes;
-	private Integer stock;
-	private Long price;
-	private LocalDateTime eventTime;
-	private LocalDateTime saleStart;
-	private LocalDateTime saleEnd;
+public class UpdateTicketingCommandDto {
+	private final UUID ticketingId;
+	private final String email;
+	private final String title;
+	private final String description;
+	private final String location;
+	private final String category;
+	private final Integer runningMinutes;
+	private final Integer stock;
+	private final Long price;
+	private final LocalDateTime eventTime;
+	private final LocalDateTime saleStart;
+	private final LocalDateTime saleEnd;
 	private LocalDateTime commandCreatedAt = LocalDateTime.now();
 
 	@Builder
-	public CreateTicketingCommandDto(
-		String memberEmail,
+	public UpdateTicketingCommandDto(
+		UUID ticketingId,
+		String email,
 		String title,
 		String description,
 		String location,
@@ -34,8 +37,10 @@ public class CreateTicketingCommandDto {
 		Long price,
 		LocalDateTime eventTime,
 		LocalDateTime saleStart,
-		LocalDateTime saleEnd, LocalDateTime commandCreatedAt) {
-		this.memberEmail = memberEmail;
+		LocalDateTime saleEnd,
+		LocalDateTime commandCreatedAt) {
+		this.ticketingId = ticketingId;
+		this.email = email;
 		this.title = title;
 		this.description = description;
 		this.location = location;
