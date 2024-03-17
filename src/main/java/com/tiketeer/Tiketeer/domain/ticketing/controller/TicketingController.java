@@ -36,7 +36,7 @@ public class TicketingController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
 	}
 
-	@PatchMapping(path = "/ticketings/{ticketing_id}")
+	@PatchMapping(path = "/ticketings/{ticketingId}")
 	public ResponseEntity patchTicketing(@PathVariable String ticketingId,
 		@RequestBody PatchTicketingRequestDto request) {
 		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
