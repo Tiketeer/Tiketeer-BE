@@ -16,6 +16,7 @@ import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingComm
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.DeleteTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.ModifyForNotOwnedTicketingException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
@@ -186,7 +187,7 @@ public class TicketingService {
 
 	private void validateTicketingOwnership(Ticketing ticketing, String email) {
 		if (!ticketing.getMember().getEmail().equals(email)) {
-			throw new RuntimeException();
+			throw new ModifyForNotOwnedTicketingException();
 		}
 		return;
 	}
