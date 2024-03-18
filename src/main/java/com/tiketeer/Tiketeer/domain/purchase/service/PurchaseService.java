@@ -44,10 +44,9 @@ public class PurchaseService {
 		var member = this.memberRepository.findByEmail(createPurchaseCommandDto.getMemberEmail()).orElseThrow(
 			MemberNotFoundException::new);
 
-		validateTicketing(ticketingId, createPurchaseCommandDto.getCommandCreatedAt());
+		canPurchaseTicketing(ticketingId, createPurchaseCommandDto.getCommandCreatedAt());
 
-		var newPurchase = Purchase.builder().member(member).build();
-		this.purchaseRepository.save(newPurchase);
+		var newPurchase = this.purchaseRepository.save(Purchase.builder().member(member).build());
 
 		var tickets = this.ticketRepository.findByTicketingIdAndPurchaseIsNullOrderById(
 			ticketingId, Limit.of(count));
@@ -58,7 +57,6 @@ public class PurchaseService {
 
 		tickets.forEach(ticket -> {
 			ticket.setPurchase(newPurchase);
-			this.ticketRepository.save(ticket);
 		});
 
 		return CreatePurchaseResultDto.builder()
@@ -67,7 +65,7 @@ public class PurchaseService {
 			.build();
 	}
 
-	private void validateTicketing(UUID ticketingId, LocalDateTime now) {
+	private void canPurchaseTicketing(UUID ticketingId, LocalDateTime now) {
 		var ticketing = this.ticketingRepository.findById(ticketingId).orElseThrow(
 			TicketingNotFoundException::new);
 		var saleStart = ticketing.getSaleStart();
