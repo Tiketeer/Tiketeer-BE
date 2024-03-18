@@ -87,6 +87,8 @@ public class TicketingService {
 		var ticketing = ticketingRepository.findById(ticketingId)
 			.orElseThrow(TicketingNotFoundException::new);
 
+		validateTicketingOwnership(ticketing, command.getEmail());
+
 		var now = command.getCommandCreatedAt();
 		if (now.isAfter(ticketing.getSaleStart())) {
 			throw new UpdateTicketingAfterSaleStartException();
@@ -114,6 +116,8 @@ public class TicketingService {
 	public void deleteTicketing(DeleteTicketingCommandDto command) {
 		var ticketingId = command.getTicketingId();
 		var ticketing = ticketingRepository.findById(ticketingId).orElseThrow(TicketingNotFoundException::new);
+
+		validateTicketingOwnership(ticketing, command.getMemberEmail());
 
 		var now = command.getCommandCreatedAt();
 		if (now.isAfter(ticketing.getSaleStart())) {
@@ -176,6 +180,13 @@ public class TicketingService {
 				.ticketingId(ticketing.getId())
 				.numOfTickets(newStock - numOfTickets)
 				.commandCreatedAt(now).build());
+		}
+		return;
+	}
+
+	private void validateTicketingOwnership(Ticketing ticketing, String email) {
+		if (!ticketing.getMember().getEmail().equals(email)) {
+			throw new RuntimeException();
 		}
 		return;
 	}
