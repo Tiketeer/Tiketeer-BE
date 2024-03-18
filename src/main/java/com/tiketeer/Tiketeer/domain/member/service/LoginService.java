@@ -13,10 +13,9 @@ import com.tiketeer.Tiketeer.auth.jwt.JwtService;
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidLoginException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.member.service.dto.LoginCommandDto;
+import com.tiketeer.Tiketeer.domain.member.service.dto.GenerateCookieCommand;
 
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -38,8 +37,7 @@ public class LoginService {
 		this.jwtService = jwtService;
 	}
 
-	@Transactional
-	public void login(LoginCommandDto command, HttpServletResponse response) {
+	public Cookie generateCookie(GenerateCookieCommand command) {
 		Member member = memberRepository.findByEmail(command.getEmail()).orElse(null);
 
 		if (member == null) {
@@ -52,13 +50,19 @@ public class LoginService {
 			throw new InvalidLoginException();
 		}
 
-		JwtPayload jwtPayload = new JwtPayload(member.getEmail(), member.getRole().getName(), new Date());
-		Cookie cookie = new Cookie(JwtMetadata.ACCESS_TOKEN, jwtService.createToken(jwtPayload));
+		String accessToken = generateToken(member);
+		Cookie cookie = new Cookie(JwtMetadata.ACCESS_TOKEN, accessToken);
 		cookie.setMaxAge((int)accessKeyExpirationInMs);
+		cookie.setPath("/");
 		cookie.setHttpOnly(true);
 		cookie.setSecure(true);
 
-		response.addCookie(cookie);
+		return cookie;
+	}
+
+	private String generateToken(Member member) {
+		JwtPayload jwtPayload = new JwtPayload(member.getEmail(), member.getRole().getName(), new Date());
+		return jwtService.createToken(jwtPayload);
 	}
 
 }

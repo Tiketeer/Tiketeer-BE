@@ -10,9 +10,10 @@ import com.tiketeer.Tiketeer.domain.member.controller.dto.LoginRequestDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.SetPasswordWithOtpRequestDto;
 import com.tiketeer.Tiketeer.domain.member.service.LoginService;
 import com.tiketeer.Tiketeer.domain.member.service.MemberService;
+import com.tiketeer.Tiketeer.domain.member.service.dto.GenerateCookieCommand;
 import com.tiketeer.Tiketeer.domain.member.service.dto.InitMemberPasswordWithOtpCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.LoginCommandDto;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
@@ -41,15 +42,15 @@ public class AuthController {
 
 	@PostMapping(path = "/auth/login")
 	public ResponseEntity login(@Valid @RequestBody LoginRequestDto request, HttpServletResponse response) {
-		loginService.login(
-			LoginCommandDto
+		Cookie cookie = loginService.generateCookie(
+			GenerateCookieCommand
 				.builder()
 				.email(request.getEmail())
 				.password(request.getPassword())
-				.build(),
-			response
+				.build()
 		);
 
+		response.addCookie(cookie);
 		return ResponseEntity.ok().build();
 	}
 
