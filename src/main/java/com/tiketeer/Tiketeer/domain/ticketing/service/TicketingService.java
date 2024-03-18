@@ -1,7 +1,6 @@
 package com.tiketeer.Tiketeer.domain.ticketing.service;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,27 +8,32 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.ticket.Ticket;
-import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
+import com.tiketeer.Tiketeer.domain.ticket.service.TicketService;
+import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropNumOfTicketsUnderSomeTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingResultDto;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.UpdateTicketingCommandDto;
 
 @Service
 @Transactional(readOnly = true)
 public class TicketingService {
 	private final TicketingRepository ticketingRepository;
-	private final TicketRepository ticketRepository;
+	private final TicketService ticketService;
 	private final MemberRepository memberRepository;
 
 	@Autowired
-	public TicketingService(TicketingRepository ticketingRepository, TicketRepository ticketRepository,
+	public TicketingService(TicketingRepository ticketingRepository, TicketService ticketService,
 		MemberRepository memberRepository) {
 		this.ticketingRepository = ticketingRepository;
-		this.ticketRepository = ticketRepository;
+		this.ticketService = ticketService;
 		this.memberRepository = memberRepository;
 	}
 
@@ -39,7 +43,9 @@ public class TicketingService {
 		var saleStart = command.getSaleStart();
 		var saleEnd = command.getSaleEnd();
 
-		validateTicketingMetadata(eventTime, saleStart, saleEnd);
+		var now = command.getCommandCreatedAt();
+
+		validateTicketingMetadataBeforeSave(now, eventTime, saleStart, saleEnd);
 
 		var member = memberRepository.findByEmail(command.getMemberEmail())
 			.orElseThrow(MemberNotFoundException::new);
@@ -59,9 +65,12 @@ public class TicketingService {
 				.saleEnd(saleEnd)
 				.build());
 
-		ticketRepository.saveAll(Arrays.stream(new int[command.getStock()])
-			.mapToObj(i -> Ticket.builder().ticketing(ticketing).build())
-			.toList());
+		ticketService.createTickets(
+			CreateTicketCommandDto.builder()
+				.ticketingId(ticketing.getId())
+				.numOfTickets(command.getStock())
+				.commandCreatedAt(now)
+				.build());
 
 		return CreateTicketingResultDto.builder()
 			.ticketingId(ticketing.getId())
@@ -69,20 +78,83 @@ public class TicketingService {
 			.build();
 	}
 
-	private void validateTicketingMetadata(LocalDateTime eventTime, LocalDateTime saleStart, LocalDateTime saleEnd) {
-		var now = LocalDateTime.now();
+	@Transactional
+	public void updateTicketing(UpdateTicketingCommandDto command) {
+		var ticketingId = command.getTicketingId();
+		var ticketing = ticketingRepository.findById(ticketingId)
+			.orElseThrow(TicketingNotFoundException::new);
 
-		if (eventTime.isBefore(now)) {
+		var now = command.getCommandCreatedAt();
+		if (now.isAfter(ticketing.getSaleStart())) {
+			throw new UpdateTicketingAfterSaleStartException();
+		}
+
+		var eventTime = command.getEventTime();
+		var saleStart = command.getSaleStart();
+		var saleEnd = command.getSaleEnd();
+
+		validateTicketingMetadataBeforeSave(now, eventTime, saleStart, saleEnd);
+
+		ticketing.setTitle(command.getTitle());
+		ticketing.setDescription(command.getDescription());
+		ticketing.setPrice(command.getPrice());
+		ticketing.setLocation(command.getLocation());
+		ticketing.setEventTime(eventTime);
+		ticketing.setSaleStart(saleStart);
+		ticketing.setSaleEnd(saleEnd);
+		ticketing.setCategory(command.getCategory());
+		ticketing.setRunningMinutes(command.getRunningMinutes());
+		updateStock(ticketing, command.getStock(), now);
+	}
+
+	private void validateTicketingMetadataBeforeSave(LocalDateTime now, LocalDateTime eventTime,
+		LocalDateTime saleStart, LocalDateTime saleEnd) {
+		if (eventTime == null || !isEventTimeValid(now, eventTime)) {
 			throw new EventTimeNotValidException();
 		}
-
-		if (saleStart.isBefore(now)
-			|| saleEnd.isBefore(now)
-			|| saleEnd.isBefore(saleStart)
-			|| saleEnd.isAfter(eventTime)) {
+		if (saleStart == null
+			|| saleEnd == null
+			|| !isSaleDurationValid(now, saleStart, saleEnd)
+			|| !isEventTimeAndSaleEndValid(eventTime, saleEnd)) {
 			throw new SaleDurationNotValidException();
 		}
+		return;
+	}
 
+	private boolean isEventTimeValid(LocalDateTime baseTime, LocalDateTime eventTime) {
+		return eventTime.isAfter(baseTime);
+	}
+
+	private boolean isSaleDurationValid(LocalDateTime baseTime,
+		LocalDateTime saleStart,
+		LocalDateTime saleEnd) {
+		return saleStart.isAfter(baseTime)
+			&& saleEnd.isAfter(baseTime)
+			&& saleEnd.isAfter(saleStart);
+	}
+
+	private boolean isEventTimeAndSaleEndValid(LocalDateTime eventTime, LocalDateTime saleEnd) {
+		return eventTime.isAfter(saleEnd);
+	}
+
+	private void updateStock(Ticketing ticketing, int newStock, LocalDateTime now) {
+		var tickets = ticketService.listTicketByTicketing(
+				ListTicketByTicketingCommandDto.builder().ticketingId(ticketing.getId()).build())
+			.getTickets();
+
+		var numOfTickets = tickets.size();
+		if (numOfTickets > newStock) {
+			ticketService.dropNumOfTicketsUnderSomeTicketing(DropNumOfTicketsUnderSomeTicketingCommandDto.builder()
+				.ticketingId(ticketing.getId())
+				.numOfTickets(numOfTickets - newStock)
+				.commandCreatedAt(now).build());
+
+		} else if (numOfTickets < newStock) {
+			ticketService.createTickets(CreateTicketCommandDto.builder()
+				.ticketingId(ticketing.getId())
+				.numOfTickets(newStock - numOfTickets)
+				.commandCreatedAt(now).build());
+		}
 		return;
 	}
 }
