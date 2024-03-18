@@ -1,4 +1,4 @@
-package com.tiketeer.Tiketeer.infra.email;
+package com.tiketeer.Tiketeer.infra.alarm.email;
 
 import org.springframework.mail.javamail.MimeMessageHelper;
 

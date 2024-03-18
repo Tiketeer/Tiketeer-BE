@@ -10,8 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.mail.javamail.JavaMailSender;
 
-import com.tiketeer.Tiketeer.infra.email.EmailService;
-
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 

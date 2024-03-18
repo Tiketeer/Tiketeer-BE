@@ -1,4 +1,4 @@
-package com.tiketeer.Tiketeer.infra.email.exception;
+package com.tiketeer.Tiketeer.infra.alarm.email.exception;
 
 import com.tiketeer.Tiketeer.exception.DefinedException;
 import com.tiketeer.Tiketeer.exception.code.EmailExceptionCode;
