@@ -15,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import com.tiketeer.Tiketeer.auth.jwt.JwtAuthenticationFilter;
+import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,13 +37,12 @@ public class SecurityConfig {
 		return http.csrf(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
-			.addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
+			.addFilterAfter(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(req ->
 				req.requestMatchers(getPermitAllPaths()).permitAll()
-					
 					.anyRequest()
-					.authenticated()
+					.hasAnyRole(RoleEnum.BUYER.name(), RoleEnum.SELLER.name())
 			)
 			.build();
 	}
@@ -59,6 +59,6 @@ public class SecurityConfig {
 	}
 
 	private List<String> getMemberPaths() {
-		return List.of("/login", "/members/register");
+		return List.of("/auth/login", "/members/register");
 	}
 }
