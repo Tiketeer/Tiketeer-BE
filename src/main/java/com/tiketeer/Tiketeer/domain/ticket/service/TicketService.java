@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropAllTicketsUnderSomeTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropNumOfTicketsUnderSomeTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingResultDto;
@@ -65,7 +66,23 @@ public class TicketService {
 			.limit(command.getNumOfTickets())
 			.map(Ticket::getId).toList();
 
-		ticketRepository.deleteAllById(ticketIdsForDelete);
+		ticketRepository.deleteAllByIdInBatch(ticketIdsForDelete);
+	}
+
+	@Transactional
+	public void dropAllTicketsUnderSomeTicketing(DropAllTicketsUnderSomeTicketingCommandDto command) {
+		var ticketing = findTicketingById(command.getTicketingId());
+
+		if (command.getCommandCreatedAt().isAfter(ticketing.getSaleStart())) {
+			throw new UpdateTicketingAfterSaleStartException();
+		}
+
+		var tickets = listTicketByTicketing(
+			ListTicketByTicketingCommandDto.builder().ticketingId(ticketing.getId()).build()).getTickets();
+
+		var ticketIdsForDelete = tickets.stream()
+			.map(Ticket::getId).toList();
+		ticketRepository.deleteAllByIdInBatch(ticketIdsForDelete);
 	}
 
 	private Ticketing findTicketingById(UUID ticketingId) {
