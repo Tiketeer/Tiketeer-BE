@@ -146,7 +146,7 @@ public class MemberServiceTest {
 	}
 
 	@Test
-	@DisplayName("refreshToken 만료 > 재발급 > 재발급 확인")
+	@DisplayName("refreshToken 만료 > 재발급 > 예외발생 확인")
 	void refreshAccessTokenFailByExpiredRefreshToken() {
 		// given
 		String refreshToken = jwtService.createToken(
