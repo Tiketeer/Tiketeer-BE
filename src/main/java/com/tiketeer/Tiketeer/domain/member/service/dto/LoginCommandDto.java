@@ -6,14 +6,14 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(force = true)
-public class GenerateCookieCommand {
+public class GenerateCookieCommandDto {
 	private final String email;
 
 	//todo : 비밀번호 제약조건 (최소길이, 특수문자 필요시 추가)
 	private final String password;
 
 	@Builder
-	public GenerateCookieCommand(String email, String password) {
+	public GenerateCookieCommandDto(String email, String password) {
 		this.email = email;
 		this.password = password;
 	}

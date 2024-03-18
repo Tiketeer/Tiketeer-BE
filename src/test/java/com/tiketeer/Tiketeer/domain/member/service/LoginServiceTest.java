@@ -18,13 +18,12 @@ import com.tiketeer.Tiketeer.auth.jwt.JwtService;
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidLoginException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.member.service.dto.GenerateCookieCommand;
+import com.tiketeer.Tiketeer.domain.member.service.dto.LoginCommandDto;
+import com.tiketeer.Tiketeer.domain.member.service.dto.LoginResultDto;
 import com.tiketeer.Tiketeer.domain.role.Role;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
-
-import jakarta.servlet.http.Cookie;
 
 @Import({TestHelper.class})
 @SpringBootTest
@@ -71,52 +70,51 @@ class LoginServiceTest {
 
 		saveMember();
 
-		GenerateCookieCommand command = GenerateCookieCommand.builder()
+		LoginCommandDto command = LoginCommandDto.builder()
 			.email("user@example.com")
 			.password("password")
 			.build();
 
 		//when
-		Cookie cookie = loginService.generateCookie(command);
+		LoginResultDto loginResult = loginService.login(command);
 
 		//then
-		String token = cookie.getValue();
-		JwtPayload jwtPayload = jwtService.verifyToken(token);
+		JwtPayload jwtPayload = jwtService.verifyToken(loginResult.getAccessToken());
 		assertThat(jwtPayload.email()).isEqualTo("user@example.com");
 		assertThat(jwtPayload.roleEnum()).isEqualTo(RoleEnum.BUYER);
 	}
 
 	@Test
-	@DisplayName("존재하지 않는 이메일로 로그인 요청 > 실패")
+	@DisplayName("DB 내 계정 존재 > 존재하지 않는 이메일로 로그인 요청 > 실패")
 	void loginFailInvalidEmail() {
 		//given
 		saveMember();
 
-		GenerateCookieCommand command = GenerateCookieCommand.builder()
+		LoginCommandDto command = LoginCommandDto.builder()
 			.email("nobody@example.com")
 			.password("password")
 			.build();
 
 		//when - then
 		Assertions.assertThrows(InvalidLoginException.class, () -> {
-			loginService.generateCookie(command);
+			loginService.login(command);
 		});
 	}
 
 	@Test
-	@DisplayName("잘못된 비밀번호로 로그인 요청 > 실패")
+	@DisplayName("DB 내 계정 존재 > 잘못된 비밀번호로 로그인 요청 > 실패")
 	void loginFailInvalidPassword() {
 		//given
 		saveMember();
 
-		GenerateCookieCommand command = GenerateCookieCommand.builder()
+		LoginCommandDto command = LoginCommandDto.builder()
 			.email("user@example.com")
 			.password("invalid")
 			.build();
 
 		//when - then
 		Assertions.assertThrows(InvalidLoginException.class, () -> {
-			loginService.generateCookie(command);
+			loginService.login(command);
 		});
 
 	}
