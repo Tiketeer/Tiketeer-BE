@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
@@ -64,7 +63,7 @@ public class PurchaseServiceTest {
 	}
 
 	@Test
-	@DisplayName("구매 생성 요청 > 성공")
+	@DisplayName("정상 조건 > 구매 생성 요청 > 성공")
 	void createPurchaseSuccess() {
 		// given
 		var mockEmail = "test1@test.com";
@@ -89,7 +88,7 @@ public class PurchaseServiceTest {
 	}
 
 	@Test
-	@DisplayName("구매 생성 요청 > 존재하지 않는 멤버입니다 > 실패")
+	@DisplayName("존재하지 않는 멤버 > 구매 생성 요청 > 실패")
 	void createPurchaseFailMemberNotFound() {
 		// given
 		var mockEmail = "test1@test.com";
@@ -108,7 +107,7 @@ public class PurchaseServiceTest {
 	}
 
 	@Test
-	@DisplayName("구매 생성 요청 > 판매 기간이 아닙니다 > 실패")
+	@DisplayName("티케팃 판매 기간이 아님 > 구매 생성 요청 > 실패")
 	void createPurchaseFailNotInSalePeriod() {
 		// given
 		var mockEmail = "test1@test.com";
@@ -129,7 +128,7 @@ public class PurchaseServiceTest {
 	}
 
 	@Test
-	@DisplayName("구매 생성 요청 > 구매 가능한 티켓이 부족합니다 > 실패")
+	@DisplayName("구매 가능한 티켓이 부족 > 구매 생성 요청 > 실패")
 	void createPurchaseFailNotEnoughTicket() {
 		// given
 		var mockEmail = "test1@test.com";
@@ -149,7 +148,6 @@ public class PurchaseServiceTest {
 		}).isInstanceOf(NotEnoughTicketException.class);
 	}
 
-	@Transactional
 	public Member createMember(String email, String password) {
 		var role = roleRepository.findByName(RoleEnum.SELLER).orElseThrow();
 		var memberForSave = Member.builder()
@@ -158,7 +156,6 @@ public class PurchaseServiceTest {
 		return memberRepository.save(memberForSave);
 	}
 
-	@Transactional
 	private Ticketing createTicketing(UUID memberId, int saleStartAfterYears, int stock) {
 		var member = memberRepository.findById(memberId).orElseThrow();
 
