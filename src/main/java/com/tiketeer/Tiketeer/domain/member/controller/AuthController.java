@@ -49,7 +49,8 @@ public class AuthController {
 		RefreshAccessTokenResultDto refreshAccessTokenResultDto = memberService.refreshAccessToken(
 			RefreshAccessTokenCommandDto.builder().refreshToken(refreshToken).build());
 
-		Cookie cookie = setCookie("accessToken", refreshAccessTokenResultDto.getAccessToken());
+		Cookie cookie = setCookie("accessToken", refreshAccessTokenResultDto.getAccessToken(),
+			new CookieOptions(true, "/", 5 * 60));
 		response.addCookie(cookie);
 
 		return ResponseEntity.ok().build();
@@ -63,12 +64,20 @@ public class AuthController {
 		throw new InvalidTokenException();
 	}
 
-	private Cookie setCookie(String key, String value) {
+	private Cookie setCookie(String key, String value, CookieOptions options) {
 		Cookie cookie = new Cookie(key, value);
-		cookie.setHttpOnly(true);
-		cookie.setPath("/");
-		cookie.setMaxAge(5 * 60);
-
+		if (options.httpOnly != null) {
+			cookie.setHttpOnly(options.httpOnly);
+		}
+		if (options.path != null) {
+			cookie.setPath(options.path);
+		}
+		if (options.maxAge != null) {
+			cookie.setMaxAge(options.maxAge);
+		}
 		return cookie;
+	}
+
+	public record CookieOptions(Boolean httpOnly, String path, Integer maxAge) {
 	}
 }
