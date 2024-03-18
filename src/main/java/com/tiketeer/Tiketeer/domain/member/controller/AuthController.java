@@ -23,6 +23,7 @@ import jakarta.validation.Valid;
 @RequestMapping("/auth")
 public class AuthController {
 	private final MemberService memberService;
+	private final int COOKIE_MAX_AGE = 5 * 60;
 
 	@Autowired
 	public AuthController(MemberService memberService) {
@@ -50,7 +51,7 @@ public class AuthController {
 			RefreshAccessTokenCommandDto.builder().refreshToken(refreshToken).build());
 
 		Cookie cookie = setCookie("accessToken", refreshAccessTokenResultDto.getAccessToken(),
-			new CookieOptions(true, "/", 5 * 60));
+			new CookieOptions(true, "/", COOKIE_MAX_AGE));
 		response.addCookie(cookie);
 
 		return ResponseEntity.ok().build();
