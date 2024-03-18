@@ -66,7 +66,7 @@ public class TicketService {
 			.limit(command.getNumOfTickets())
 			.map(Ticket::getId).toList();
 
-		ticketRepository.deleteAllById(ticketIdsForDelete);
+		ticketRepository.deleteAllByIdInBatch(ticketIdsForDelete);
 	}
 
 	@Transactional
