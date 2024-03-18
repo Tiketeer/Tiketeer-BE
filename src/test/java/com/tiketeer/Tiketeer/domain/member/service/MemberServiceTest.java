@@ -20,6 +20,7 @@ import com.tiketeer.Tiketeer.auth.jwt.JwtService;
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidOtpException;
+import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
 import com.tiketeer.Tiketeer.domain.member.service.dto.InitMemberPasswordWithOtpCommandDto;
@@ -129,8 +130,6 @@ public class MemberServiceTest {
 	@DisplayName("정상 토큰 > 재발급 > 재발급 확인")
 	void refreshAccessToken() {
 		// given
-		String accessToken = jwtService.createToken(
-			new JwtPayload("test@gmail.com", RoleEnum.BUYER, new Date(System.currentTimeMillis() - 3 * 60 * 1000)));
 		String refreshToken = jwtService.createToken(
 			new JwtPayload("test@gmail.com", RoleEnum.BUYER, new Date(System.currentTimeMillis())));
 
@@ -147,11 +146,18 @@ public class MemberServiceTest {
 	}
 
 	@Test
-	@DisplayName("accessToken 만료, refreshToken 정상 > 재발급 > 재발급 확인")
-	void refreshAccessTokenSuccessWithExpiredAccessToken() {
-		String accessToken = jwtService.createToken(
-			new JwtPayload("test@gmail.com", RoleEnum.BUYER, new Date(System.currentTimeMillis() - 30 * 60 * 1000)));
+	@DisplayName("refreshToken 만료 > 재발급 > 재발급 확인")
+	void refreshAccessTokenFailByExpiredRefreshToken() {
+		// given
 		String refreshToken = jwtService.createToken(
-			new JwtPayload("test@gmail.com", RoleEnum.BUYER, new Date(System.currentTimeMillis())));
+			new JwtPayload("test@gmail.com", RoleEnum.BUYER,
+				new Date(System.currentTimeMillis() - 30L * 24 * 60 * 60 * 1000)));
+
+		// when
+		// then
+		Assertions.assertThatThrownBy(() -> {
+			memberService.refreshAccessToken(
+				RefreshAccessTokenCommandDto.builder().refreshToken(refreshToken).build());
+		}).isInstanceOf(InvalidTokenException.class);
 	}
 }

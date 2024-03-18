@@ -16,7 +16,6 @@ import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenCommand
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenResultDto;
 
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
@@ -59,20 +58,6 @@ public class AuthController {
 	private String getRefreshToken(String authorizationHeader) {
 		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 			return authorizationHeader.substring(7);
-		}
-
-		throw new InvalidTokenException();
-	}
-
-	private String getAccessToken(HttpServletRequest request) {
-		if (request.getCookies() == null) {
-			throw new InvalidTokenException();
-		}
-
-		for (var cookie : request.getCookies()) {
-			if ("accessToken".equals(cookie.getName())) {
-				return cookie.getValue();
-			}
 		}
 
 		throw new InvalidTokenException();
