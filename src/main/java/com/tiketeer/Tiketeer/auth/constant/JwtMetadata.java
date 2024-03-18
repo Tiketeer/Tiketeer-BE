@@ -1,4 +1,4 @@
-package com.tiketeer.Tiketeer.auth.jwt;
+package com.tiketeer.Tiketeer.auth.constant;
 
 public class JwtMetadata {
 	public static final String ACCESS_TOKEN = "accessToken";
