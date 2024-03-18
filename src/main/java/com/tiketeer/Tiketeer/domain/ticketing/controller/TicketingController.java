@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PatchTicketingRequestDto;
@@ -18,6 +19,7 @@ import com.tiketeer.Tiketeer.response.ApiResponse;
 import jakarta.validation.Valid;
 
 @RestController
+@RequestMapping("/ticketings")
 public class TicketingController {
 	private final TicketingService ticketingService;
 
@@ -26,7 +28,7 @@ public class TicketingController {
 		this.ticketingService = ticketingService;
 	}
 
-	@PostMapping(path = "/ticketings")
+	@PostMapping(path = "/")
 	public ResponseEntity<ApiResponse<PostTicketingResponseDto>> postTicketing(
 		@Valid @RequestBody PostTicketingRequestDto request) {
 		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
@@ -36,7 +38,7 @@ public class TicketingController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
 	}
 
-	@PatchMapping(path = "/ticketings/{ticketingId}")
+	@PatchMapping(path = "/{ticketingId}")
 	public ResponseEntity patchTicketing(@PathVariable String ticketingId,
 		@RequestBody PatchTicketingRequestDto request) {
 		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
