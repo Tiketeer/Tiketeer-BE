@@ -11,8 +11,6 @@
   ```yml
   DB_USERNAME= # DB Username
   DB_PASSWORD= # DB Password
-  EMAIL_ACCOUNT= # email server account
-  EMAIL_PASSWORD= # app password
   ```
 
     - application.yml 추가
