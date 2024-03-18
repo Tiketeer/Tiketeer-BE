@@ -70,8 +70,6 @@ public class PurchaseServiceTest {
 		var mockEmail = "test1@test.com";
 		var member = createMember(mockEmail, "1234");
 		var ticketing = createTicketing(member.getId(), 0, 1);
-		System.out.println("print ticketing");
-		System.out.println(ticketing.toString());
 
 		var createPurchaseCommand = CreatePurchaseCommandDto.builder()
 			.memberEmail(mockEmail)
