@@ -25,6 +25,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -79,6 +80,9 @@ public class Member {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "role_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private Role role;
+
+	@Version
+	private Integer version;
 
 	@Builder
 	public Member(String email, String password, long point, boolean enabled, String profileUrl, Role role) {
