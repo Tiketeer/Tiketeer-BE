@@ -14,8 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import com.tiketeer.Tiketeer.auth.constant.PublicPaths;
 import com.tiketeer.Tiketeer.auth.jwt.JwtAuthenticationFilter;
-import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,16 +41,14 @@ public class SecurityConfig {
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(req ->
 				req.requestMatchers(getPermitAllPaths()).permitAll()
-					.anyRequest()
-					.hasAnyRole(RoleEnum.BUYER.name(), RoleEnum.SELLER.name())
 			)
 			.build();
 	}
 
 	private String[] getPermitAllPaths() {
 		return Stream.concat(
-			getSwaggerPaths().stream(),
-			getMemberPaths().stream()
+			PublicPaths.getMemberPaths().stream(),
+			PublicPaths.getSwaggerPaths().stream()
 		).toList().toArray(String[]::new);
 	}
 
