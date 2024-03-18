@@ -1,5 +1,7 @@
 package com.tiketeer.Tiketeer.domain.member.controller.dto;
 
+import com.tiketeer.Tiketeer.domain.member.service.dto.LoginCommandDto;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
@@ -21,5 +23,9 @@ public class LoginRequestDto {
 	public LoginRequestDto(String email, String password) {
 		this.email = email;
 		this.password = password;
+	}
+
+	public LoginCommandDto toCommand() {
+		return new LoginCommandDto(email, password);
 	}
 }
