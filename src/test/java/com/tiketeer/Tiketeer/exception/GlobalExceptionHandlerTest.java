@@ -23,7 +23,7 @@ import com.tiketeer.Tiketeer.exception.code.TicketingExceptionCode;
 
 @Import({SecurityDisableForTestConfig.class, DummyRestController.class})
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 public class GlobalExceptionHandlerTest {
 	private final MockMvc mockMvc;
 	private final ObjectMapper objectMapper;
