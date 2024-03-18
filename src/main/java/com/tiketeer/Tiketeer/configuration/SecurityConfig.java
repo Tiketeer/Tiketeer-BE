@@ -40,7 +40,6 @@ public class SecurityConfig {
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(req ->
 				req.requestMatchers(getPermitAllPaths()).permitAll()
-					
 					.anyRequest()
 					.authenticated()
 			)
