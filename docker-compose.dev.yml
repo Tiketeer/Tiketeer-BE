@@ -11,4 +11,4 @@ services:
       - '--collation-server=utf8mb4_unicode_ci'
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_USERNAME}
+      MYSQL_DATABASE: ${DB_DATABASE}
