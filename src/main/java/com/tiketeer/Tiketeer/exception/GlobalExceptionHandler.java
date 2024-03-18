@@ -10,6 +10,7 @@ import com.tiketeer.Tiketeer.domain.member.exception.InvalidOtpException;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.role.exception.RoleNotFoundException;
 import com.tiketeer.Tiketeer.domain.ticket.exception.TicketNotFoundException;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.DeleteTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
@@ -33,6 +34,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		EventTimeNotValidException.class,
 		SaleDurationNotValidException.class,
 		UpdateTicketingAfterSaleStartException.class,
+		DeleteTicketingAfterSaleStartException.class,
 
 		// Ticket
 		TicketNotFoundException.class,

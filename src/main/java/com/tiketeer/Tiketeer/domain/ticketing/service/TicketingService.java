@@ -10,9 +10,11 @@ import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.ticket.service.TicketService;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropAllTicketsUnderSomeTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropNumOfTicketsUnderSomeTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.DeleteTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
@@ -20,6 +22,7 @@ import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSale
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingResultDto;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.DeleteTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.UpdateTicketingCommandDto;
 
 @Service
@@ -105,6 +108,25 @@ public class TicketingService {
 		ticketing.setCategory(command.getCategory());
 		ticketing.setRunningMinutes(command.getRunningMinutes());
 		updateStock(ticketing, command.getStock(), now);
+	}
+
+	@Transactional
+	public void deleteTicketing(DeleteTicketingCommandDto command) {
+		var ticketingId = command.getTicketingId();
+		var ticketing = ticketingRepository.findById(ticketingId).orElseThrow(TicketingNotFoundException::new);
+
+		var now = command.getCommandCreatedAt();
+		if (now.isAfter(ticketing.getSaleStart())) {
+			throw new DeleteTicketingAfterSaleStartException();
+		}
+
+		var dropTicketsCommand = DropAllTicketsUnderSomeTicketingCommandDto.builder()
+			.ticketingId(ticketingId)
+			.commandCreatedAt(now)
+			.build();
+
+		ticketService.dropAllTicketsUnderSomeTicketing(dropTicketsCommand);
+		ticketingRepository.delete(ticketing);
 	}
 
 	private void validateTicketingMetadataBeforeSave(LocalDateTime now, LocalDateTime eventTime,
