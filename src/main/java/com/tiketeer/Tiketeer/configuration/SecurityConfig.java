@@ -57,6 +57,6 @@ public class SecurityConfig {
 	}
 
 	private List<String> getMemberPaths() {
-		return List.of("/auth/login", "/members/register");
+		return List.of("/auth/login", "/members/register", "/auth/refresh");
 	}
 }

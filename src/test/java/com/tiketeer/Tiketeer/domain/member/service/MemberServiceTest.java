@@ -1,6 +1,9 @@
 package com.tiketeer.Tiketeer.domain.member.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
@@ -14,12 +17,17 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tiketeer.Tiketeer.auth.jwt.JwtPayload;
+import com.tiketeer.Tiketeer.auth.jwt.JwtService;
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidOtpException;
+import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
 import com.tiketeer.Tiketeer.domain.member.service.dto.InitMemberPasswordWithOtpCommandDto;
+import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenCommandDto;
+import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenResultDto;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
@@ -27,24 +35,26 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 @Import({TestHelper.class})
 @SpringBootTest
 public class MemberServiceTest {
-	private final TestHelper testHelper;
-	private final MemberService memberService;
-	private final RoleRepository roleRepository;
-	private final MemberRepository memberRepository;
-	private final OtpRepository otpRepository;
-	private final PasswordEncoder passwordEncoder;
+	@Autowired
+	private TestHelper testHelper;
 
 	@Autowired
-	public MemberServiceTest(TestHelper testHelper, MemberService memberService, RoleRepository roleRepository,
-		MemberRepository memberRepository,
-		OtpRepository otpRepository, PasswordEncoder passwordEncoder) {
-		this.testHelper = testHelper;
-		this.memberService = memberService;
-		this.roleRepository = roleRepository;
-		this.memberRepository = memberRepository;
-		this.otpRepository = otpRepository;
-		this.passwordEncoder = passwordEncoder;
-	}
+	private MemberService memberService;
+
+	@Autowired
+	private RoleRepository roleRepository;
+
+	@Autowired
+	private MemberRepository memberRepository;
+
+	@Autowired
+	private OtpRepository otpRepository;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private JwtService jwtService;
 
 	@BeforeEach
 	void initTable() {
@@ -116,5 +126,40 @@ public class MemberServiceTest {
 			.email(email)
 			.password("1234456eqeqw").role(role).build();
 		return memberRepository.save(memberForSave);
+	}
+
+	@Test
+	@DisplayName("정상 토큰 > 재발급 > 재발급 확인")
+	void refreshAccessToken() {
+		// given
+		String refreshToken = jwtService.createToken(
+			new JwtPayload("test@gmail.com", RoleEnum.BUYER, new Date(System.currentTimeMillis())));
+
+		// when
+		RefreshAccessTokenResultDto refreshAccessTokenResultDto = memberService.refreshAccessToken(
+			RefreshAccessTokenCommandDto.builder().refreshToken(refreshToken).build());
+
+		// then
+		String accessToken1 = refreshAccessTokenResultDto.getAccessToken();
+		JwtPayload jwtPayload = jwtService.verifyToken(accessToken1);
+
+		Assertions.assertThat(accessToken1).isNotNull();
+		Assertions.assertThat(jwtPayload.email()).isEqualTo("test@gmail.com");
+	}
+
+	@Test
+	@DisplayName("refreshToken 만료 > 재발급 > 예외발생 확인")
+	void refreshAccessTokenFailByExpiredRefreshToken() {
+		// given
+		String refreshToken = jwtService.createToken(
+			new JwtPayload("test@gmail.com", RoleEnum.BUYER,
+				new Date(System.currentTimeMillis() - 30L * 24 * 60 * 60 * 1000)));
+
+		// when
+		// then
+		assertThrows(InvalidTokenException.class, () -> {
+			memberService.refreshAccessToken(
+				RefreshAccessTokenCommandDto.builder().refreshToken(refreshToken).build());
+		});
 	}
 }
