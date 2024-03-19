@@ -23,12 +23,15 @@ import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidOtpException;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
+import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
+import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.InitMemberPasswordWithOtpCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenResultDto;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
+import com.tiketeer.Tiketeer.domain.role.exception.RoleNotFoundException;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
@@ -121,10 +124,10 @@ public class MemberServiceTest {
 	}
 
 	private Member createMember(String email) {
-		var role = roleRepository.findByName(RoleEnum.BUYER).orElseThrow();
+		var role = roleRepository.findByName(RoleEnum.BUYER).orElseThrow(RoleNotFoundException::new);
 		var memberForSave = Member.builder()
 			.email(email)
-			.password("1234456eqeqw").role(role).build();
+			.password("1234456eqeqw").role(role).point(5000).profileUrl("test@profile.url").build();
 		return memberRepository.save(memberForSave);
 	}
 
@@ -161,5 +164,41 @@ public class MemberServiceTest {
 			memberService.refreshAccessToken(
 				RefreshAccessTokenCommandDto.builder().refreshToken(refreshToken).build());
 		});
+	}
+
+	@Test
+	@DisplayName("정상 조건 > 멤버 조회 > 성공")
+	@Transactional
+	void getMemberSuccess() {
+		// given
+		var mockEmail = "test@test.com";
+		var memberInDb = createMember(mockEmail);
+
+		var command = GetMemberCommandDto.builder().memberEmail(mockEmail).build();
+
+		// when
+		var member = memberService.getMember(command);
+
+		// then
+		Assertions.assertThat(member.getEmail()).isEqualTo(memberInDb.getEmail());
+		Assertions.assertThat(member.getPoint()).isEqualTo(memberInDb.getPoint());
+		Assertions.assertThat(member.getProfileUrl()).isEqualTo(memberInDb.getProfileUrl());
+		Assertions.assertThat(member.getCreatedAt()).isEqualTo(memberInDb.getCreatedAt());
+	}
+
+	@Test
+	@DisplayName("멤버가 존재하지 않음 > 멤버 조회 > 실패")
+	@Transactional(readOnly = true)
+	void getMemberFailNotFoundMember() {
+		// given
+		var mockEmail = "test@test.com";
+
+		var command = GetMemberCommandDto.builder().memberEmail(mockEmail).build();
+
+		Assertions.assertThatThrownBy(() -> {
+			// when
+			memberService.getMember(command);
+			// then
+		}).isInstanceOf(MemberNotFoundException.class);
 	}
 }
