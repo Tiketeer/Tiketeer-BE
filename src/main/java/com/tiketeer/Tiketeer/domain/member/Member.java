@@ -30,12 +30,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "members")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
+@ToString
 public class Member {
 	@Id
 	@UuidGenerator
