@@ -3,8 +3,9 @@ package com.tiketeer.Tiketeer.testhelper;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestComponent;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Component;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
@@ -21,7 +22,7 @@ import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 
-@Component
+@TestComponent
 public class TestHelper {
 	private final PermissionRepository permissionRepository;
 	private final RoleRepository roleRepository;
@@ -32,6 +33,8 @@ public class TestHelper {
 	private final TicketRepository ticketRepository;
 	private final TicketingRepository ticketingRepository;
 
+	private final PasswordEncoder passwordEncoder;
+
 	@Autowired
 	public TestHelper(
 		PermissionRepository permissionRepository,
@@ -41,7 +44,8 @@ public class TestHelper {
 		OtpRepository otpRepository,
 		PurchaseRepository purchaseRepository,
 		TicketRepository ticketRepository,
-		TicketingRepository ticketingRepository
+		TicketingRepository ticketingRepository,
+		PasswordEncoder passwordEncoder
 	) {
 		this.permissionRepository = permissionRepository;
 		this.roleRepository = roleRepository;
@@ -51,6 +55,7 @@ public class TestHelper {
 		this.purchaseRepository = purchaseRepository;
 		this.ticketRepository = ticketRepository;
 		this.ticketingRepository = ticketingRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Transactional

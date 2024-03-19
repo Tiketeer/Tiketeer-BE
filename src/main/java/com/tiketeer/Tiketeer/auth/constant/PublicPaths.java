@@ -9,7 +9,7 @@ public class PublicPaths {
 	}
 
 	public static List<String> getMemberPaths() {
-		return List.of("/auth/member", "/members/register");
+		return List.of("/auth/login", "/members/register");
 	}
 
 	public static List<String> getSwaggerPaths() {
