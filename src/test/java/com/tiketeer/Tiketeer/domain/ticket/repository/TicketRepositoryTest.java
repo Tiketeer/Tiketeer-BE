@@ -81,7 +81,7 @@ public class TicketRepositoryTest {
 			Ticket.builder().ticketing(ticketing).build());
 
 		// when
-		var tickets = ticketRepository.findByTicketingIdAndPurchaseIsNullOrderById(ticketing.getId());
+		var tickets = ticketRepository.findByTicketingIdAndPurchaseIsNull(ticketing.getId());
 
 		// then
 		assertThat(tickets.size()).isEqualTo(2);

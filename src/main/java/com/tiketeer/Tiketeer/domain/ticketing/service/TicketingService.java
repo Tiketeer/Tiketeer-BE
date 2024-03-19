@@ -51,7 +51,8 @@ public class TicketingService {
 		var ticketings = ticketingRepository.findAll()
 			.stream()
 			.map((ticketing) -> {
-				var remainedTickets = ticketRepository.findByTicketingIdAndPurchaseIsNullOrderById(
+				// Todo - query로 처리해서 remainTicketStock 개수 한번에 가져오기
+				var remainedTickets = ticketRepository.findByTicketingIdAndPurchaseIsNull(
 					ticketing.getId());
 				return GetAllTicketingsDto.builder().ticketingId(ticketing.getId())
 					.price(ticketing.getPrice())
