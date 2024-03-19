@@ -80,7 +80,7 @@ public class AuthController {
 			.build();
 	}
 
-	@PostMapping(path = "/refresh")
+	@PostMapping(path = "/auth/refresh")
 	public ResponseEntity refreshAccessToken(@RequestHeader("Authorization") String authorizationHeader,
 		HttpServletResponse response) {
 		String refreshToken = getRefreshToken(authorizationHeader);

@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiketeer.Tiketeer.auth.constant.JwtMetadata;
 import com.tiketeer.Tiketeer.domain.member.Member;
+import com.tiketeer.Tiketeer.domain.member.constant.CookieConfig;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.LoginRequestDto;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.role.Role;
@@ -87,4 +88,18 @@ class AuthControllerTest {
 			.andExpect(cookie().exists(JwtMetadata.ACCESS_TOKEN));
 	}
 
+	@Test
+	@DisplayName("authorization bearer에 refresh token 추가 > 컨트롤러에 요청 > access token 확인")
+	void refreshAccessToken() throws Exception {
+		mockMvc
+			.perform(
+				post("/api/auth/refresh")
+					.header("Authorization",
+						"Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInJvbGUiOiJCVVlFUiIsImlzcyI6InRpa2V0ZWVyIiwiaWF0IjoxNzEzMzQ3ODcxLCJleHAiOjE3MTMzNDgxNzF9.bID0LbWw0QeFJxBCYkZfKP3WAzPY24-HjIks4W-7dJqcyMXvzCQOCHx4tzWNTZ2PZolCxbzgrP_i2GA-TVgiQQ")
+					.contextPath("/api")
+			)
+			.andExpect(status().isOk())
+			.andExpect(cookie().exists(JwtMetadata.ACCESS_TOKEN))
+			.andExpect(cookie().maxAge(JwtMetadata.ACCESS_TOKEN, CookieConfig.MAX_AGE));
+	}
 }
