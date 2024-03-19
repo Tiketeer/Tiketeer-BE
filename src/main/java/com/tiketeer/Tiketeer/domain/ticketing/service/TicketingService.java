@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
+import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticket.service.TicketService;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropAllTicketsUnderSomeTicketingCommandDto;
@@ -34,13 +35,15 @@ public class TicketingService {
 	private final TicketingRepository ticketingRepository;
 	private final TicketService ticketService;
 	private final MemberRepository memberRepository;
+	private final TicketRepository ticketRepository;
 
 	@Autowired
 	public TicketingService(TicketingRepository ticketingRepository, TicketService ticketService,
-		MemberRepository memberRepository) {
+		MemberRepository memberRepository, TicketRepository ticketRepository) {
 		this.ticketingRepository = ticketingRepository;
 		this.ticketService = ticketService;
 		this.memberRepository = memberRepository;
+		this.ticketRepository = ticketRepository;
 	}
 
 	@Transactional(readOnly = true)
@@ -48,9 +51,8 @@ public class TicketingService {
 		var ticketings = ticketingRepository.findAll()
 			.stream()
 			.map((ticketing) -> {
-				var tickets = ticketService.listTicketByTicketing(
-					ListTicketByTicketingCommandDto.builder().ticketingId(ticketing.getId()).build()).getTickets();
-				var numOfRemainedTickets = (int)tickets.stream().filter(ticket -> ticket.getPurchase() == null).count();
+				var remainedTickets = ticketRepository.findByTicketingIdAndPurchaseIsNullOrderById(
+					ticketing.getId());
 				return GetAllTicketingsDto.builder().ticketingId(ticketing.getId())
 					.price(ticketing.getPrice())
 					.category(ticketing.getCategory())
@@ -61,7 +63,7 @@ public class TicketingService {
 					.saleStart(ticketing.getSaleStart())
 					.saleEnd(ticketing.getSaleEnd())
 					.createdAt(ticketing.getCreatedAt())
-					.remainedStock(numOfRemainedTickets)
+					.remainedStock(remainedTickets.size())
 					.build();
 			})
 			.toList();

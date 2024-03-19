@@ -66,8 +66,32 @@ public class TicketRepositoryTest {
 	}
 
 	@Test
-	@DisplayName("티켓 생성 > ticketing_id로 purchase_id가 할당되지 않은 티켓 n개 조회 > 성공")
+	@DisplayName("티켓 생성 > ticketing_id로 purchase_id가 할당되지 않은 티켓 전체 조회 > 성공")
 	void findByTicketingIdAndPurchaseIsNullOrderById() {
+		// given
+		var role = roleRepository.save(new Role(RoleEnum.SELLER));
+		var member = memberRepository.save(
+			new Member("test@gmail.com", "asdf1234", 0L, false, null, role));
+		var now = LocalDateTime.now();
+		var ticketing = ticketingRepository.save(
+			new Ticketing(1000, member, "", "test", "Seoul", now, "", 600, now, now));
+		ticketRepository.save(
+			Ticket.builder().ticketing(ticketing).build());
+		ticketRepository.save(
+			Ticket.builder().ticketing(ticketing).build());
+
+		// when
+		var tickets = ticketRepository.findByTicketingIdAndPurchaseIsNullOrderById(ticketing.getId());
+
+		// then
+		assertThat(tickets.size()).isEqualTo(2);
+		assertThat(tickets.getFirst().getTicketing()).isEqualTo(ticketing);
+		assertThat(tickets.getFirst().getPurchase()).isNull();
+	}
+
+	@Test
+	@DisplayName("티켓 생성 > ticketing_id로 purchase_id가 할당되지 않은 티켓 n개 조회 > 성공")
+	void findByTicketingIdAndPurchaseIsNullOrderByIdWithLimit() {
 		// given
 		var role = roleRepository.save(new Role(RoleEnum.SELLER));
 		var member = memberRepository.save(
