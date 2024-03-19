@@ -26,6 +26,8 @@ import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingResultDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.DeleteTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.GetTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.GetTicketingResultDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.UpdateTicketingCommandDto;
 
 @Service
@@ -68,6 +70,29 @@ public class TicketingService {
 			})
 			.toList();
 		return ticketings;
+	}
+
+	@Transactional
+	public GetTicketingResultDto getTickting(GetTicketingCommandDto command) {
+		var ticketing = ticketingRepository.getReferenceById(command.getTicketingId());
+		var tickets = ticketService.listTicketByTicketing(
+			ListTicketByTicketingCommandDto.builder().ticketingId(ticketing.getId()).build()).getTickets();
+		var numOfRemainedTickets = (int)tickets.stream().filter(ticket -> ticket.getPurchase() == null).count();
+		return GetTicketingResultDto.builder().ticketingId(ticketing.getId())
+			.price(ticketing.getPrice())
+			.category(ticketing.getCategory())
+			.location(ticketing.getLocation())
+			.description(ticketing.getDescription())
+			.title(ticketing.getTitle())
+			.runningMinutes(ticketing.getRunningMinutes())
+			.eventTime(ticketing.getEventTime())
+			.saleStart(ticketing.getSaleStart())
+			.saleEnd(ticketing.getSaleEnd())
+			.createdAt(ticketing.getCreatedAt())
+			.stock(tickets.size())
+			.remainedStock(numOfRemainedTickets)
+			.owner(ticketing.getMember().getEmail())
+			.build();
 	}
 
 	@Transactional
