@@ -1,5 +1,7 @@
 package com.tiketeer.Tiketeer.domain.member.controller;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tiketeer.Tiketeer.auth.SecurityContextHelper;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.ChargePointRequestDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.ChargePointResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterRequestDto;
@@ -25,11 +28,14 @@ import jakarta.validation.Valid;
 public class MemberController {
 	private final MemberRegisterService memberRegisterService;
 	private final MemberPointService memberPointService;
+	private final SecurityContextHelper securityContextHelper;
 
 	@Autowired
-	public MemberController(MemberRegisterService memberRegisterService, MemberPointService memberPointService) {
+	public MemberController(MemberRegisterService memberRegisterService, MemberPointService memberPointService,
+		SecurityContextHelper securityContextHelper) {
 		this.memberRegisterService = memberRegisterService;
 		this.memberPointService = memberPointService;
+		this.securityContextHelper = securityContextHelper;
 	}
 
 	@PostMapping("/register")
@@ -44,11 +50,17 @@ public class MemberController {
 		);
 	}
 
+	// TODO: 이메일 전송 EP들의 Path 가독성 논의 후 Path 수정
+	@PostMapping(path = "/{memberId}/password")
+	public ResponseEntity sendPasswordChangeEmail(@PathVariable UUID memberId) {
+		var email = securityContextHelper.getEmail();
+		return ResponseEntity.ok().build();
+	}
+
 	@PostMapping(path = "/{memberId}/points")
 	public ResponseEntity<ApiResponse<ChargePointResponseDto>> chargePoint(@PathVariable String memberId,
 		@Valid @RequestBody ChargePointRequestDto request) {
-		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
-		var email = "mock@mock.com";
+		var email = securityContextHelper.getEmail();
 		var totalPoint = memberPointService.chargePoint(request.convertToCommandDto(memberId, email)).getTotalPoint();
 		var result = ChargePointResponseDto.builder().totalPoint(totalPoint).build();
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.wrap(result));
