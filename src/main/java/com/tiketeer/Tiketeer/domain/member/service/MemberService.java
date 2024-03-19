@@ -63,7 +63,6 @@ public class MemberService {
 		}
 	}
 
-	@Transactional(readOnly = true)
 	public GetMemberResultDto getMember(GetMemberCommandDto command) {
 		var member = memberRepository.findByEmail(command.getMemberEmail()).orElseThrow(MemberNotFoundException::new);
 		return GetMemberResultDto.builder()
