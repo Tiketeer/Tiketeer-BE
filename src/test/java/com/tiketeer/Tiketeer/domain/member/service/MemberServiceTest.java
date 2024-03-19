@@ -1,5 +1,7 @@
 package com.tiketeer.Tiketeer.domain.member.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
@@ -33,26 +35,26 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 @Import({TestHelper.class})
 @SpringBootTest
 public class MemberServiceTest {
-	private final TestHelper testHelper;
-	private final MemberService memberService;
-	private final RoleRepository roleRepository;
-	private final MemberRepository memberRepository;
-	private final OtpRepository otpRepository;
-	private final PasswordEncoder passwordEncoder;
-	private final JwtService jwtService;
+	@Autowired
+	private TestHelper testHelper;
 
 	@Autowired
-	public MemberServiceTest(TestHelper testHelper, MemberService memberService, RoleRepository roleRepository,
-		MemberRepository memberRepository,
-		OtpRepository otpRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
-		this.testHelper = testHelper;
-		this.memberService = memberService;
-		this.roleRepository = roleRepository;
-		this.memberRepository = memberRepository;
-		this.otpRepository = otpRepository;
-		this.passwordEncoder = passwordEncoder;
-		this.jwtService = jwtService;
-	}
+	private MemberService memberService;
+
+	@Autowired
+	private RoleRepository roleRepository;
+
+	@Autowired
+	private MemberRepository memberRepository;
+
+	@Autowired
+	private OtpRepository otpRepository;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private JwtService jwtService;
 
 	@BeforeEach
 	void initTable() {
@@ -155,9 +157,9 @@ public class MemberServiceTest {
 
 		// when
 		// then
-		Assertions.assertThatThrownBy(() -> {
+		assertThrows(InvalidTokenException.class, () -> {
 			memberService.refreshAccessToken(
 				RefreshAccessTokenCommandDto.builder().refreshToken(refreshToken).build());
-		}).isInstanceOf(InvalidTokenException.class);
+		});
 	}
 }
