@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
@@ -18,12 +19,15 @@ import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.DeleteTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.ModifyForNotOwnedTicketingException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.DeleteTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.UpdateTicketingCommandDto;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
@@ -189,6 +193,44 @@ public class TicketingServiceTest {
 			ticketingService.updateTicketing(updateTicketingCommand);
 			// then
 		}).isInstanceOf(TicketingNotFoundException.class);
+	}
+
+	@Test
+	@DisplayName("본인 소유가 아닌 티케팅 > 티케팅 수정 요청 > 실패")
+	void updateTicketingFailBecauseNotOwnedTicketing() {
+		// given
+		var memberEmailOwnedTicketing = "test@test.com";
+		createMember(memberEmailOwnedTicketing);
+
+		var now = LocalDateTime.now();
+		var saleStart = now.plusYears(1);
+		var saleEnd = now.plusYears(2);
+		var eventTime = now.plusYears(3);
+		var createCmd = createTicketingCommand(memberEmailOwnedTicketing, eventTime, saleStart, saleEnd);
+
+		var ticketingId = ticketingService.createTicketing(createCmd).getTicketingId();
+
+		var memberEmailNotOwnedTicketing = "another@test.com";
+		var updateTicketingCommand = UpdateTicketingCommandDto.builder()
+			.ticketingId(ticketingId)
+			.email(memberEmailNotOwnedTicketing)
+			.title(createCmd.getTitle())
+			.price(createCmd.getPrice())
+			.description(createCmd.getDescription())
+			.category(createCmd.getCategory())
+			.runningMinutes(createCmd.getRunningMinutes())
+			.stock(createCmd.getStock())
+			.saleStart(createCmd.getSaleStart())
+			.saleEnd(createCmd.getSaleEnd())
+			.eventTime(createCmd.getEventTime())
+			.commandCreatedAt(saleStart.plusDays(1))
+			.build();
+
+		Assertions.assertThatThrownBy(() -> {
+			// when
+			ticketingService.updateTicketing(updateTicketingCommand);
+			// then
+		}).isInstanceOf(ModifyForNotOwnedTicketingException.class);
 	}
 
 	@Test
@@ -397,6 +439,111 @@ public class TicketingServiceTest {
 
 		var tickets = ticketRepository.findAllByTicketing(updatedTicketing);
 		Assertions.assertThat(tickets.size()).isEqualTo(newStock);
+	}
+
+	@Test
+	@DisplayName("존재하지 않는 티케팅 > 티케팅 삭제 요청 > 실패")
+	void deleteTicketingFailBecauseTicketingNotExist() {
+		// given
+		var inValidTicketingId = UUID.randomUUID();
+
+		var deleteTicketingCommand = DeleteTicketingCommandDto.builder().ticketingId(inValidTicketingId).build();
+
+		Assertions.assertThatThrownBy(() -> {
+			// when
+			ticketingService.deleteTicketing(deleteTicketingCommand);
+			// then
+		}).isInstanceOf(TicketingNotFoundException.class);
+	}
+
+	@Test
+	@DisplayName("본인 소유가 아닌 티케팅 > 티케팅 삭제 요청 > 실패")
+	void deleteTicketingFailBecauseNotOwnedTicketing() {
+		// given
+		var emailOwnedTicketing = "test@test.com";
+		createMember(emailOwnedTicketing);
+
+		var now = LocalDateTime.now();
+		var createTicketingCommand = createTicketingCommand(emailOwnedTicketing, now.plusYears(3), now.plusYears(1),
+			now.plusYears(2));
+		var ticketingId = ticketingService.createTicketing(createTicketingCommand).getTicketingId();
+
+		var emailNotOwnedTicketing = "another@test.com";
+		var deleteTicketingCommand = DeleteTicketingCommandDto.builder()
+			.ticketingId(ticketingId)
+			.memberEmail(emailNotOwnedTicketing)
+			.commandCreatedAt(now)
+			.build();
+
+		Assertions.assertThatThrownBy(() -> {
+			// when
+			ticketingService.deleteTicketing(deleteTicketingCommand);
+			// then
+		}).isInstanceOf(ModifyForNotOwnedTicketingException.class);
+	}
+
+	@Test
+	@DisplayName("판매를 시작한 티케팅 > 티케팅 삭제 요청 > 실패")
+	void deleteTicketingFailBecauseSaleDurationHasBeenStarted() {
+		// given
+		var email = "test@test.com";
+		createMember(email);
+
+		var now = LocalDateTime.now();
+		var saleStart = now.plusYears(1);
+		var createTicketingCommand = createTicketingCommand(email, now.plusYears(3), saleStart,
+			now.plusYears(2));
+		var ticketingId = ticketingService.createTicketing(createTicketingCommand).getTicketingId();
+
+		var deleteTicketingCommand = DeleteTicketingCommandDto.builder()
+			.ticketingId(ticketingId)
+			.memberEmail(email)
+			.commandCreatedAt(saleStart.plusDays(1))
+			.build();
+
+		Assertions.assertThatThrownBy(() -> {
+			// when
+			ticketingService.deleteTicketing(deleteTicketingCommand);
+			// then
+		}).isInstanceOf(DeleteTicketingAfterSaleStartException.class);
+	}
+
+	@Test
+	@DisplayName("삭제 가능한 조건의 티케팅 > 삭제 요청 > 삭제 성공 및 모든 하위 티켓 삭제")
+	@Transactional
+	void deleteTicketingSuccess() {
+		// given
+		var email = "test@test.com";
+		createMember(email);
+
+		var now = LocalDateTime.now();
+		var createTicketingCommand = createTicketingCommand(email, now.plusYears(3), now.plusYears(1),
+			now.plusYears(2));
+		var ticketingId = ticketingService.createTicketing(createTicketingCommand).getTicketingId();
+
+		var ticketingOpt = ticketingRepository.findById(ticketingId);
+		Assertions.assertThat(ticketingOpt.isPresent()).isTrue();
+
+		var ticketing = ticketingOpt.get();
+		Assertions.assertThat(ticketRepository.findAllByTicketing(ticketing).size())
+			.isEqualTo(createTicketingCommand.getStock());
+
+		var deleteTicketingCommand = DeleteTicketingCommandDto.builder()
+			.ticketingId(ticketingId)
+			.memberEmail(email)
+			.commandCreatedAt(now)
+			.build();
+
+		// when
+		ticketingService.deleteTicketing(deleteTicketingCommand);
+
+		// then
+		var ticketsUnderTicketing = ticketRepository.findAllByTicketing(ticketing);
+		Assertions.assertThat(ticketsUnderTicketing.size()).isEqualTo(0);
+
+		var ticketingInDBOpt = ticketingRepository.findById(ticketingId);
+		Assertions.assertThat(ticketingInDBOpt.isPresent()).isFalse();
+
 	}
 
 	private Member createMember(String email) {

@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import com.tiketeer.Tiketeer.auth.constant.PublicPaths;
 import com.tiketeer.Tiketeer.auth.jwt.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
@@ -36,21 +37,18 @@ public class SecurityConfig {
 		return http.csrf(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
-			.addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
+			.addFilterAfter(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(req ->
 				req.requestMatchers(getPermitAllPaths()).permitAll()
-					
-					.anyRequest()
-					.authenticated()
 			)
 			.build();
 	}
 
 	private String[] getPermitAllPaths() {
 		return Stream.concat(
-			getSwaggerPaths().stream(),
-			getMemberPaths().stream()
+			PublicPaths.getMemberPaths().stream(),
+			PublicPaths.getSwaggerPaths().stream()
 		).toList().toArray(String[]::new);
 	}
 
@@ -59,6 +57,6 @@ public class SecurityConfig {
 	}
 
 	private List<String> getMemberPaths() {
-		return List.of("/login", "/members/register");
+		return List.of("/auth/login", "/members/register", "/auth/refresh");
 	}
 }

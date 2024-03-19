@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.tiketeer.Tiketeer.auth.FilterExceptionResolver;
+import com.tiketeer.Tiketeer.auth.constant.JwtMetadata;
+import com.tiketeer.Tiketeer.auth.constant.PublicPaths;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -63,5 +65,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			}
 		}
 		throw new JwtException("Missing Token");
+	}
+
+	@Override
+	protected boolean shouldNotFilter(HttpServletRequest request) {
+		String path = request.getRequestURI();
+		return PublicPaths.appendApiPrefix(PublicPaths.getMemberPaths()).contains(path)
+			|| PublicPaths.appendApiPrefix(PublicPaths.getSwaggerPathPrefixes()).stream().anyMatch(path::startsWith);
 	}
 }
