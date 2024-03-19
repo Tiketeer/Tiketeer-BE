@@ -45,14 +45,14 @@ public class PurchaseService {
 	}
 
 	@Transactional
-	public CreatePurchaseResultDto createPurchase(CreatePurchaseCommandDto createPurchaseCommandDto) {
-		var ticketingId = createPurchaseCommandDto.getTicketingId();
-		var count = createPurchaseCommandDto.getCount();
+	public CreatePurchaseResultDto createPurchase(CreatePurchaseCommandDto command) {
+		var ticketingId = command.getTicketingId();
+		var count = command.getCount();
 
-		var member = this.memberRepository.findByEmail(createPurchaseCommandDto.getMemberEmail()).orElseThrow(
+		var member = this.memberRepository.findByEmail(command.getMemberEmail()).orElseThrow(
 			MemberNotFoundException::new);
 
-		validateTicketingSalePeriod(ticketingId, createPurchaseCommandDto.getCommandCreatedAt());
+		validateTicketingSalePeriod(ticketingId, command.getCommandCreatedAt());
 
 		var newPurchase = this.purchaseRepository.save(Purchase.builder().member(member).build());
 
@@ -74,15 +74,15 @@ public class PurchaseService {
 	}
 
 	@Transactional
-	public void deletePurchaseTickets(DeletePurchaseTicketsCommandDto deletePurchaseTicketsCommandDto) {
-		var purchase = this.purchaseRepository.findById(deletePurchaseTicketsCommandDto.getPurchaseId()).orElseThrow(
+	public void deletePurchaseTickets(DeletePurchaseTicketsCommandDto command) {
+		var purchase = this.purchaseRepository.findById(command.getPurchaseId()).orElseThrow(
 			PurchaseNotFoundException::new);
 		var ticketsUnderPurchase = findTicketsUnderPurchase(purchase);
-		var ticketsToRefund = this.ticketRepository.findAllById(deletePurchaseTicketsCommandDto.getTicketIds());
+		var ticketsToRefund = this.ticketRepository.findAllById(command.getTicketIds());
 		var ticketing = ticketsUnderPurchase.getFirst().getTicketing();
 
-		validatePurchaseOwnership(purchase, deletePurchaseTicketsCommandDto.getMemberEmail());
-		validateTicketingSalePeriod(ticketing, deletePurchaseTicketsCommandDto.getCommandCreatedAt());
+		validatePurchaseOwnership(purchase, command.getMemberEmail());
+		validateTicketingSalePeriod(ticketing, command.getCommandCreatedAt());
 
 		var ticketIdUnderPurchase = ticketsUnderPurchase.stream().map(Ticket::getId).toList();
 		AtomicInteger numOfDeletedTicket = new AtomicInteger();
