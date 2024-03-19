@@ -10,18 +10,25 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tiketeer.Tiketeer.auth.constant.JwtMetadata;
+import com.tiketeer.Tiketeer.domain.member.constant.CookieConfig;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.LoginRequestDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.LoginResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.SetPasswordWithOtpRequestDto;
+import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
 import com.tiketeer.Tiketeer.domain.member.service.LoginService;
 import com.tiketeer.Tiketeer.domain.member.service.MemberService;
 import com.tiketeer.Tiketeer.domain.member.service.dto.InitMemberPasswordWithOtpCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.LoginResultDto;
+import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenCommandDto;
+import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenResultDto;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +47,7 @@ public class AuthController {
 		this.loginService = loginService;
 	}
 
-	@PostMapping(path = "/auth/otp/email")
+	@PostMapping(path = "/otp/email")
 	public ResponseEntity setPasswordWithOtp(@Valid @RequestBody SetPasswordWithOtpRequestDto request) {
 		memberService.initPasswordWithOtp(
 			InitMemberPasswordWithOtpCommandDto
@@ -73,4 +80,43 @@ public class AuthController {
 			.build();
 	}
 
+	@PostMapping(path = "/refresh")
+	public ResponseEntity refreshAccessToken(@RequestHeader("Authorization") String authorizationHeader,
+		HttpServletResponse response) {
+		String refreshToken = getRefreshToken(authorizationHeader);
+
+		RefreshAccessTokenResultDto refreshAccessTokenResultDto = memberService.refreshAccessToken(
+			RefreshAccessTokenCommandDto.builder().refreshToken(refreshToken).build());
+
+		Cookie cookie = setCookie(JwtMetadata.ACCESS_TOKEN, refreshAccessTokenResultDto.getAccessToken(),
+			new CookieOptions(true, "/", CookieConfig.MAX_AGE));
+		response.addCookie(cookie);
+
+		return ResponseEntity.ok().build();
+	}
+
+	private String getRefreshToken(String authorizationHeader) {
+		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+			return authorizationHeader.substring(7);
+		}
+
+		throw new InvalidTokenException();
+	}
+
+	private Cookie setCookie(String key, String value, CookieOptions options) {
+		Cookie cookie = new Cookie(key, value);
+		if (options.httpOnly != null) {
+			cookie.setHttpOnly(options.httpOnly);
+		}
+		if (options.path != null) {
+			cookie.setPath(options.path);
+		}
+		if (options.maxAge != null) {
+			cookie.setMaxAge(options.maxAge);
+		}
+		return cookie;
+	}
+
+	public record CookieOptions(Boolean httpOnly, String path, Integer maxAge) {
+	}
 }

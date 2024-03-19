@@ -46,7 +46,7 @@ class AuthControllerTest {
 	@BeforeEach
 	void initDB() {
 		testHelper.initDB();
-		saveMember();
+		saveMember("user@example.com", "password");
 	}
 
 	@AfterEach
@@ -54,11 +54,11 @@ class AuthControllerTest {
 		testHelper.cleanDB();
 	}
 
-	private void saveMember() {
+	private void saveMember(String email, String password) {
 		Role role = roleRepository.findByName(RoleEnum.BUYER).orElseThrow();
 		Member member = Member.builder()
-			.email("user@example.com")
-			.password(passwordEncoder.encode("password"))
+			.email(email)
+			.password(passwordEncoder.encode(password))
 			.point(0)
 			.enabled(true)
 			.role(role)

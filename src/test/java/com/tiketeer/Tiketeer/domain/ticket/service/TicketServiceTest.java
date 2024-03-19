@@ -17,6 +17,7 @@ import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropAllTicketsUnderSomeTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropNumOfTicketsUnderSomeTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
@@ -230,6 +231,58 @@ public class TicketServiceTest {
 		// then
 		var tickets = ticketService.listTicketByTicketing(new ListTicketByTicketingCommandDto(ticketingId));
 		Assertions.assertThat(tickets.getTickets().size()).isEqualTo(mockStock - deleteTickets);
+	}
+
+	@Test
+	@DisplayName("이미 판매가 시작된 티케팅 > 티켓 전체 삭제 요청 > 실패")
+	void dropAllTicketsFailBecauseSaleDurationHasBeenStarted() {
+		// given
+		var now = LocalDateTime.now();
+
+		var mockEmail = "test@test.com";
+		createMember(mockEmail);
+
+		var mockStock = 30;
+		var saleStart = now.plusYears(1);
+		var ticketingId = createTicketingAndReturnId(mockEmail, mockStock, saleStart, now.plusYears(2),
+			now.plusYears(3));
+
+		var dropAllTicketCommand = DropAllTicketsUnderSomeTicketingCommandDto.builder()
+			.ticketingId(ticketingId)
+			.commandCreatedAt(saleStart.plusDays(1))
+			.build();
+
+		Assertions.assertThatThrownBy(() -> {
+			// when
+			ticketService.dropAllTicketsUnderSomeTicketing(dropAllTicketCommand);
+			// then
+		}).isInstanceOf(UpdateTicketingAfterSaleStartException.class);
+	}
+
+	@Test
+	@DisplayName("유효한 티케팅 (기존 10) > 티켓 전체 삭제 요청 > 잔여 티켓 (0)")
+	void dropAllTicketsSuccess() {
+		// given
+		var now = LocalDateTime.now();
+
+		var mockEmail = "test@test.com";
+		createMember(mockEmail);
+
+		var mockStock = 10;
+
+		var ticketingId = createTicketingAndReturnId(mockEmail, mockStock, now.plusYears(1), now.plusYears(2),
+			now.plusYears(3));
+
+		var dropAllTicketCommand = DropAllTicketsUnderSomeTicketingCommandDto.builder()
+			.ticketingId(ticketingId)
+			.build();
+
+		// when
+		ticketService.dropAllTicketsUnderSomeTicketing(dropAllTicketCommand);
+
+		// then
+		var tickets = ticketService.listTicketByTicketing(new ListTicketByTicketingCommandDto(ticketingId));
+		Assertions.assertThat(tickets.getTickets().size()).isEqualTo(0);
 	}
 
 	private void createMember(String email) {
