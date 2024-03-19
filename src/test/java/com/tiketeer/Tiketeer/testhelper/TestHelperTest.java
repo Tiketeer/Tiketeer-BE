@@ -145,16 +145,16 @@ public class TestHelperTest {
 	}
 
 	@Test
-	@DisplayName("이메일만 지정 > 멤버 생성 및 ID 반환 요청 > 이메일만 지정된 멤버 생성 (나머지는 메서드 내 기본 값)")
+	@DisplayName("이메일만 지정 > 멤버 생성 요청 > 이메일만 지정된 멤버 생성 (나머지는 메서드 내 기본 값)")
 	@Transactional
-	void createMemberAndReturnIdEmailParamSuccess() {
+	void createMemberEmailParamSuccess() {
 		// given
 		testHelper.initDB();
 
 		var email = "test@test.com";
 
 		// when
-		var memberId = testHelper.createMemberAndReturnId(email);
+		var memberId = testHelper.createMember(email).getId();
 
 		// then
 		var memberOpt = memberRepository.findById(memberId);
@@ -168,9 +168,9 @@ public class TestHelperTest {
 	}
 
 	@Test
-	@DisplayName("이메일, 패스워드 지정 > 멤버 생성 및 ID 반환 요청 > 이메일, 패스워드가 지정된 멤버 생성 (나머지는 메서드 내 기본 값)")
+	@DisplayName("이메일, 패스워드 지정 > 멤버 생성 요청 > 이메일, 패스워드가 지정된 멤버 생성 (나머지는 메서드 내 기본 값)")
 	@Transactional
-	void createMemberAndReturnIdEmailAndPasswordParamSuccess() {
+	void createMemberEmailAndPasswordParamSuccess() {
 		// given
 		testHelper.initDB();
 
@@ -178,7 +178,7 @@ public class TestHelperTest {
 		var password = "qwerty12345!@#$";
 
 		// when
-		var memberId = testHelper.createMemberAndReturnId(email, password);
+		var memberId = testHelper.createMember(email, password).getId();
 
 		// then
 		var memberOpt = memberRepository.findById(memberId);
@@ -192,9 +192,9 @@ public class TestHelperTest {
 	}
 
 	@Test
-	@DisplayName("이메일, 패스워드, 역할 지정 > 멤버 생성 및 ID 반환 요청 > 이메일, 패스워드, 역할이 지정된 멤버 생성 (나머지는 메서드 내 기본 값)")
+	@DisplayName("이메일, 패스워드, 역할 지정 > 멤버 생성 요청 > 이메일, 패스워드, 역할이 지정된 멤버 생성 (나머지는 메서드 내 기본 값)")
 	@Transactional
-	void createMemberAndReturnIdEmailAndPasswordAndRoleParamSuccess() {
+	void createMemberEmailAndPasswordAndRoleParamSuccess() {
 		// given
 		testHelper.initDB();
 
@@ -203,7 +203,7 @@ public class TestHelperTest {
 		var roleEnum = RoleEnum.SELLER;
 
 		// when
-		var memberId = testHelper.createMemberAndReturnId(email, password, roleEnum);
+		var memberId = testHelper.createMember(email, password, roleEnum).getId();
 
 		// then
 		var memberOpt = memberRepository.findById(memberId);

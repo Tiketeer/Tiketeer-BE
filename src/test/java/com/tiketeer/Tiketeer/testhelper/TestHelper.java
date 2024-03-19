@@ -1,7 +1,6 @@
 package com.tiketeer.Tiketeer.testhelper;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
@@ -99,30 +98,29 @@ public class TestHelper {
 	@Transactional
 	public String registerAndLoginAndReturnAccessToken(String email, RoleEnum roleEnum) {
 		var password = "1q2w3e4r!!";
-		createMemberAndReturnId(email, "1q2w3e4r!!", roleEnum);
+		createMember(email, "1q2w3e4r!!", roleEnum);
 		return loginService.login(LoginCommandDto.builder().email(email).password(password).build()).getAccessToken();
 	}
 
 	@Transactional
-	public UUID createMemberAndReturnId(String email) {
-		return createMemberAndReturnId(email, "1q2w3e4r!!");
+	public Member createMember(String email) {
+		return createMember(email, "1q2w3e4r!!");
 	}
 
 	@Transactional
-	public UUID createMemberAndReturnId(String email, String password) {
-		return createMemberAndReturnId(email, password, RoleEnum.BUYER);
+	public Member createMember(String email, String password) {
+		return createMember(email, password, RoleEnum.BUYER);
 	}
 
 	@Transactional
-	public UUID createMemberAndReturnId(String email, String password, RoleEnum roleEnum) {
+	public Member createMember(String email, String password, RoleEnum roleEnum) {
 		var role = roleRepository.findByName(roleEnum).orElseThrow();
-		var member = memberRepository.save(Member.builder()
+		return memberRepository.save(Member.builder()
 			.email(email)
 			.password(passwordEncoder.encode(password))
 			.point(0)
 			.enabled(true)
 			.role(role)
 			.build());
-		return member.getId();
 	}
 }
