@@ -18,7 +18,9 @@ import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterRequestD
 import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterResponseDto;
 import com.tiketeer.Tiketeer.domain.member.service.MemberPointService;
 import com.tiketeer.Tiketeer.domain.member.service.MemberRegisterService;
+import com.tiketeer.Tiketeer.domain.member.service.MemberService;
 import com.tiketeer.Tiketeer.domain.member.service.dto.MemberRegisterCommandDto;
+import com.tiketeer.Tiketeer.domain.member.service.dto.SendPwdChangeEmailCommandDto;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 
 import jakarta.validation.Valid;
@@ -28,13 +30,16 @@ import jakarta.validation.Valid;
 public class MemberController {
 	private final MemberRegisterService memberRegisterService;
 	private final MemberPointService memberPointService;
+	private final MemberService memberService;
 	private final SecurityContextHelper securityContextHelper;
 
 	@Autowired
 	public MemberController(MemberRegisterService memberRegisterService, MemberPointService memberPointService,
+		MemberService memberService,
 		SecurityContextHelper securityContextHelper) {
 		this.memberRegisterService = memberRegisterService;
 		this.memberPointService = memberPointService;
+		this.memberService = memberService;
 		this.securityContextHelper = securityContextHelper;
 	}
 
@@ -54,6 +59,8 @@ public class MemberController {
 	@PostMapping(path = "/{memberId}/password")
 	public ResponseEntity sendPasswordChangeEmail(@PathVariable UUID memberId) {
 		var email = securityContextHelper.getEmail();
+		memberService.sendPwdChangeEmail(
+			SendPwdChangeEmailCommandDto.builder().memberId(memberId).email(email).build());
 		return ResponseEntity.ok().build();
 	}
 
