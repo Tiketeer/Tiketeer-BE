@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.util.Pair;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
@@ -73,6 +74,7 @@ public class PurchaseServiceTest {
 
 	@Test
 	@DisplayName("정상 조건 > 구매 생성 요청 > 성공")
+	@Transactional
 	void createPurchaseSuccess() {
 		// given
 		var mockEmail = "test1@test.com";
@@ -98,6 +100,7 @@ public class PurchaseServiceTest {
 
 	@Test
 	@DisplayName("존재하지 않는 멤버 > 구매 생성 요청 > 실패")
+	@Transactional
 	void createPurchaseFailMemberNotFound() {
 		// given
 		var mockEmail = "test1@test.com";
@@ -117,11 +120,13 @@ public class PurchaseServiceTest {
 
 	@Test
 	@DisplayName("티케팅 판매 기간이 아님 > 구매 생성 요청 > 실패")
+	@Transactional
 	void createPurchaseFailNotInSalePeriod() {
 		// given
 		var mockEmail = "test1@test.com";
 		var member = createMember(mockEmail, "1234");
 		var ticketing = createTicketing(member, 1, 1);
+		var ticketingInDb = ticketingRepository.findById(ticketing.getId());
 
 		var createPurchaseCommand = CreatePurchaseCommandDto.builder()
 			.memberEmail(mockEmail)
@@ -138,6 +143,7 @@ public class PurchaseServiceTest {
 
 	@Test
 	@DisplayName("구매 가능한 티켓이 부족 > 구매 생성 요청 > 실패")
+	@Transactional
 	void createPurchaseFailNotEnoughTicket() {
 		// given
 		var mockEmail = "test1@test.com";
@@ -159,6 +165,7 @@ public class PurchaseServiceTest {
 
 	@Test
 	@DisplayName("구매 내역 일부 환불 > 티켓 환불 요청 > 성공")
+	@Transactional
 	void deletePurchaseTicketsSuccess() {
 		// given
 		var mockEmail = "test1@test.com";
@@ -188,6 +195,7 @@ public class PurchaseServiceTest {
 
 	@Test
 	@DisplayName("구매 내역 전체 환불 > 티켓 환불 요청 > 성공")
+	@Transactional
 	void deletePurchaseAlllTicketsSuccess() {
 		// given
 		var mockEmail = "test1@test.com";
@@ -217,6 +225,7 @@ public class PurchaseServiceTest {
 
 	@Test
 	@DisplayName("구매 내역이 존재하지 않음 > 티켓 환불 요청 > 실패")
+	@Transactional
 	void deletePurchaseTicketsFailPurchaseNotFound() {
 		// given
 		var mockEmail = "test1@test.com";
@@ -238,6 +247,7 @@ public class PurchaseServiceTest {
 
 	@Test
 	@DisplayName("빈 구매 내역 > 티켓 환불 요청 > 실패")
+	@Transactional
 	void deletePurchaseTicketsFailEmptyPurchase() {
 		// given
 		var mockEmail = "test1@test.com";
@@ -262,6 +272,7 @@ public class PurchaseServiceTest {
 
 	@Test
 	@DisplayName("구매 내역 소유자가 아님 > 티켓 환불 요청 > 실패")
+	@Transactional
 	void deletePurchaseTicketsFailNotPurchaseOwner() {
 		// given
 		var mockEmail = "test1@test.com";
@@ -287,6 +298,7 @@ public class PurchaseServiceTest {
 
 	@Test
 	@DisplayName("티켓팅 판매 기간이 아님 > 티켓 환불 요청 > 실패")
+	@Transactional
 	void deletePurchaseTicketsFailNotTicketingSalePeriod() {
 		// given
 		var mockEmail = "test1@test.com";
