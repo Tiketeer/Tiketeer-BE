@@ -220,7 +220,7 @@ public class PurchaseServiceTest {
 	void deletePurchaseTicketsFailPurchaseNotFound() {
 		// given
 		var mockEmail = "test1@test.com";
-		var member = createMember(mockEmail, "1234");
+		createMember(mockEmail, "1234");
 
 		List<UUID> ticketsToRefund = Collections.singletonList(UUID.randomUUID());
 		var deletePurchaseCommand = DeletePurchaseTicketsCommandDto.builder()
@@ -310,7 +310,7 @@ public class PurchaseServiceTest {
 		}).isInstanceOf(PurchaseNotInSalePeriodException.class);
 	}
 
-	public Member createMember(String email, String password) {
+	private Member createMember(String email, String password) {
 		var role = roleRepository.findByName(RoleEnum.SELLER).orElseThrow();
 		var memberForSave = Member.builder()
 			.email(email)
