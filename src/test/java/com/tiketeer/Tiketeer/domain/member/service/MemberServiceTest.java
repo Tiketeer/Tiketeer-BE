@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.auth.jwt.JwtPayload;
 import com.tiketeer.Tiketeer.auth.jwt.JwtService;
-import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidOtpException;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
@@ -31,7 +30,6 @@ import com.tiketeer.Tiketeer.domain.member.service.dto.InitMemberPasswordWithOtp
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenResultDto;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
-import com.tiketeer.Tiketeer.domain.role.exception.RoleNotFoundException;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
@@ -75,7 +73,7 @@ public class MemberServiceTest {
 	void initPasswordWithOtpFailBecauseInvalidOtp() {
 		// given
 		var mockEmail = "test@test.com";
-		var member = createMember(mockEmail);
+		var member = testHelper.createMember(mockEmail);
 
 		otpRepository.save(
 			Otp.builder()
@@ -98,7 +96,7 @@ public class MemberServiceTest {
 	void initPasswordWithOtpSuccess() {
 		// given
 		var mockEmail = "test@test.com";
-		var member = createMember(mockEmail);
+		var member = testHelper.createMember(mockEmail);
 
 		var otp = otpRepository.save(
 			Otp.builder()
@@ -121,14 +119,6 @@ public class MemberServiceTest {
 		Assertions.assertThat(passwordEncoder.matches(mockPwd, memberAfterEmailAuth.getPassword())).isTrue();
 
 		Assertions.assertThat(otpRepository.findById(otp.getPassword()).isPresent()).isFalse();
-	}
-
-	private Member createMember(String email) {
-		var role = roleRepository.findByName(RoleEnum.BUYER).orElseThrow(RoleNotFoundException::new);
-		var memberForSave = Member.builder()
-			.email(email)
-			.password("1234456eqeqw").role(role).point(5000).profileUrl("test@profile.url").build();
-		return memberRepository.save(memberForSave);
 	}
 
 	@Test
@@ -172,7 +162,7 @@ public class MemberServiceTest {
 	void getMemberSuccess() {
 		// given
 		var mockEmail = "test@test.com";
-		var memberInDb = createMember(mockEmail);
+		var memberInDb = testHelper.createMember(mockEmail);
 
 		var command = GetMemberCommandDto.builder().memberEmail(mockEmail).build();
 

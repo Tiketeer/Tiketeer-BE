@@ -11,8 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tiketeer.Tiketeer.auth.jwt.JwtService;
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
@@ -32,38 +34,28 @@ import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 @Import({TestHelper.class})
 @SpringBootTest
 public class TestHelperTest {
-	private final TestHelper testHelper;
-	private final PermissionRepository permissionRepository;
-	private final RoleRepository roleRepository;
-	private final RolePermissionRepository rolePermissionRepository;
-	private final MemberRepository memberRepository;
-	private final OtpRepository otpRepository;
-	private final PurchaseRepository purchaseRepository;
-	private final TicketRepository ticketRepository;
-	private final TicketingRepository ticketingRepository;
-
 	@Autowired
-	public TestHelperTest(
-		TestHelper testHelper,
-		PermissionRepository permissionRepository,
-		RoleRepository roleRepository,
-		RolePermissionRepository rolePermissionRepository,
-		MemberRepository memberRepository,
-		OtpRepository otpRepository,
-		PurchaseRepository purchaseRepository,
-		TicketRepository ticketRepository,
-		TicketingRepository ticketingRepository
-	) {
-		this.testHelper = testHelper;
-		this.permissionRepository = permissionRepository;
-		this.roleRepository = roleRepository;
-		this.rolePermissionRepository = rolePermissionRepository;
-		this.memberRepository = memberRepository;
-		this.otpRepository = otpRepository;
-		this.purchaseRepository = purchaseRepository;
-		this.ticketingRepository = ticketingRepository;
-		this.ticketRepository = ticketRepository;
-	}
+	private TestHelper testHelper;
+	@Autowired
+	private PermissionRepository permissionRepository;
+	@Autowired
+	private RoleRepository roleRepository;
+	@Autowired
+	private RolePermissionRepository rolePermissionRepository;
+	@Autowired
+	private MemberRepository memberRepository;
+	@Autowired
+	private OtpRepository otpRepository;
+	@Autowired
+	private PurchaseRepository purchaseRepository;
+	@Autowired
+	private TicketRepository ticketRepository;
+	@Autowired
+	private TicketingRepository ticketingRepository;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	@Autowired
+	private JwtService jwtService;
 
 	@AfterEach
 	void clearTable() {
@@ -152,7 +144,113 @@ public class TestHelperTest {
 		});
 	}
 
+	@Test
+	@DisplayName("이메일만 지정 > 멤버 생성 요청 > 이메일만 지정된 멤버 생성 (나머지는 메서드 내 기본 값)")
+	@Transactional
+	void createMemberEmailParamSuccess() {
+		// given
+		testHelper.initDB();
+
+		var email = "test@test.com";
+
+		// when
+		var memberId = testHelper.createMember(email).getId();
+
+		// then
+		var memberOpt = memberRepository.findById(memberId);
+		Assertions.assertThat(memberOpt.isPresent()).isTrue();
+
+		var member = memberOpt.get();
+		Assertions.assertThat(member.getEmail()).isEqualTo(email);
+		Assertions.assertThat(passwordEncoder.matches("1q2w3e4r!!", member.getPassword()));
+		Assertions.assertThat(member.getRole().getName()).isEqualTo(RoleEnum.BUYER);
+		defaultMemberPropertiesTest(member);
+	}
+
+	@Test
+	@DisplayName("이메일, 패스워드 지정 > 멤버 생성 요청 > 이메일, 패스워드가 지정된 멤버 생성 (나머지는 메서드 내 기본 값)")
+	@Transactional
+	void createMemberEmailAndPasswordParamSuccess() {
+		// given
+		testHelper.initDB();
+
+		var email = "test@test.com";
+		var password = "qwerty12345!@#$";
+
+		// when
+		var memberId = testHelper.createMember(email, password).getId();
+
+		// then
+		var memberOpt = memberRepository.findById(memberId);
+		Assertions.assertThat(memberOpt.isPresent()).isTrue();
+
+		var member = memberOpt.get();
+		Assertions.assertThat(member.getEmail()).isEqualTo(email);
+		Assertions.assertThat(passwordEncoder.matches(password, member.getPassword()));
+		Assertions.assertThat(member.getRole().getName()).isEqualTo(RoleEnum.BUYER);
+		defaultMemberPropertiesTest(member);
+	}
+
+	@Test
+	@DisplayName("이메일, 패스워드, 역할 지정 > 멤버 생성 요청 > 이메일, 패스워드, 역할이 지정된 멤버 생성 (나머지는 메서드 내 기본 값)")
+	@Transactional
+	void createMemberEmailAndPasswordAndRoleParamSuccess() {
+		// given
+		testHelper.initDB();
+
+		var email = "test@test.com";
+		var password = "qwerty12345!@#$";
+		var roleEnum = RoleEnum.SELLER;
+
+		// when
+		var memberId = testHelper.createMember(email, password, roleEnum).getId();
+
+		// then
+		var memberOpt = memberRepository.findById(memberId);
+		Assertions.assertThat(memberOpt.isPresent()).isTrue();
+
+		var member = memberOpt.get();
+		Assertions.assertThat(member.getEmail()).isEqualTo(email);
+		Assertions.assertThat(passwordEncoder.matches(password, member.getPassword()));
+		Assertions.assertThat(member.getRole().getName()).isEqualTo(roleEnum);
+		defaultMemberPropertiesTest(member);
+	}
+
+	@Test
+	@DisplayName("이메일, 역할 지정 > 멤버 생성, 로그인, 액세스 토큰 반환 요청 > 성공")
+	@Transactional
+	void registerAndLoginReturnAccessTokenSuccess() {
+		// given
+		testHelper.initDB();
+
+		var email = "test@test.com";
+		var roleEnum = RoleEnum.SELLER;
+
+		// when
+		var accessToken = testHelper.registerAndLoginAndReturnAccessToken(email, roleEnum);
+
+		// then
+		var memberOpt = memberRepository.findByEmail(email);
+		Assertions.assertThat(memberOpt.isPresent()).isTrue();
+
+		var member = memberOpt.get();
+		Assertions.assertThat(member.getEmail()).isEqualTo(email);
+		Assertions.assertThat(passwordEncoder.matches("1q2w3e4r!!", member.getPassword()));
+		Assertions.assertThat(member.getRole().getName()).isEqualTo(roleEnum);
+		defaultMemberPropertiesTest(member);
+
+		var payload = jwtService.verifyToken(accessToken);
+		Assertions.assertThat(payload.email()).isEqualTo(email);
+		Assertions.assertThat(payload.roleEnum()).isEqualTo(roleEnum);
+	}
+
 	private <T> void isInTest(Iterable<T> iterable, T target) {
 		Assertions.assertThat(target).isIn(iterable);
+	}
+
+	private void defaultMemberPropertiesTest(Member member) {
+		Assertions.assertThat(member.getPoint()).isEqualTo(0);
+		Assertions.assertThat(member.isEnabled()).isTrue();
+		Assertions.assertThat(member.getProfileUrl()).isNull();
 	}
 }
