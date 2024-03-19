@@ -43,6 +43,7 @@ class LoginServiceTest {
 	@BeforeEach
 	void initTable() {
 		testHelper.initDB();
+		saveMember("user@example.com", "password");
 	}
 
 	@AfterEach
@@ -50,11 +51,11 @@ class LoginServiceTest {
 		testHelper.cleanDB();
 	}
 
-	private void saveMember() {
+	private void saveMember(String email, String password) {
 		Role role = roleRepository.findByName(RoleEnum.BUYER).orElseThrow();
 		Member member = Member.builder()
-			.email("user@example.com")
-			.password(passwordEncoder.encode("password"))
+			.email(email)
+			.password(passwordEncoder.encode(password))
 			.point(0)
 			.enabled(true)
 			.role(role)
@@ -65,8 +66,6 @@ class LoginServiceTest {
 	@Test
 	@DisplayName("로그인 요청 > 로그인 > 성공")
 	void loginSuccess() {
-
-		saveMember();
 
 		LoginCommandDto command = LoginCommandDto.builder()
 			.email("user@example.com")
@@ -85,9 +84,6 @@ class LoginServiceTest {
 	@Test
 	@DisplayName("DB 내 계정 존재 > 존재하지 않는 이메일로 로그인 요청 > 실패")
 	void loginFailInvalidEmail() {
-		//given
-		saveMember();
-
 		LoginCommandDto command = LoginCommandDto.builder()
 			.email("nobody@example.com")
 			.password("password")
@@ -102,8 +98,6 @@ class LoginServiceTest {
 	@Test
 	@DisplayName("DB 내 계정 존재 > 잘못된 비밀번호로 로그인 요청 > 실패")
 	void loginFailInvalidPassword() {
-		//given
-		saveMember();
 
 		LoginCommandDto command = LoginCommandDto.builder()
 			.email("user@example.com")
