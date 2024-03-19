@@ -66,7 +66,7 @@ public class MemberController {
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.wrap(result));
 	}
 
-	@GetMapping("/members/{memberId}/sale")
+	@GetMapping("/{memberId}/sale")
 	public ResponseEntity<ApiResponse<List<GetMemberTicketingSalesResponseDto>>> getMemberTicketingSales(
 		@PathVariable UUID memberId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
