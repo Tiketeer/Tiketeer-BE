@@ -13,10 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.DeleteTicketingAfterSaleStartException;
@@ -35,29 +33,18 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 @SpringBootTest
 @DisplayName("TicketingService Test")
 public class TicketingServiceTest {
-	private final TestHelper testHelper;
-	private final TicketingService ticketingService;
-	private final TicketingRepository ticketingRepository;
-	private final TicketRepository ticketRepository;
-	private final MemberRepository memberRepository;
-	private final RoleRepository roleRepository;
-
 	@Autowired
-	public TicketingServiceTest(
-		TestHelper testHelper,
-		TicketingService ticketingService,
-		TicketingRepository ticketingRepository,
-		TicketRepository ticketRepository,
-		MemberRepository memberRepository,
-		RoleRepository roleRepository
-	) {
-		this.testHelper = testHelper;
-		this.ticketingService = ticketingService;
-		this.ticketingRepository = ticketingRepository;
-		this.ticketRepository = ticketRepository;
-		this.memberRepository = memberRepository;
-		this.roleRepository = roleRepository;
-	}
+	private TestHelper testHelper;
+	@Autowired
+	private TicketingService ticketingService;
+	@Autowired
+	private TicketingRepository ticketingRepository;
+	@Autowired
+	private TicketRepository ticketRepository;
+	@Autowired
+	private MemberRepository memberRepository;
+	@Autowired
+	private RoleRepository roleRepository;
 
 	@BeforeEach
 	void initTable() {
@@ -74,7 +61,7 @@ public class TicketingServiceTest {
 	void createTicketingFailBecauseInvalidEventTime() {
 		// given
 		var mockEmail = "test@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var now = LocalDateTime.now();
 		var saleStart = now.plusYears(1);
@@ -94,7 +81,7 @@ public class TicketingServiceTest {
 	void createTicketingFailBecauseInvalidSaleDuration() {
 		// given
 		var mockEmail = "test1@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var now = LocalDateTime.now();
 		var saleStart = now.plusYears(2);
@@ -114,7 +101,7 @@ public class TicketingServiceTest {
 	void createTicketingFailBecauseEventTimeDuringSaleDuration() {
 		// given
 		var mockEmail = "test1@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var now = LocalDateTime.now();
 		var saleStart = now.plusYears(1);
@@ -153,7 +140,7 @@ public class TicketingServiceTest {
 	void createTicketingSuccess() {
 		// given
 		var mockEmail = "test1@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var now = LocalDateTime.now();
 		var saleStart = now.plusYears(1);
@@ -200,7 +187,7 @@ public class TicketingServiceTest {
 	void updateTicketingFailBecauseNotOwnedTicketing() {
 		// given
 		var memberEmailOwnedTicketing = "test@test.com";
-		createMember(memberEmailOwnedTicketing);
+		testHelper.createMember(memberEmailOwnedTicketing);
 
 		var now = LocalDateTime.now();
 		var saleStart = now.plusYears(1);
@@ -238,7 +225,7 @@ public class TicketingServiceTest {
 	void updateTicketingFailBecauseSaleDurationHasBeenStarted() {
 		// given
 		var mockEmail = "test@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var now = LocalDateTime.now();
 		var saleStart = now.plusYears(1);
@@ -275,7 +262,7 @@ public class TicketingServiceTest {
 	void updateTicketingFailBecauseInvalidEventTime() {
 		// given
 		var mockEmail = "test@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var now = LocalDateTime.now();
 		var saleStart = now.plusYears(1);
@@ -311,7 +298,7 @@ public class TicketingServiceTest {
 	void updateTicketingFailBecauseSaleDurationNotValid() {
 		// given
 		var mockEmail = "test@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var now = LocalDateTime.now();
 		var saleStart = now.plusYears(1);
@@ -347,7 +334,7 @@ public class TicketingServiceTest {
 	void updateTicketingFailBecauseEventTimeBeforeSaleEnd() {
 		// given
 		var mockEmail = "test@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var now = LocalDateTime.now();
 		var saleStart = now.plusYears(1);
@@ -383,7 +370,7 @@ public class TicketingServiceTest {
 	void updateTicketingSuccess() {
 		// given
 		var mockEmail = "test@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var now = LocalDateTime.now();
 		var saleStart = now.plusYears(1);
@@ -461,7 +448,7 @@ public class TicketingServiceTest {
 	void deleteTicketingFailBecauseNotOwnedTicketing() {
 		// given
 		var emailOwnedTicketing = "test@test.com";
-		createMember(emailOwnedTicketing);
+		testHelper.createMember(emailOwnedTicketing);
 
 		var now = LocalDateTime.now();
 		var createTicketingCommand = createTicketingCommand(emailOwnedTicketing, now.plusYears(3), now.plusYears(1),
@@ -487,7 +474,7 @@ public class TicketingServiceTest {
 	void deleteTicketingFailBecauseSaleDurationHasBeenStarted() {
 		// given
 		var email = "test@test.com";
-		createMember(email);
+		testHelper.createMember(email);
 
 		var now = LocalDateTime.now();
 		var saleStart = now.plusYears(1);
@@ -514,7 +501,7 @@ public class TicketingServiceTest {
 	void deleteTicketingSuccess() {
 		// given
 		var email = "test@test.com";
-		createMember(email);
+		testHelper.createMember(email);
 
 		var now = LocalDateTime.now();
 		var createTicketingCommand = createTicketingCommand(email, now.plusYears(3), now.plusYears(1),
@@ -544,14 +531,6 @@ public class TicketingServiceTest {
 		var ticketingInDBOpt = ticketingRepository.findById(ticketingId);
 		Assertions.assertThat(ticketingInDBOpt.isPresent()).isFalse();
 
-	}
-
-	private Member createMember(String email) {
-		var role = roleRepository.findByName(RoleEnum.SELLER).orElseThrow();
-		var memberForSave = Member.builder()
-			.email(email)
-			.password("1234456eqeqw").role(role).build();
-		return memberRepository.save(memberForSave);
 	}
 
 	private CreateTicketingCommandDto createTicketingCommand(String email, LocalDateTime eventTime,
