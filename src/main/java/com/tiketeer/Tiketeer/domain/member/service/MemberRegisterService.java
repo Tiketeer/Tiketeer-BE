@@ -31,7 +31,7 @@ public class MemberRegisterService {
 	private final EmailService emailService;
 	private final EmailViewFactory emailViewFactory;
 	private final int OTP_VALID_TIME = 30;
-	private final String AUTHENTICATE_EMAIL_TITLE = "[tiketeer] 인정메일 발송";
+	private final String AUTHENTICATE_EMAIL_TITLE = "[tiketeer] 인증메일 발송";
 
 	@Autowired
 	public MemberRegisterService(MemberRepository memberRepository, RoleRepository roleRepository,

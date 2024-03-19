@@ -26,12 +26,16 @@ public class AuthenticateEmailViewFactory implements EmailViewFactory {
 				.queryParam("email", authenticateEmailViewData.getEmail())
 				.build();
 
-		return "<!DOCTYPE html>\n"
-			+ "<html>\n"
-			+ "<body>\n"
-			+ "\n"
-			+ "<a>" + url + "</a>\n"
-			+ "</body>\n"
+		System.out.println(url);
+		System.out.println(url.toUriString());
+
+		return "<!DOCTYPE html>"
+			+ "<html>"
+			+ "<body>"
+			+ "<div>"
+			+ "<a href=\"" + url.toUriString() + "\"> 인증하기" + "</a>"
+			+ "</div>"
+			+ "</body>"
 			+ "</html>";
 	}
 }
