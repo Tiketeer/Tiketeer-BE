@@ -43,7 +43,7 @@ public class TicketingService {
 		this.memberRepository = memberRepository;
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<GetAllTicketingsDto> getAllTicketings() {
 		var ticketings = ticketingRepository.findAll()
 			.stream()
