@@ -25,11 +25,18 @@ import com.tiketeer.Tiketeer.domain.member.exception.InvalidOtpException;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
+import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberPurchasesCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.InitMemberPasswordWithOtpCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenResultDto;
+import com.tiketeer.Tiketeer.domain.purchase.Purchase;
+import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
+import com.tiketeer.Tiketeer.domain.ticket.Ticket;
+import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
+import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
+import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
@@ -55,6 +62,13 @@ public class MemberServiceTest {
 
 	@Autowired
 	private JwtService jwtService;
+
+	@Autowired
+	private TicketingRepository ticketingRepository;
+	@Autowired
+	private PurchaseRepository purchaseRepository;
+	@Autowired
+	private TicketRepository ticketRepository;
 
 	@BeforeEach
 	void initTable() {
@@ -161,5 +175,36 @@ public class MemberServiceTest {
 			memberService.refreshAccessToken(
 				RefreshAccessTokenCommandDto.builder().refreshToken(refreshToken).build());
 		});
+	}
+
+	@Test
+	@DisplayName("정상 조건 > 멤버 구매 내역 조회 요청 > 성공")
+	@Transactional
+	void getMemberPurchases() {
+		// given
+		var mockEmail = "test@test.com";
+		var member = createMember(mockEmail);
+		var now = LocalDateTime.now();
+		var ticketing1 = ticketingRepository.save(
+			new Ticketing(1000, member, "", "test1", "Seoul", now, "", 600, now, now));
+		var ticketing2 = ticketingRepository.save(
+			new Ticketing(1000, member, "", "test2", "Seoul", now, "", 600, now, now));
+		var purchase1 = purchaseRepository.save(new Purchase(member));
+		var purchase2 = purchaseRepository.save(new Purchase(member));
+		ticketRepository.save(new Ticket(null, ticketing1));
+		ticketRepository.save(new Ticket(purchase1, ticketing1));
+		ticketRepository.save(new Ticket(purchase1, ticketing1));
+		ticketRepository.save(new Ticket(purchase2, ticketing2));
+
+		// when
+		var results = memberService.getMemberPurchases(
+			GetMemberPurchasesCommandDto.builder().memberEmail(mockEmail).build());
+
+		// then
+		Assertions.assertThat(results.size()).isEqualTo(2);
+		Assertions.assertThat(results.get(0).getCount()).isEqualTo(2);
+		Assertions.assertThat(results.get(0).getTicketingId()).isEqualTo(ticketing1.getId());
+		Assertions.assertThat(results.get(1).getCount()).isEqualTo(1);
+		Assertions.assertThat(results.get(1).getTicketingId()).isEqualTo(ticketing2.getId());
 	}
 }
