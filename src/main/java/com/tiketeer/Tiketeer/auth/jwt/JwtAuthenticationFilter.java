@@ -47,7 +47,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 
 		} catch (JwtException ex) {
-			System.out.println("request = " + request.getParameterNames());
 			logger.info("Failed to authorize/authenticate with JWT due to " + ex.getMessage());
 			jwtFilterExceptionResolver.setResponse(response, ex);
 		}

@@ -42,6 +42,7 @@ public class SecurityConfig {
 				req.requestMatchers(getPermitAllPaths()).permitAll()
 			)
 			.build();
+
 	}
 
 	private String[] getPermitAllPaths() {

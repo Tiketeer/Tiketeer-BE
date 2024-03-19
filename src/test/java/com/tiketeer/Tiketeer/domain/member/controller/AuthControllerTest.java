@@ -27,7 +27,7 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
 @SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc
 class AuthControllerTest {
 
 	@Autowired
@@ -46,6 +46,7 @@ class AuthControllerTest {
 	@BeforeEach
 	void initDB() {
 		testHelper.initDB();
+		saveMember();
 	}
 
 	@AfterEach
@@ -63,22 +64,21 @@ class AuthControllerTest {
 			.role(role)
 			.build();
 		memberRepository.save(member);
+
 	}
 
 	@Test
 	@DisplayName("DB 내 계정 존재 > 로그인 요청 > 성공")
 	void loginSuccess() throws Exception {
-		String email = "user@example.com";
-		String password = "password";
-		saveMember();
 
 		LoginRequestDto loginRequestDto = LoginRequestDto.builder()
-			.email(email)
-			.password(password)
+			.email("user@example.com")
+			.password("password")
 			.build();
 
 		mockMvc
-			.perform(post("/auth/login")
+			.perform(post("/api/auth/login")
+				.contextPath("/api")
 				.contentType(MediaType.APPLICATION_JSON)
 				.characterEncoding("utf-8")
 				.content(objectMapper.writeValueAsString(loginRequestDto)))
