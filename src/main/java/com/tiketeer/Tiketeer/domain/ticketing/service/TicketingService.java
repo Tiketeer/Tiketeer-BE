@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
+import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticket.service.TicketService;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropAllTicketsUnderSomeTicketingCommandDto;
@@ -36,36 +37,36 @@ public class TicketingService {
 	private final TicketingRepository ticketingRepository;
 	private final TicketService ticketService;
 	private final MemberRepository memberRepository;
+	private final TicketRepository ticketRepository;
 
 	@Autowired
 	public TicketingService(TicketingRepository ticketingRepository, TicketService ticketService,
-		MemberRepository memberRepository) {
+		MemberRepository memberRepository, TicketRepository ticketRepository) {
 		this.ticketingRepository = ticketingRepository;
 		this.ticketService = ticketService;
 		this.memberRepository = memberRepository;
+		this.ticketRepository = ticketRepository;
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<GetAllTicketingsDto> getAllTicketings() {
 		var ticketings = ticketingRepository.findAll()
 			.stream()
 			.map((ticketing) -> {
-				var tickets = ticketService.listTicketByTicketing(
-					ListTicketByTicketingCommandDto.builder().ticketingId(ticketing.getId()).build()).getTickets();
-				var numOfRemainedTickets = (int)tickets.stream().filter(ticket -> ticket.getPurchase() == null).count();
+				// Todo - query로 처리해서 remainTicketStock 개수 한번에 가져오기
+				var remainedTickets = ticketRepository.findByTicketingIdAndPurchaseIsNull(
+					ticketing.getId());
 				return GetAllTicketingsDto.builder().ticketingId(ticketing.getId())
 					.price(ticketing.getPrice())
 					.category(ticketing.getCategory())
 					.location(ticketing.getLocation())
-					.description(ticketing.getDescription())
 					.title(ticketing.getTitle())
 					.runningMinutes(ticketing.getRunningMinutes())
 					.eventTime(ticketing.getEventTime())
 					.saleStart(ticketing.getSaleStart())
 					.saleEnd(ticketing.getSaleEnd())
 					.createdAt(ticketing.getCreatedAt())
-					.stock(tickets.size())
-					.remainedStock(numOfRemainedTickets)
+					.remainedStock(remainedTickets.size())
 					.build();
 			})
 			.toList();
