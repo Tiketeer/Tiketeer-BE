@@ -34,7 +34,7 @@ public class PurchaseController {
 	public ResponseEntity<ApiResponse<PostPurchaseResponseDto>> postPurchase(
 		@Valid @RequestBody PostPurchaseRequestDto request) {
 		var memberEmail = "test@example.com";
-		var result = this.purchaseService.createPurchase(request.convertToDto(memberEmail));
+		var result = purchaseService.createPurchase(request.convertToDto(memberEmail));
 		var responseBody = ApiResponse.wrap(PostPurchaseResponseDto.converFromDto(result));
 		return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
 	}
@@ -43,7 +43,7 @@ public class PurchaseController {
 	public ResponseEntity deletePurchaseTickets(@PathVariable UUID purchaseId, @Valid @RequestBody
 	DeletePurchaseTicketsRequestDto request) {
 		var memberEmail = "test@example.com";
-		this.purchaseService.deletePurchaseTickets(request.convertToDto(memberEmail, purchaseId));
+		purchaseService.deletePurchaseTickets(request.convertToDto(memberEmail, purchaseId));
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 }

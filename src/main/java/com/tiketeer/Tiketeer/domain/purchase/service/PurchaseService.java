@@ -49,14 +49,14 @@ public class PurchaseService {
 		var ticketingId = command.getTicketingId();
 		var count = command.getCount();
 
-		var member = this.memberRepository.findByEmail(command.getMemberEmail()).orElseThrow(
+		var member = memberRepository.findByEmail(command.getMemberEmail()).orElseThrow(
 			MemberNotFoundException::new);
 
 		validateTicketingSalePeriod(ticketingId, command.getCommandCreatedAt());
 
-		var newPurchase = this.purchaseRepository.save(Purchase.builder().member(member).build());
+		var newPurchase = purchaseRepository.save(Purchase.builder().member(member).build());
 
-		var tickets = this.ticketRepository.findByTicketingIdAndPurchaseIsNullOrderById(
+		var tickets = ticketRepository.findByTicketingIdAndPurchaseIsNullOrderById(
 			ticketingId, Limit.of(count));
 
 		if (tickets.size() < count) {
@@ -75,10 +75,10 @@ public class PurchaseService {
 
 	@Transactional
 	public void deletePurchaseTickets(DeletePurchaseTicketsCommandDto command) {
-		var purchase = this.purchaseRepository.findById(command.getPurchaseId()).orElseThrow(
+		var purchase = purchaseRepository.findById(command.getPurchaseId()).orElseThrow(
 			PurchaseNotFoundException::new);
 		var ticketsUnderPurchase = findTicketsUnderPurchase(purchase);
-		var ticketsToRefund = this.ticketRepository.findAllById(command.getTicketIds());
+		var ticketsToRefund = ticketRepository.findAllById(command.getTicketIds());
 		var ticketing = ticketsUnderPurchase.getFirst().getTicketing();
 
 		validatePurchaseOwnership(purchase, command.getMemberEmail());
@@ -93,12 +93,12 @@ public class PurchaseService {
 			}
 		});
 		if (numOfDeletedTicket.get() == ticketsUnderPurchase.size()) {
-			this.purchaseRepository.delete(purchase);
+			purchaseRepository.delete(purchase);
 		}
 	}
 
 	private void validateTicketingSalePeriod(UUID ticketingId, LocalDateTime now) {
-		var ticketing = this.ticketingRepository.findById(ticketingId).orElseThrow(
+		var ticketing = ticketingRepository.findById(ticketingId).orElseThrow(
 			TicketingNotFoundException::new);
 		var saleStart = ticketing.getSaleStart();
 		var saleEnd = ticketing.getSaleEnd();
@@ -122,7 +122,7 @@ public class PurchaseService {
 	}
 
 	private List<Ticket> findTicketsUnderPurchase(Purchase purchase) {
-		var ticketsUnderPurchase = this.ticketRepository.findAllByPurchase(purchase);
+		var ticketsUnderPurchase = ticketRepository.findAllByPurchase(purchase);
 		if (ticketsUnderPurchase.isEmpty()) {
 			throw new EmptyPurchaseException();
 		}
