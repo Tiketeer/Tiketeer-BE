@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tiketeer.Tiketeer.auth.constant.JwtMetadata;
 import com.tiketeer.Tiketeer.domain.member.constant.CookieConfig;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.SetPasswordWithOtpRequestDto;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
@@ -51,7 +52,7 @@ public class AuthController {
 		RefreshAccessTokenResultDto refreshAccessTokenResultDto = memberService.refreshAccessToken(
 			RefreshAccessTokenCommandDto.builder().refreshToken(refreshToken).build());
 
-		Cookie cookie = setCookie("accessToken", refreshAccessTokenResultDto.getAccessToken(),
+		Cookie cookie = setCookie(JwtMetadata.ACCESS_TOKEN, refreshAccessTokenResultDto.getAccessToken(),
 			new CookieOptions(true, "/", CookieConfig.MAX_AGE));
 		response.addCookie(cookie);
 
