@@ -1,6 +1,7 @@
 package com.tiketeer.Tiketeer.domain.ticketing.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropAllTicketsUnderSomeTi
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropNumOfTicketsUnderSomeTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
+import com.tiketeer.Tiketeer.domain.ticketing.dto.GetAllTicketingsDto;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.DeleteTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.ModifyForNotOwnedTicketingException;
@@ -39,6 +41,33 @@ public class TicketingService {
 		this.ticketingRepository = ticketingRepository;
 		this.ticketService = ticketService;
 		this.memberRepository = memberRepository;
+	}
+
+	@Transactional
+	public List<GetAllTicketingsDto> getAllTicketings() {
+		var ticketings = ticketingRepository.findAll()
+			.stream()
+			.map((ticketing) -> {
+				var tickets = ticketService.listTicketByTicketing(
+					ListTicketByTicketingCommandDto.builder().ticketingId(ticketing.getId()).build()).getTickets();
+				var numOfRemainedTickets = (int)tickets.stream().filter(ticket -> ticket.getPurchase() == null).count();
+				return GetAllTicketingsDto.builder().ticketingId(ticketing.getId())
+					.price(ticketing.getPrice())
+					.category(ticketing.getCategory())
+					.location(ticketing.getLocation())
+					.description(ticketing.getDescription())
+					.title(ticketing.getTitle())
+					.runningMinutes(ticketing.getRunningMinutes())
+					.eventTime(ticketing.getEventTime())
+					.saleStart(ticketing.getSaleStart())
+					.saleEnd(ticketing.getSaleEnd())
+					.createdAt(ticketing.getCreatedAt())
+					.stock(tickets.size())
+					.remainedStock(numOfRemainedTickets)
+					.build();
+			})
+			.toList();
+		return ticketings;
 	}
 
 	@Transactional
