@@ -39,12 +39,13 @@ class AuthenticateEmailViewFactoryTest {
 			baseUrl + ":4080/confirm/email?otp=" + createEmailViewCommandDto.getOtp() + "&email="
 				+ createEmailViewCommandDto.getEmail();
 
-		var expected = "<!DOCTYPE html>\n"
-			+ "<html>\n"
-			+ "<body>\n"
-			+ "\n"
-			+ "<a>" + url + "</a>\n"
-			+ "</body>\n"
+		var expected = "<!DOCTYPE html>"
+			+ "<html>"
+			+ "<body>"
+			+ "<div>"
+			+ "<a href=\"" + url + "\"> 인증하기" + "</a>"
+			+ "</div>"
+			+ "</body>"
 			+ "</html>";
 
 		Assertions.assertThat(Arrays.stream(result.split("\n")).collect(Collectors.joining(" "))).isEqualTo(

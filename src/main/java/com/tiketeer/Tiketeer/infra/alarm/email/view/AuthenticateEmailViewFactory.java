@@ -26,9 +26,6 @@ public class AuthenticateEmailViewFactory implements EmailViewFactory {
 				.queryParam("email", authenticateEmailViewData.getEmail())
 				.build();
 
-		System.out.println(url);
-		System.out.println(url.toUriString());
-
 		return "<!DOCTYPE html>"
 			+ "<html>"
 			+ "<body>"
