@@ -1,6 +1,5 @@
 package com.tiketeer.Tiketeer.configuration;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 import org.springframework.context.annotation.Bean;
@@ -43,6 +42,7 @@ public class SecurityConfig {
 				req.requestMatchers(getPermitAllPaths()).permitAll()
 			)
 			.build();
+
 	}
 
 	private String[] getPermitAllPaths() {
@@ -52,11 +52,4 @@ public class SecurityConfig {
 		).toList().toArray(String[]::new);
 	}
 
-	private List<String> getSwaggerPaths() {
-		return List.of("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**");
-	}
-
-	private List<String> getMemberPaths() {
-		return List.of("/auth/login", "/members/register", "/auth/refresh");
-	}
 }
