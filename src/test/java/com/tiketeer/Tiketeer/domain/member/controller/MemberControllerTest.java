@@ -75,7 +75,6 @@ class MemberControllerTest {
 		Role role = roleRepository.findByName(RoleEnum.BUYER).orElseThrow();
 		Member saved = memberRepository.save(new Member("mock@mock.com", "asdf1234", 0L, true, null, role));
 
-		System.out.println(objectMapper.writeValueAsString(dto));
 		mockMvc.perform(post("/api/members/" + saved.getId() + "/points").contextPath("/api")
 				.contextPath("/api")
 				.contentType(MediaType.APPLICATION_JSON)
