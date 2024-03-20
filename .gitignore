@@ -38,7 +38,7 @@ out/
 
 ### Secret ###
 .env
-src/main/resources/application.*
+src/main/resources/application*
 
 ## Database ##
 /db/

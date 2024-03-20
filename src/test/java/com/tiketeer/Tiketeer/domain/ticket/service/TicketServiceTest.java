@@ -12,9 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
-import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropAllTicketsUnderSomeTicketingCommandDto;
@@ -30,22 +28,16 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 @SpringBootTest
 @DisplayName("TicketService 테스트")
 public class TicketServiceTest {
-	private final TestHelper testHelper;
-	private final TicketService ticketService;
-	private final TicketingService ticketingService;
-	private final MemberRepository memberRepository;
-	private final RoleRepository roleRepository;
-
 	@Autowired
-	public TicketServiceTest(TestHelper testHelper, TicketService ticketService, TicketingService ticketingService,
-		MemberRepository memberRepository,
-		RoleRepository roleRepository) {
-		this.testHelper = testHelper;
-		this.ticketService = ticketService;
-		this.ticketingService = ticketingService;
-		this.memberRepository = memberRepository;
-		this.roleRepository = roleRepository;
-	}
+	private TestHelper testHelper;
+	@Autowired
+	private TicketService ticketService;
+	@Autowired
+	private TicketingService ticketingService;
+	@Autowired
+	private MemberRepository memberRepository;
+	@Autowired
+	private RoleRepository roleRepository;
 
 	@BeforeEach
 	void initTable() {
@@ -78,7 +70,7 @@ public class TicketServiceTest {
 		var now = LocalDateTime.now();
 
 		var mockEmail = "test@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var mockStock = 30;
 
@@ -114,7 +106,7 @@ public class TicketServiceTest {
 		var now = LocalDateTime.now();
 
 		var mockEmail = "test@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var mockStock = 10;
 		var saleStart = now.plusYears(1);
@@ -140,7 +132,7 @@ public class TicketServiceTest {
 		var now = LocalDateTime.now();
 
 		var mockEmail = "test@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var mockStock = 10;
 		var ticketingId = createTicketingAndReturnId(mockEmail, mockStock, now.plusYears(1), now.plusYears(2),
@@ -185,7 +177,7 @@ public class TicketServiceTest {
 		var now = LocalDateTime.now();
 
 		var mockEmail = "test@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var mockStock = 30;
 		var saleStart = now.plusYears(1);
@@ -212,7 +204,7 @@ public class TicketServiceTest {
 		var now = LocalDateTime.now();
 
 		var mockEmail = "test@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var mockStock = 10;
 
@@ -240,7 +232,7 @@ public class TicketServiceTest {
 		var now = LocalDateTime.now();
 
 		var mockEmail = "test@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var mockStock = 30;
 		var saleStart = now.plusYears(1);
@@ -266,7 +258,7 @@ public class TicketServiceTest {
 		var now = LocalDateTime.now();
 
 		var mockEmail = "test@test.com";
-		createMember(mockEmail);
+		testHelper.createMember(mockEmail);
 
 		var mockStock = 10;
 
@@ -283,14 +275,6 @@ public class TicketServiceTest {
 		// then
 		var tickets = ticketService.listTicketByTicketing(new ListTicketByTicketingCommandDto(ticketingId));
 		Assertions.assertThat(tickets.getTickets().size()).isEqualTo(0);
-	}
-
-	private void createMember(String email) {
-		var role = roleRepository.findByName(RoleEnum.SELLER).orElseThrow();
-		var memberForSave = Member.builder()
-			.email(email)
-			.password("1234456eqeqw").role(role).build();
-		memberRepository.save(memberForSave);
 	}
 
 	private UUID createTicketingAndReturnId(String email, int stock, LocalDateTime saleStart, LocalDateTime saleEnd,

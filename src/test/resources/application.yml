@@ -1,3 +1,6 @@
+server:
+  port: 4080
+
 spring:
   datasource:
     driver-class-name: org.h2.Driver
@@ -32,3 +35,6 @@ jwt:
   secret-key: 68895db81e621a83a1ab3d9892c24e8c6478bfe8b23fa47d324a54770c081630ed270acaf45b76456b36935c46cdffdba2d22bee94126b43a015f82c36333d3c
   access-key-expiration-ms: 300000
 
+custom:
+  service:
+    baseUrl: http://localhost
