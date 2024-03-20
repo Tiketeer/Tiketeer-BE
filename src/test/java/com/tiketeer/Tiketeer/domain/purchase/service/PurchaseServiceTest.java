@@ -30,7 +30,6 @@ import com.tiketeer.Tiketeer.domain.purchase.exception.PurchaseNotInSalePeriodEx
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.purchase.service.dto.CreatePurchaseCommandDto;
 import com.tiketeer.Tiketeer.domain.purchase.service.dto.DeletePurchaseTicketsCommandDto;
-import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
@@ -41,26 +40,20 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 @Import({TestHelper.class})
 @SpringBootTest
 public class PurchaseServiceTest {
-	private final TestHelper testHelper;
-	private final PurchaseService purchaseService;
-	private final PurchaseRepository purchaseRepository;
-	private final TicketRepository ticketRepository;
-	private final MemberRepository memberRepository;
-	private final TicketingRepository ticketingRepository;
-	private final RoleRepository roleRepository;
-
 	@Autowired
-	PurchaseServiceTest(TestHelper testHelper, PurchaseService purchaseService, PurchaseRepository purchaseRepository,
-		TicketRepository ticketRepository, MemberRepository memberRepository, TicketingRepository ticketingRepository,
-		RoleRepository roleRepository) {
-		this.testHelper = testHelper;
-		this.purchaseService = purchaseService;
-		this.purchaseRepository = purchaseRepository;
-		this.ticketRepository = ticketRepository;
-		this.memberRepository = memberRepository;
-		this.ticketingRepository = ticketingRepository;
-		this.roleRepository = roleRepository;
-	}
+	private TestHelper testHelper;
+	@Autowired
+	private PurchaseService purchaseService;
+	@Autowired
+	private PurchaseRepository purchaseRepository;
+	@Autowired
+	private TicketRepository ticketRepository;
+	@Autowired
+	private MemberRepository memberRepository;
+	@Autowired
+	private TicketingRepository ticketingRepository;
+	@Autowired
+	private RoleRepository roleRepository;
 
 	@BeforeEach
 	void initTable() {
@@ -78,7 +71,7 @@ public class PurchaseServiceTest {
 	void createPurchaseSuccess() {
 		// given
 		var mockEmail = "test1@test.com";
-		var member = createMember(mockEmail, "1234");
+		var member = testHelper.createMember(mockEmail, "1234");
 		var ticketing = createTicketing(member, 0, 1);
 
 		var createPurchaseCommand = CreatePurchaseCommandDto.builder()
@@ -124,7 +117,7 @@ public class PurchaseServiceTest {
 	void createPurchaseFailNotInSalePeriod() {
 		// given
 		var mockEmail = "test1@test.com";
-		var member = createMember(mockEmail, "1234");
+		var member = testHelper.createMember(mockEmail, "1234");
 		var ticketing = createTicketing(member, 1, 1);
 		var ticketingInDb = ticketingRepository.findById(ticketing.getId());
 
@@ -147,7 +140,7 @@ public class PurchaseServiceTest {
 	void createPurchaseFailNotEnoughTicket() {
 		// given
 		var mockEmail = "test1@test.com";
-		var member = createMember(mockEmail, "1234");
+		var member = testHelper.createMember(mockEmail, "1234");
 		var ticketing = createTicketing(member, 0, 1);
 
 		var createPurchaseCommand = CreatePurchaseCommandDto.builder()
@@ -169,7 +162,7 @@ public class PurchaseServiceTest {
 	void deletePurchaseTicketsSuccess() {
 		// given
 		var mockEmail = "test1@test.com";
-		var member = createMember(mockEmail, "1234");
+		var member = testHelper.createMember(mockEmail, "1234");
 		var ticketing = createTicketing(member, 0, 5);
 		var purchaseTicketPair = createPurchase(member, ticketing, 2);
 		var purchase = purchaseTicketPair.getFirst();
@@ -196,10 +189,10 @@ public class PurchaseServiceTest {
 	@Test
 	@DisplayName("구매 내역 전체 환불 > 티켓 환불 요청 > 성공")
 	@Transactional
-	void deletePurchaseAlllTicketsSuccess() {
+	void deletePurchaseAllTicketsSuccess() {
 		// given
 		var mockEmail = "test1@test.com";
-		var member = createMember(mockEmail, "1234");
+		var member = testHelper.createMember(mockEmail, "1234");
 		var ticketing = createTicketing(member, 0, 5);
 		var purchaseTicketPair = createPurchase(member, ticketing, 2);
 		var purchase = purchaseTicketPair.getFirst();
@@ -229,7 +222,7 @@ public class PurchaseServiceTest {
 	void deletePurchaseTicketsFailPurchaseNotFound() {
 		// given
 		var mockEmail = "test1@test.com";
-		createMember(mockEmail, "1234");
+		testHelper.createMember(mockEmail, "1234");
 
 		List<UUID> ticketsToRefund = Collections.singletonList(UUID.randomUUID());
 		var deletePurchaseCommand = DeletePurchaseTicketsCommandDto.builder()
@@ -251,7 +244,7 @@ public class PurchaseServiceTest {
 	void deletePurchaseTicketsFailEmptyPurchase() {
 		// given
 		var mockEmail = "test1@test.com";
-		var member = createMember(mockEmail, "1234");
+		var member = testHelper.createMember(mockEmail, "1234");
 		var ticketing = createTicketing(member, 0, 5);
 		var purchaseTicketPair = createPurchase(member, ticketing, 0);
 		var purchase = purchaseTicketPair.getFirst();
@@ -276,7 +269,7 @@ public class PurchaseServiceTest {
 	void deletePurchaseTicketsFailNotPurchaseOwner() {
 		// given
 		var mockEmail = "test1@test.com";
-		var member = createMember(mockEmail, "1234");
+		var member = testHelper.createMember(mockEmail, "1234");
 		var ticketing = createTicketing(member, 0, 5);
 		var purchaseTicketPair = createPurchase(member, ticketing, 1);
 		var purchase = purchaseTicketPair.getFirst();
@@ -302,7 +295,7 @@ public class PurchaseServiceTest {
 	void deletePurchaseTicketsFailNotTicketingSalePeriod() {
 		// given
 		var mockEmail = "test1@test.com";
-		var member = createMember(mockEmail, "1234");
+		var member = testHelper.createMember(mockEmail, "1234");
 		var ticketing = createTicketing(member, -2, 1);
 		var purchaseTicketPair = createPurchase(member, ticketing, 1);
 		var purchase = purchaseTicketPair.getFirst();
@@ -320,14 +313,6 @@ public class PurchaseServiceTest {
 			purchaseService.deletePurchaseTickets(deletePurchaseCommand);
 			// then
 		}).isInstanceOf(PurchaseNotInSalePeriodException.class);
-	}
-
-	private Member createMember(String email, String password) {
-		var role = roleRepository.findByName(RoleEnum.SELLER).orElseThrow();
-		var memberForSave = Member.builder()
-			.email(email)
-			.password(password).role(role).build();
-		return memberRepository.save(memberForSave);
 	}
 
 	private Ticketing createTicketing(Member member, int saleStartAfterYears, int stock) {
@@ -356,13 +341,13 @@ public class PurchaseServiceTest {
 		var purchase = this.purchaseRepository.save(Purchase.builder().member(member).build());
 
 		if (count > 0) {
-			var tickets = updateTicketPurcahse(purchase, ticketing, count);
+			var tickets = updateTicketPurchase(purchase, ticketing, count);
 			return Pair.of(purchase, tickets);
 		}
 		return Pair.of(purchase, Collections.emptyList());
 	}
 
-	private List<Ticket> updateTicketPurcahse(Purchase purchase, Ticketing ticketing, int count) {
+	private List<Ticket> updateTicketPurchase(Purchase purchase, Ticketing ticketing, int count) {
 		var tickets = this.ticketRepository.findByTicketingIdAndPurchaseIsNullOrderById(ticketing.getId(),
 			Limit.of(count));
 		if (tickets.size() < count) {
