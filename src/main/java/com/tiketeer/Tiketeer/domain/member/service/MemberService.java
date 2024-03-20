@@ -11,7 +11,11 @@ import com.tiketeer.Tiketeer.auth.jwt.JwtPayload;
 import com.tiketeer.Tiketeer.auth.jwt.JwtService;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidOtpException;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
+import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
+import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
+import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberCommandDto;
+import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberResultDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.InitMemberPasswordWithOtpCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenResultDto;
@@ -25,12 +29,15 @@ public class MemberService {
 	private final OtpRepository otpRepository;
 
 	private final JwtService jwtService;
+	private final MemberRepository memberRepository;
 
 	@Autowired
-	public MemberService(PasswordEncoder passwordEncoder, OtpRepository otpRepository, JwtService jwtService) {
+	public MemberService(PasswordEncoder passwordEncoder, OtpRepository otpRepository, JwtService jwtService,
+		MemberRepository memberRepository) {
 		this.passwordEncoder = passwordEncoder;
 		this.otpRepository = otpRepository;
 		this.jwtService = jwtService;
+		this.memberRepository = memberRepository;
 	}
 
 	@Transactional
@@ -54,5 +61,15 @@ public class MemberService {
 		} catch (JwtException ex) {
 			throw new InvalidTokenException();
 		}
+	}
+
+	public GetMemberResultDto getMember(GetMemberCommandDto command) {
+		var member = memberRepository.findByEmail(command.getMemberEmail()).orElseThrow(MemberNotFoundException::new);
+		return GetMemberResultDto.builder()
+			.email(member.getEmail())
+			.createdAt(member.getCreatedAt())
+			.point(member.getPoint())
+			.profileUrl(member.getProfileUrl())
+			.build();
 	}
 }

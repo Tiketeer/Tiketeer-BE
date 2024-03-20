@@ -22,8 +22,10 @@ import com.tiketeer.Tiketeer.auth.jwt.JwtService;
 import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidOtpException;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
+import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
+import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.InitMemberPasswordWithOtpCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenResultDto;
@@ -152,5 +154,41 @@ public class MemberServiceTest {
 			memberService.refreshAccessToken(
 				RefreshAccessTokenCommandDto.builder().refreshToken(refreshToken).build());
 		});
+	}
+
+	@Test
+	@DisplayName("정상 조건 > 멤버 조회 > 성공")
+	@Transactional
+	void getMemberSuccess() {
+		// given
+		var mockEmail = "test@test.com";
+		var memberInDb = testHelper.createMember(mockEmail);
+
+		var command = GetMemberCommandDto.builder().memberEmail(mockEmail).build();
+
+		// when
+		var member = memberService.getMember(command);
+
+		// then
+		Assertions.assertThat(member.getEmail()).isEqualTo(memberInDb.getEmail());
+		Assertions.assertThat(member.getPoint()).isEqualTo(memberInDb.getPoint());
+		Assertions.assertThat(member.getProfileUrl()).isEqualTo(memberInDb.getProfileUrl());
+		Assertions.assertThat(member.getCreatedAt()).isEqualTo(memberInDb.getCreatedAt());
+	}
+
+	@Test
+	@DisplayName("멤버가 존재하지 않음 > 멤버 조회 > 실패")
+	@Transactional(readOnly = true)
+	void getMemberFailNotFoundMember() {
+		// given
+		var mockEmail = "test@test.com";
+
+		var command = GetMemberCommandDto.builder().memberEmail(mockEmail).build();
+
+		Assertions.assertThatThrownBy(() -> {
+			// when
+			memberService.getMember(command);
+			// then
+		}).isInstanceOf(MemberNotFoundException.class);
 	}
 }
