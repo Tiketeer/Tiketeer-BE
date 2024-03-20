@@ -17,5 +17,7 @@ public interface TicketRepository extends JpaRepository<Ticket, UUID> {
 
 	List<Ticket> findAllByPurchase(Purchase purchase);
 
+	List<Ticket> findByTicketingIdAndPurchaseIsNull(UUID ticketingId);
+
 	List<Ticket> findByTicketingIdAndPurchaseIsNullOrderById(UUID ticketingId, Limit limit);
 }
