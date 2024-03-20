@@ -11,49 +11,55 @@
   ```yml
   DB_USERNAME= # DB Username
   DB_PASSWORD= # DB Password
-  EMAIL_ACCOUNT= # email server account
-  EMAIL_PASSWORD= # app password
   ```
 
-- application.yml 추가
-  ```yml
-  # src/main/resources/application.yml
-  server:
-    port: # Server Port
-    servlet:
-      context-path: "/api"
-
-  spring:
-    datasource:
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      url: # JDBC Connection URL
-      username: ${DB_USERNAME}
-      password: ${DB_PASSWORD}
-    jpa:
-      hibernate:
-        ddl-auto: update
-      show-sql: true
-    mail:
-      host: smtp.gmail.com
-      port: 587
-      username: ${EMAIL_ACCOUNT}
-      password: ${EMAIL_PASSWORD}
-      properties:
+    - application.yml 추가
+      ```yml
+      # src/main/resources/application.yml
+      server:
+        port: # Server Port
+        servlet:
+          context-path: "/api"
+  
+      spring:
+        datasource:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: # JDBC Connection URL
+          username: ${DB_USERNAME}
+          password: ${DB_PASSWORD}
+        jpa:
+          hibernate:
+            ddl-auto: update
+          show-sql: true
         mail:
-          smtp:
-            auth: true
-            starttls:
-              enable: true
-              required: true
-            connectiontimeout: 5000
-            timeout: 5000
-            writetimeout: 5000
-          mime:
-            charset: UTF-8
-  logging:
-    level:
-      org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-  ```
+          host: smtp.gmail.com
+          port: 587
+          username: ${EMAIL_ACCOUNT}
+          password: ${EMAIL_PASSWORD}
+          properties:
+            mail:
+              smtp:
+                auth: true
+                starttls:
+                  enable: true
+                  required: true
+                connectiontimeout: 5000
+                timeout: 5000
+                writetimeout: 5000
+              mime:
+                charset: UTF-8
+      logging:
+        level:
+          org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    
+      jwt:
+        secret-key: ${SECRET_KEY}
+        access-key-expiration-ms: ${ACCESS_KEY_EXPIRATION}
+  
+      custom:
+        service:
+          baseUrl: ${BASE_URL}
+      ```
 
 - 서버 실행
   ```shell
@@ -67,4 +73,4 @@
 ## API
 
 - 서버 실행 후 스웨거를 통해 확인 가능
-- /swagger-ui/index.html
+- /api/swagger-ui/index.html
