@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
@@ -66,7 +67,7 @@ public class TicketingServiceTest {
 	void getAllTicketingsSuccess() {
 		// given
 		var mockEmail = "test@test.com";
-		var member = createMember(mockEmail);
+		var member = testHelper.createMember(mockEmail);
 		var ticketCnt = 3;
 		var ticketings = createTicketings(member, ticketCnt);
 
