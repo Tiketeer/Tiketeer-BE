@@ -25,12 +25,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "ticketings")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
+@ToString
 public class Ticketing {
 	@Id
 	@UuidGenerator

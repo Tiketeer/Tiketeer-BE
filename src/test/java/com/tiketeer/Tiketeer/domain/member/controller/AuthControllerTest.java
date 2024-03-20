@@ -17,12 +17,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiketeer.Tiketeer.auth.constant.JwtMetadata;
-import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.constant.CookieConfig;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.LoginRequestDto;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.role.Role;
-import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
@@ -47,25 +44,12 @@ class AuthControllerTest {
 	@BeforeEach
 	void initDB() {
 		testHelper.initDB();
-		saveMember("user@example.com", "password");
+		testHelper.createMember("user@example.com", "password");
 	}
 
 	@AfterEach
 	void cleanDB() {
 		testHelper.cleanDB();
-	}
-
-	private void saveMember(String email, String password) {
-		Role role = roleRepository.findByName(RoleEnum.BUYER).orElseThrow();
-		Member member = Member.builder()
-			.email(email)
-			.password(passwordEncoder.encode(password))
-			.point(0)
-			.enabled(true)
-			.role(role)
-			.build();
-		memberRepository.save(member);
-
 	}
 
 	@Test

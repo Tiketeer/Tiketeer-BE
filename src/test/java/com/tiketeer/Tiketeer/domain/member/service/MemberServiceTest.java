@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.auth.jwt.JwtPayload;
 import com.tiketeer.Tiketeer.auth.jwt.JwtService;
-import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidOtpException;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
@@ -72,7 +71,7 @@ public class MemberServiceTest {
 	void initPasswordWithOtpFailBecauseInvalidOtp() {
 		// given
 		var mockEmail = "test@test.com";
-		var member = createMember(mockEmail);
+		var member = testHelper.createMember(mockEmail);
 
 		otpRepository.save(
 			Otp.builder()
@@ -95,7 +94,7 @@ public class MemberServiceTest {
 	void initPasswordWithOtpSuccess() {
 		// given
 		var mockEmail = "test@test.com";
-		var member = createMember(mockEmail);
+		var member = testHelper.createMember(mockEmail);
 
 		var otp = otpRepository.save(
 			Otp.builder()
@@ -118,14 +117,6 @@ public class MemberServiceTest {
 		Assertions.assertThat(passwordEncoder.matches(mockPwd, memberAfterEmailAuth.getPassword())).isTrue();
 
 		Assertions.assertThat(otpRepository.findById(otp.getPassword()).isPresent()).isFalse();
-	}
-
-	private Member createMember(String email) {
-		var role = roleRepository.findByName(RoleEnum.BUYER).orElseThrow();
-		var memberForSave = Member.builder()
-			.email(email)
-			.password("1234456eqeqw").role(role).build();
-		return memberRepository.save(memberForSave);
 	}
 
 	@Test
