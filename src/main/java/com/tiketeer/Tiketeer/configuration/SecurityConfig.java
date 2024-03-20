@@ -41,7 +41,7 @@ public class SecurityConfig {
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(req ->
 				req.requestMatchers(getPermitAllPaths()).permitAll()
-					.requestMatchers(HttpMethod.GET, "/members/*/sale").permitAll()
+					.requestMatchers(HttpMethod.GET, "/members/*/sale").authenticated()
 					.anyRequest().authenticated()
 			)
 			.build();
