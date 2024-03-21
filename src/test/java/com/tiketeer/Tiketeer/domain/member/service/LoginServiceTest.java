@@ -10,16 +10,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.tiketeer.Tiketeer.auth.jwt.JwtPayload;
 import com.tiketeer.Tiketeer.auth.jwt.JwtService;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidLoginException;
-import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.service.dto.LoginCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.LoginResultDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.LoginUseCase;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
-import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
@@ -27,12 +25,6 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 class LoginServiceTest {
 	@Autowired
 	private TestHelper testHelper;
-	@Autowired
-	private RoleRepository roleRepository;
-	@Autowired
-	private MemberRepository memberRepository;
-	@Autowired
-	private PasswordEncoder passwordEncoder;
 	@Autowired
 	private LoginService loginService;
 	@Autowired
