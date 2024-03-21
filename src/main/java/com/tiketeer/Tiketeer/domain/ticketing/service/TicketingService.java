@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticket.service.TicketService;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.ModifyForNotOwnedTicketingException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
@@ -25,15 +25,13 @@ import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.GetTicketingResultDto;
 public class TicketingService {
 	private final TicketingRepository ticketingRepository;
 	private final TicketService ticketService;
-	private final MemberRepository memberRepository;
 	private final TicketRepository ticketRepository;
 
 	@Autowired
 	public TicketingService(TicketingRepository ticketingRepository, TicketService ticketService,
-		MemberRepository memberRepository, TicketRepository ticketRepository) {
+		TicketRepository ticketRepository) {
 		this.ticketingRepository = ticketingRepository;
 		this.ticketService = ticketService;
-		this.memberRepository = memberRepository;
 		this.ticketRepository = ticketRepository;
 	}
 
@@ -110,15 +108,24 @@ public class TicketingService {
 		if (eventTime == null) {
 			throw new EventTimeNotValidException();
 		}
-		if (saleStart == null
-			|| saleEnd == null
+		if (!isSaleDurationValid(saleStart, saleEnd)
 			|| !isEventTimeAndSaleEndValid(eventTime, saleEnd)) {
 			throw new SaleDurationNotValidException();
 		}
-		return;
+	}
+
+	private boolean isSaleDurationValid(LocalDateTime saleStart, LocalDateTime saleEnd) {
+		return saleStart != null && saleEnd != null && saleEnd.isAfter(saleStart);
 	}
 
 	private boolean isEventTimeAndSaleEndValid(LocalDateTime eventTime, LocalDateTime saleEnd) {
 		return eventTime.isAfter(saleEnd);
+	}
+
+	public void validateTicketingOwnership(Ticketing ticketing, String email) {
+		if (!ticketing.getMember().getEmail().equals(email)) {
+			throw new ModifyForNotOwnedTicketingException();
+		}
+		return;
 	}
 }

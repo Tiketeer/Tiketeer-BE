@@ -6,9 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
-import com.tiketeer.Tiketeer.domain.ticketing.exception.ModifyForNotOwnedTicketingException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
@@ -31,25 +29,21 @@ public class UpdateTicketingUseCase {
 		var ticketingId = command.getTicketingId();
 		var ticketing = ticketingService.findById(ticketingId);
 
-		validateTicketingOwnership(ticketing, command.getEmail());
-
 		var now = command.getCommandCreatedAt();
-		if (now.isAfter(ticketing.getSaleStart())) {
-			throw new UpdateTicketingAfterSaleStartException();
-		}
-
 		var eventTime = command.getEventTime();
 		var saleStart = command.getSaleStart();
 		var saleEnd = command.getSaleEnd();
 
+		if (now.isAfter(ticketing.getSaleStart())) {
+			throw new UpdateTicketingAfterSaleStartException();
+		}
 		if (!isEventTimeValid(now, eventTime)) {
 			throw new EventTimeNotValidException();
 		}
-
 		if (!isSaleDurationValid(now, saleStart, saleEnd)) {
 			throw new SaleDurationNotValidException();
 		}
-
+		ticketingService.validateTicketingOwnership(ticketing, command.getEmail());
 		ticketingService.validateTicketingMetadata(eventTime, saleStart, saleEnd);
 
 		ticketing.setTitle(command.getTitle());
@@ -62,13 +56,6 @@ public class UpdateTicketingUseCase {
 		ticketing.setCategory(command.getCategory());
 		ticketing.setRunningMinutes(command.getRunningMinutes());
 		ticketingStockService.updateStock(ticketing.getId(), command.getStock());
-	}
-
-	private void validateTicketingOwnership(Ticketing ticketing, String email) {
-		if (!ticketing.getMember().getEmail().equals(email)) {
-			throw new ModifyForNotOwnedTicketingException();
-		}
-		return;
 	}
 
 	private boolean isEventTimeValid(LocalDateTime baseTime, LocalDateTime eventTime) {
