@@ -1,4 +1,4 @@
-package com.tiketeer.Tiketeer.domain.ticketing.service.dto;
+package com.tiketeer.Tiketeer.domain.ticketing.usecase.dto;
 
 import java.util.UUID;
 
