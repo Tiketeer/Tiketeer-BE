@@ -27,13 +27,13 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
 @SpringBootTest
-public class TicketingUpdateUseCaseTest {
+public class UpdateTicketingUseCaseTest {
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
-	private TicketingUpdateUseCase ticketingUpdateUseCase;
+	private UpdateTicketingUseCase updateTicketingUseCase;
 	@Autowired
-	private TicketingCreateUseCase ticketingCreateUseCase;
+	private CreateTicketingUseCase createTicketingUseCase;
 	@Autowired
 	private TicketingService ticketingService;
 	@Autowired
@@ -61,7 +61,7 @@ public class TicketingUpdateUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketingUpdateUseCase.updateTicketing(updateTicketingCommand);
+			updateTicketingUseCase.updateTicketing(updateTicketingCommand);
 			// then
 		}).isInstanceOf(TicketingNotFoundException.class);
 	}
@@ -81,7 +81,7 @@ public class TicketingUpdateUseCaseTest {
 
 		var createCmd = createTicketingCommand(memberEmailOwnedTicketing, eventTime, saleStart, saleEnd);
 
-		var ticketingId = ticketingCreateUseCase.createTicketing(createCmd).getTicketingId();
+		var ticketingId = createTicketingUseCase.createTicketing(createCmd).getTicketingId();
 
 		var memberEmailNotOwnedTicketing = "another@test.com";
 		var updateTicketingCommand = UpdateTicketingCommandDto.builder()
@@ -101,7 +101,7 @@ public class TicketingUpdateUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketingUpdateUseCase.updateTicketing(updateTicketingCommand);
+			updateTicketingUseCase.updateTicketing(updateTicketingCommand);
 			// then
 		}).isInstanceOf(ModifyForNotOwnedTicketingException.class);
 	}
@@ -119,7 +119,7 @@ public class TicketingUpdateUseCaseTest {
 		var eventTime = now.plusYears(3);
 		var createCmd = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
-		var ticketingId = ticketingCreateUseCase.createTicketing(createCmd).getTicketingId();
+		var ticketingId = createTicketingUseCase.createTicketing(createCmd).getTicketingId();
 
 		var updateTicketingCommand = UpdateTicketingCommandDto.builder()
 			.ticketingId(ticketingId)
@@ -138,7 +138,7 @@ public class TicketingUpdateUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketingUpdateUseCase.updateTicketing(updateTicketingCommand);
+			updateTicketingUseCase.updateTicketing(updateTicketingCommand);
 			// then
 		}).isInstanceOf(UpdateTicketingAfterSaleStartException.class);
 	}
@@ -156,7 +156,7 @@ public class TicketingUpdateUseCaseTest {
 		var eventTime = now.plusYears(3);
 		var createCmd = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
-		var ticketingId = ticketingCreateUseCase.createTicketing(createCmd).getTicketingId();
+		var ticketingId = createTicketingUseCase.createTicketing(createCmd).getTicketingId();
 
 		var updateTicketingCommand = UpdateTicketingCommandDto.builder()
 			.ticketingId(ticketingId)
@@ -174,7 +174,7 @@ public class TicketingUpdateUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketingUpdateUseCase.updateTicketing(updateTicketingCommand);
+			updateTicketingUseCase.updateTicketing(updateTicketingCommand);
 			// then
 		}).isInstanceOf(EventTimeNotValidException.class);
 	}
@@ -192,7 +192,7 @@ public class TicketingUpdateUseCaseTest {
 		var eventTime = now.plusYears(3);
 		var createCmd = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
-		var ticketingId = ticketingCreateUseCase.createTicketing(createCmd).getTicketingId();
+		var ticketingId = createTicketingUseCase.createTicketing(createCmd).getTicketingId();
 
 		var updateTicketingCommand = UpdateTicketingCommandDto.builder()
 			.ticketingId(ticketingId)
@@ -210,7 +210,7 @@ public class TicketingUpdateUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketingUpdateUseCase.updateTicketing(updateTicketingCommand);
+			updateTicketingUseCase.updateTicketing(updateTicketingCommand);
 			// then
 		}).isInstanceOf(SaleDurationNotValidException.class);
 	}
@@ -228,7 +228,7 @@ public class TicketingUpdateUseCaseTest {
 		var eventTime = now.plusYears(3);
 		var createCmd = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
-		var ticketingId = ticketingCreateUseCase.createTicketing(createCmd).getTicketingId();
+		var ticketingId = createTicketingUseCase.createTicketing(createCmd).getTicketingId();
 
 		var updateTicketingCommand = UpdateTicketingCommandDto.builder()
 			.ticketingId(ticketingId)
@@ -246,7 +246,7 @@ public class TicketingUpdateUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketingUpdateUseCase.updateTicketing(updateTicketingCommand);
+			updateTicketingUseCase.updateTicketing(updateTicketingCommand);
 			// then
 		}).isInstanceOf(SaleDurationNotValidException.class);
 	}
@@ -264,7 +264,7 @@ public class TicketingUpdateUseCaseTest {
 		var eventTime = now.plusYears(3);
 		var createCmd = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
-		var ticketingId = ticketingCreateUseCase.createTicketing(createCmd).getTicketingId();
+		var ticketingId = createTicketingUseCase.createTicketing(createCmd).getTicketingId();
 
 		var newTitle = "New Title!";
 		var newDescription = "New!!!";
@@ -293,7 +293,7 @@ public class TicketingUpdateUseCaseTest {
 			.build();
 
 		// when
-		ticketingUpdateUseCase.updateTicketing(updateTicketingCommand);
+		updateTicketingUseCase.updateTicketing(updateTicketingCommand);
 
 		// then
 		var updatedTicketingOpt = ticketingRepository.findById(ticketingId);

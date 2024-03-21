@@ -22,9 +22,9 @@ import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PatchTicketingReque
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PostTicketingRequestDto;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PostTicketingResponseDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
-import com.tiketeer.Tiketeer.domain.ticketing.usecase.TicketingCreateUseCase;
-import com.tiketeer.Tiketeer.domain.ticketing.usecase.TicketingDeleteUseCase;
-import com.tiketeer.Tiketeer.domain.ticketing.usecase.TicketingUpdateUseCase;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.CreateTicketingUseCase;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.DeleteTicketingUseCase;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.UpdateTicketingUseCase;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.DeleteTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.GetTicketingCommandDto;
 import com.tiketeer.Tiketeer.response.ApiResponse;
@@ -36,19 +36,19 @@ import jakarta.validation.Valid;
 public class TicketingController {
 	private final TicketingService ticketingService;
 	private final SecurityContextHelper securityContextHelper;
-	private final TicketingCreateUseCase ticketingCreateUseCase;
-	private final TicketingUpdateUseCase ticketingUpdateUseCase;
-	private final TicketingDeleteUseCase ticketingDeleteUseCase;
+	private final CreateTicketingUseCase createTicketingUseCase;
+	private final UpdateTicketingUseCase updateTicketingUseCase;
+	private final DeleteTicketingUseCase deleteTicketingUseCase;
 
 	@Autowired
 	public TicketingController(TicketingService ticketingService, SecurityContextHelper securityContextHelper,
-		TicketingCreateUseCase ticketingCreateUseCase, TicketingUpdateUseCase ticketingUpdateUseCase,
-		TicketingDeleteUseCase ticketingDeleteUseCase) {
+		CreateTicketingUseCase createTicketingUseCase, UpdateTicketingUseCase updateTicketingUseCase,
+		DeleteTicketingUseCase deleteTicketingUseCase) {
 		this.ticketingService = ticketingService;
 		this.securityContextHelper = securityContextHelper;
-		this.ticketingCreateUseCase = ticketingCreateUseCase;
-		this.ticketingUpdateUseCase = ticketingUpdateUseCase;
-		this.ticketingDeleteUseCase = ticketingDeleteUseCase;
+		this.createTicketingUseCase = createTicketingUseCase;
+		this.updateTicketingUseCase = updateTicketingUseCase;
+		this.deleteTicketingUseCase = deleteTicketingUseCase;
 	}
 
 	@GetMapping(path = "/")
@@ -71,7 +71,7 @@ public class TicketingController {
 	public ResponseEntity<ApiResponse<PostTicketingResponseDto>> postTicketing(
 		@Valid @RequestBody PostTicketingRequestDto request) {
 		var memberEmail = securityContextHelper.getEmailInToken();
-		var result = ticketingCreateUseCase.createTicketing(request.convertToDto(memberEmail));
+		var result = createTicketingUseCase.createTicketing(request.convertToDto(memberEmail));
 		var responseBody = ApiResponse.wrap(PostTicketingResponseDto.convertFromDto(result));
 		return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
 	}
@@ -80,14 +80,14 @@ public class TicketingController {
 	public ResponseEntity patchTicketing(@PathVariable String ticketingId,
 		@RequestBody PatchTicketingRequestDto request) {
 		var memberEmail = securityContextHelper.getEmailInToken();
-		ticketingUpdateUseCase.updateTicketing(request.convertToDto(ticketingId, memberEmail));
+		updateTicketingUseCase.updateTicketing(request.convertToDto(ticketingId, memberEmail));
 		return ResponseEntity.ok().build();
 	}
 
 	@DeleteMapping(path = "/{ticketingId}")
 	public ResponseEntity deleteTicketing(@PathVariable String ticketingId) {
 		var memberEmail = securityContextHelper.getEmailInToken();
-		ticketingDeleteUseCase.deleteTicketing(DeleteTicketingCommandDto.builder()
+		deleteTicketingUseCase.deleteTicketing(DeleteTicketingCommandDto.builder()
 			.ticketingId(UUID.fromString(ticketingId))
 			.memberEmail(memberEmail)
 			.build());

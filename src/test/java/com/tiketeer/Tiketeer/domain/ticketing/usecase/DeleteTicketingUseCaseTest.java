@@ -24,13 +24,13 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
 @SpringBootTest
-public class TicketingDeleteUseCaseTest {
+public class DeleteTicketingUseCaseTest {
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
-	private TicketingDeleteUseCase ticketingDeleteUseCase;
+	private DeleteTicketingUseCase deleteTicketingUseCase;
 	@Autowired
-	private TicketingCreateUseCase ticketingCreateUseCase;
+	private CreateTicketingUseCase createTicketingUseCase;
 	@Autowired
 	private TicketingRepository ticketingRepository;
 	@Autowired
@@ -56,7 +56,7 @@ public class TicketingDeleteUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketingDeleteUseCase.deleteTicketing(deleteTicketingCommand);
+			deleteTicketingUseCase.deleteTicketing(deleteTicketingCommand);
 			// then
 		}).isInstanceOf(TicketingNotFoundException.class);
 	}
@@ -71,7 +71,7 @@ public class TicketingDeleteUseCaseTest {
 		var now = LocalDateTime.now();
 		var createTicketingCommand = createTicketingCommand(emailOwnedTicketing, now.plusYears(3), now.plusYears(1),
 			now.plusYears(2));
-		var ticketingId = ticketingCreateUseCase.createTicketing(createTicketingCommand).getTicketingId();
+		var ticketingId = createTicketingUseCase.createTicketing(createTicketingCommand).getTicketingId();
 
 		var emailNotOwnedTicketing = "another@test.com";
 		var deleteTicketingCommand = DeleteTicketingCommandDto.builder()
@@ -82,7 +82,7 @@ public class TicketingDeleteUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketingDeleteUseCase.deleteTicketing(deleteTicketingCommand);
+			deleteTicketingUseCase.deleteTicketing(deleteTicketingCommand);
 			// then
 		}).isInstanceOf(ModifyForNotOwnedTicketingException.class);
 	}
@@ -98,7 +98,7 @@ public class TicketingDeleteUseCaseTest {
 		var saleStart = now.plusYears(1);
 		var createTicketingCommand = createTicketingCommand(email, now.plusYears(3), saleStart,
 			now.plusYears(2));
-		var ticketingId = ticketingCreateUseCase.createTicketing(createTicketingCommand).getTicketingId();
+		var ticketingId = createTicketingUseCase.createTicketing(createTicketingCommand).getTicketingId();
 
 		var deleteTicketingCommand = DeleteTicketingCommandDto.builder()
 			.ticketingId(ticketingId)
@@ -108,7 +108,7 @@ public class TicketingDeleteUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketingDeleteUseCase.deleteTicketing(deleteTicketingCommand);
+			deleteTicketingUseCase.deleteTicketing(deleteTicketingCommand);
 			// then
 		}).isInstanceOf(DeleteTicketingAfterSaleStartException.class);
 	}
@@ -124,7 +124,7 @@ public class TicketingDeleteUseCaseTest {
 		var now = LocalDateTime.now();
 		var createTicketingCommand = createTicketingCommand(email, now.plusYears(3), now.plusYears(1),
 			now.plusYears(2));
-		var ticketingId = ticketingCreateUseCase.createTicketing(createTicketingCommand).getTicketingId();
+		var ticketingId = createTicketingUseCase.createTicketing(createTicketingCommand).getTicketingId();
 
 		var ticketingOpt = ticketingRepository.findById(ticketingId);
 		Assertions.assertThat(ticketingOpt.isPresent()).isTrue();
@@ -140,7 +140,7 @@ public class TicketingDeleteUseCaseTest {
 			.build();
 
 		// when
-		ticketingDeleteUseCase.deleteTicketing(deleteTicketingCommand);
+		deleteTicketingUseCase.deleteTicketing(deleteTicketingCommand);
 
 		// then
 		var ticketsUnderTicketing = ticketRepository.findAllByTicketing(ticketing);

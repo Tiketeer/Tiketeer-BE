@@ -21,11 +21,11 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
 @SpringBootTest
-public class TicketingCreateUseCaseTest {
+public class CreateTicketingUseCaseTest {
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
-	private TicketingCreateUseCase ticketingCreateUseCase;
+	private CreateTicketingUseCase createTicketingUseCase;
 	@Autowired
 	private TicketingRepository ticketingRepository;
 	@Autowired
@@ -56,7 +56,7 @@ public class TicketingCreateUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketingCreateUseCase.createTicketing(command);
+			createTicketingUseCase.createTicketing(command);
 			// then
 		}).isInstanceOf(EventTimeNotValidException.class);
 	}
@@ -76,7 +76,7 @@ public class TicketingCreateUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketingCreateUseCase.createTicketing(command);
+			createTicketingUseCase.createTicketing(command);
 			// then
 		}).isInstanceOf(SaleDurationNotValidException.class);
 	}
@@ -96,7 +96,7 @@ public class TicketingCreateUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketingCreateUseCase.createTicketing(command);
+			createTicketingUseCase.createTicketing(command);
 			// then
 		}).isInstanceOf(SaleDurationNotValidException.class);
 	}
@@ -115,7 +115,7 @@ public class TicketingCreateUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			ticketingCreateUseCase.createTicketing(command);
+			createTicketingUseCase.createTicketing(command);
 			// then
 		}).isInstanceOf(MemberNotFoundException.class);
 	}
@@ -134,7 +134,7 @@ public class TicketingCreateUseCaseTest {
 		var command = createTicketingCommand(mockEmail, eventTime, saleStart, saleEnd);
 
 		// when
-		var result = ticketingCreateUseCase.createTicketing(command);
+		var result = createTicketingUseCase.createTicketing(command);
 
 		// then
 		var ticketingOpt = ticketingRepository.findById(result.getTicketingId());

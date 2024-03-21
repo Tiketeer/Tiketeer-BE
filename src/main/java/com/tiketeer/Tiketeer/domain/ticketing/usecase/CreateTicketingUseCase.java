@@ -6,41 +6,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
+import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
-import com.tiketeer.Tiketeer.domain.ticketing.exception.ModifyForNotOwnedTicketingException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
-import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingStockService;
-import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.UpdateTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.CreateTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.CreateTicketingResultDto;
 
 @Service
-public class TicketingUpdateUseCase {
+public class CreateTicketingUseCase {
 	private final TicketingService ticketingService;
 	private final TicketingStockService ticketingStockService;
+	private final MemberRepository memberRepository;
 
 	@Autowired
-	public TicketingUpdateUseCase(TicketingService ticketingService, TicketingStockService ticketingStockService) {
+	public CreateTicketingUseCase(TicketingService ticketingService, TicketingStockService ticketingStockService,
+		MemberRepository memberRepository) {
 		this.ticketingService = ticketingService;
 		this.ticketingStockService = ticketingStockService;
+		this.memberRepository = memberRepository;
 	}
 
 	@Transactional
-	public void updateTicketing(UpdateTicketingCommandDto command) {
-		var ticketingId = command.getTicketingId();
-		var ticketing = ticketingService.findById(ticketingId);
-
-		validateTicketingOwnership(ticketing, command.getEmail());
-
+	public CreateTicketingResultDto createTicketing(CreateTicketingCommandDto command) {
 		var now = command.getCommandCreatedAt();
-		if (now.isAfter(ticketing.getSaleStart())) {
-			throw new UpdateTicketingAfterSaleStartException();
-		}
-
-		var eventTime = command.getEventTime();
 		var saleStart = command.getSaleStart();
 		var saleEnd = command.getSaleEnd();
+		var eventTime = command.getEventTime();
 
 		if (!isEventTimeValid(now, eventTime)) {
 			throw new EventTimeNotValidException();
@@ -50,25 +45,30 @@ public class TicketingUpdateUseCase {
 			throw new SaleDurationNotValidException();
 		}
 
-		ticketingService.validateTicketingMetadata(eventTime, saleStart, saleEnd);
+		var member = memberRepository.findByEmail(command.getMemberEmail())
+			.orElseThrow(MemberNotFoundException::new);
 
-		ticketing.setTitle(command.getTitle());
-		ticketing.setDescription(command.getDescription());
-		ticketing.setPrice(command.getPrice());
-		ticketing.setLocation(command.getLocation());
-		ticketing.setEventTime(eventTime);
-		ticketing.setSaleStart(saleStart);
-		ticketing.setSaleEnd(saleEnd);
-		ticketing.setCategory(command.getCategory());
-		ticketing.setRunningMinutes(command.getRunningMinutes());
-		ticketingStockService.updateStock(ticketing.getId(), command.getStock());
-	}
+		var ticketing = ticketingService.saveTicketing(
+			Ticketing.builder()
+				.member(member)
+				.title(command.getTitle())
+				.description(command.getDescription())
+				.location(
+					command.getLocation())
+				.category(command.getCategory())
+				.runningMinutes(command.getRunningMinutes())
+				.price(command.getPrice())
+				.eventTime(command.getEventTime())
+				.saleStart(command.getSaleStart())
+				.saleEnd(command.getSaleEnd())
+				.build());
 
-	private void validateTicketingOwnership(Ticketing ticketing, String email) {
-		if (!ticketing.getMember().getEmail().equals(email)) {
-			throw new ModifyForNotOwnedTicketingException();
-		}
-		return;
+		ticketingStockService.createStock(ticketing.getId(), command.getStock());
+
+		return CreateTicketingResultDto.builder()
+			.ticketingId(ticketing.getId())
+			.createdAt(ticketing.getCreatedAt())
+			.build();
 	}
 
 	private boolean isEventTimeValid(LocalDateTime baseTime, LocalDateTime eventTime) {

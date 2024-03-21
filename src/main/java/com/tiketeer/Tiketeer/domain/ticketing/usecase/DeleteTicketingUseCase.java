@@ -13,12 +13,12 @@ import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingStockService;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.DeleteTicketingCommandDto;
 
 @Service
-public class TicketingDeleteUseCase {
+public class DeleteTicketingUseCase {
 	private final TicketingService ticketingService;
 	private final TicketingStockService ticketingStockService;
 
 	@Autowired
-	public TicketingDeleteUseCase(TicketingService ticketingService, TicketingStockService ticketingStockService) {
+	public DeleteTicketingUseCase(TicketingService ticketingService, TicketingStockService ticketingStockService) {
 		this.ticketingService = ticketingService;
 		this.ticketingStockService = ticketingStockService;
 	}
