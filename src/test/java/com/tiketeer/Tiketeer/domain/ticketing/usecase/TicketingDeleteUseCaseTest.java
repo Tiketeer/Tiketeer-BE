@@ -18,8 +18,8 @@ import com.tiketeer.Tiketeer.domain.ticketing.exception.DeleteTicketingAfterSale
 import com.tiketeer.Tiketeer.domain.ticketing.exception.ModifyForNotOwnedTicketingException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.DeleteTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.CreateTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.DeleteTicketingCommandDto;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})

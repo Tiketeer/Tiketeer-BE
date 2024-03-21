@@ -13,8 +13,8 @@ import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidExcepti
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingStockService;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingResultDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.CreateTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.CreateTicketingResultDto;
 
 @Service
 public class TicketingCreateUseCase {

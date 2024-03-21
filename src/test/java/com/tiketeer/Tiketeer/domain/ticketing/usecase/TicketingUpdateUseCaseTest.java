@@ -21,8 +21,8 @@ import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundExcepti
 import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.UpdateTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.CreateTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.UpdateTicketingCommandDto;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})

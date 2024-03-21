@@ -24,7 +24,7 @@ import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.GetTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.GetTicketingCommandDto;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})

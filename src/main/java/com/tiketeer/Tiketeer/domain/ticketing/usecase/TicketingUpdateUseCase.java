@@ -13,7 +13,7 @@ import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidExce
 import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingStockService;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.UpdateTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.UpdateTicketingCommandDto;
 
 @Service
 public class TicketingUpdateUseCase {

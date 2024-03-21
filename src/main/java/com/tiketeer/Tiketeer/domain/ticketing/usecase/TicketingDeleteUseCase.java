@@ -10,7 +10,7 @@ import com.tiketeer.Tiketeer.domain.ticketing.exception.ModifyForNotOwnedTicketi
 import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingStockService;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.DeleteTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.DeleteTicketingCommandDto;
 
 @Service
 public class TicketingDeleteUseCase {

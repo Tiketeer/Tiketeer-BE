@@ -16,9 +16,9 @@ import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidExcepti
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.GetAllTicketingsResultDto;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.GetTicketingCommandDto;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.GetTicketingResultDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.GetAllTicketingsResultDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.GetTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.GetTicketingResultDto;
 
 @Service
 @Transactional(readOnly = true)

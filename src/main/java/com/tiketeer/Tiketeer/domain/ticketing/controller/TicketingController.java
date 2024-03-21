@@ -22,11 +22,11 @@ import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PatchTicketingReque
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PostTicketingRequestDto;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PostTicketingResponseDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.DeleteTicketingCommandDto;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.GetTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.TicketingCreateUseCase;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.TicketingDeleteUseCase;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.TicketingUpdateUseCase;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.DeleteTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.GetTicketingCommandDto;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 
 import jakarta.validation.Valid;

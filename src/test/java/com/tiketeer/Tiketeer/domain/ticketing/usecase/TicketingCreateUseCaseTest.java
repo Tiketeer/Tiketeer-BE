@@ -16,7 +16,7 @@ import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.CreateTicketingCommandDto;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
