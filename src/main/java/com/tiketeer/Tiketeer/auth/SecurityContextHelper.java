@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SecurityContextHelper {
-	public String getMember() {
+	public String getEmailInToken() {
 		return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
 	}
 }
