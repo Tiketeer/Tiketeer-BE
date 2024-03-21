@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tiketeer.Tiketeer.domain.member.controller.dto.ChargePointRequestDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.ChargePointResponseDto;
+import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberPurchasesResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberTicketingSalesResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterRequestDto;
@@ -25,8 +26,10 @@ import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterResponse
 import com.tiketeer.Tiketeer.domain.member.controller.dto.ResetPasswordRequestDto;
 import com.tiketeer.Tiketeer.domain.member.service.MemberTicketingService;
 import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberCommandDto;
+import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberPurchasesCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberTicketingSalesCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.MemberRegisterCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberPurchasesUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.MemberChargePointUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.MemberRegisterUseCase;
@@ -44,18 +47,21 @@ public class MemberController {
 	private final MemberTicketingService memberTicketingService;
 
 	private final GetMemberUseCase getMemberUseCase;
+	private final GetMemberPurchasesUseCase getMemberPurchasesUseCase;
 
 	private final ResetPasswordUseCase resetPasswordUseCase;
 
 	@Autowired
 	public MemberController(MemberRegisterUseCase memberRegisterUseCase,
 		MemberChargePointUseCase memberChargePointUseCase, MemberTicketingService memberTicketingService,
-		GetMemberUseCase getMemberUseCase, ResetPasswordUseCase resetPasswordUseCase) {
+		GetMemberUseCase getMemberUseCase, GetMemberPurchasesUseCase getMemberPurchasesUseCase,
+		ResetPasswordUseCase resetPasswordUseCase) {
 		this.memberRegisterUseCase = memberRegisterUseCase;
 		this.memberChargePointUseCase = memberChargePointUseCase;
 		this.memberTicketingService = memberTicketingService;
 		this.getMemberUseCase = getMemberUseCase;
 		this.resetPasswordUseCase = resetPasswordUseCase;
+		this.getMemberPurchasesUseCase = getMemberPurchasesUseCase;
 	}
 
 	@PostMapping("/register")
@@ -79,6 +85,17 @@ public class MemberController {
 			.getTotalPoint();
 		var result = ChargePointResponseDto.builder().totalPoint(totalPoint).build();
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.wrap(result));
+	}
+
+	@GetMapping("/{memberId}/purchases")
+	public ResponseEntity<ApiResponse<List<GetMemberPurchasesResponseDto>>> getMemberPurchases(
+		@PathVariable UUID memberId) {
+		var email = "mock@mock.com";
+		var results = getMemberPurchasesUseCase.getMemberPurchases(
+			GetMemberPurchasesCommandDto.builder().memberEmail(email).build());
+		var responseBody = ApiResponse.wrap(
+			results.stream().map(GetMemberPurchasesResponseDto::convertFromDto).toList());
+		return ResponseEntity.status(HttpStatus.OK).body(responseBody);
 	}
 
 	@GetMapping("/{memberId}/sale")

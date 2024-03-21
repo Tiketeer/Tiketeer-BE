@@ -33,7 +33,7 @@ public class PurchaseController {
 	@PostMapping("/")
 	public ResponseEntity<ApiResponse<PostPurchaseResponseDto>> postPurchase(
 		@Valid @RequestBody PostPurchaseRequestDto request) {
-		var memberEmail = "test@example.com";
+		var memberEmail = "mock@mock.com";
 		var result = purchaseService.createPurchase(request.convertToDto(memberEmail));
 		var responseBody = ApiResponse.wrap(PostPurchaseResponseDto.converFromDto(result));
 		return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
@@ -42,7 +42,7 @@ public class PurchaseController {
 	@DeleteMapping("/{purchaseId}/tickets")
 	public ResponseEntity deletePurchaseTickets(@PathVariable UUID purchaseId, @Valid @RequestBody
 	DeletePurchaseTicketsRequestDto request) {
-		var memberEmail = "test@example.com";
+		var memberEmail = "mock@mock.com";
 		purchaseService.deletePurchaseTickets(request.convertToDto(memberEmail, purchaseId));
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
