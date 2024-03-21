@@ -96,7 +96,7 @@ public class UpdateTicketingUseCaseTest {
 			.saleStart(createCmd.getSaleStart())
 			.saleEnd(createCmd.getSaleEnd())
 			.eventTime(createCmd.getEventTime())
-			.commandCreatedAt(saleStart.plusDays(1))
+			.commandCreatedAt(now)
 			.build();
 
 		Assertions.assertThatThrownBy(() -> {
