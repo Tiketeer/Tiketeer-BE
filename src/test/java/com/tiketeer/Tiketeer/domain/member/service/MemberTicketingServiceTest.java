@@ -28,7 +28,6 @@ class MemberTicketingServiceTest {
 
 	@Autowired
 	private TestHelper testHelper;
-
 	@Autowired
 	private PurchaseRepository purchaseRepository;
 	@Autowired
@@ -73,7 +72,6 @@ class MemberTicketingServiceTest {
 		assertThat(memberTicketingSale.getDescription()).isEqualTo("");
 		assertThat(memberTicketingSale.getSaleStart()).isEqualTo(now);
 		assertThat(memberTicketingSale.getSaleEnd()).isEqualTo(now);
-
 		assertThat(memberTicketingSale.getRemainStock()).isEqualTo(1);
 		assertThat(memberTicketingSale.getStock()).isEqualTo(3);
 

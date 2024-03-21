@@ -13,6 +13,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -43,7 +44,7 @@ public class Ticketing {
 	@Column(name = "price", nullable = false)
 	private long price;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "owner_id", referencedColumnName = "member_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private Member member;
 
