@@ -41,6 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			JwtPayload jwtPayload = jwtService.verifyToken(accessToken);
 			var email = jwtPayload.email();
 			var role = jwtPayload.roleEnum().name();
+			System.out.println("role = " + role);
 			GrantedAuthority authority = new SimpleGrantedAuthority(role);
 			Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, List.of(authority));
 			SecurityContextHolder.getContext().setAuthentication(authentication);

@@ -67,7 +67,7 @@ class MemberControllerTest {
 	void getMemberTicketingSales() throws Exception {
 		//given
 		var now = now().truncatedTo(ChronoUnit.SECONDS);
-		String token = testHelper.registerAndLoginAndReturnAccessToken("user@example.com", RoleEnum.BUYER);
+		String token = testHelper.registerAndLoginAndReturnAccessToken("user@example.com", RoleEnum.SELLER);
 		Member member = memberRepository.findAll().getFirst();
 		Cookie cookie = new Cookie(JwtMetadata.ACCESS_TOKEN, token);
 		var ticketing = ticketingRepository.save(
