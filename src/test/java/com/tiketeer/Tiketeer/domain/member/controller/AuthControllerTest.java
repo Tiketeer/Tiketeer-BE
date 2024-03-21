@@ -1,5 +1,6 @@
 package com.tiketeer.Tiketeer.domain.member.controller;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiketeer.Tiketeer.auth.constant.JwtMetadata;
@@ -60,7 +62,7 @@ class AuthControllerTest {
 			.password("password")
 			.build();
 
-		mockMvc
+		MvcResult result = mockMvc
 			.perform(post("/api/auth/login")
 				.contextPath("/api")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -68,7 +70,12 @@ class AuthControllerTest {
 				.content(objectMapper.writeValueAsString(loginRequestDto)))
 
 			.andExpect(status().isOk())
-			.andExpect(cookie().exists(JwtMetadata.ACCESS_TOKEN));
+			.andExpect(cookie().exists(JwtMetadata.ACCESS_TOKEN))
+			.andExpect(header().exists("Authorization"))
+			.andReturn();
+
+		String authorization = result.getResponse().getHeader("Authorization");
+		assertThat(authorization).startsWith("Bearer ");
 	}
 
 }

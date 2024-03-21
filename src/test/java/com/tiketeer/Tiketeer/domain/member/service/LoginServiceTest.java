@@ -2,6 +2,9 @@ package com.tiketeer.Tiketeer.domain.member.service;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.LocalDateTime;
+import java.time.Period;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,16 +13,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.tiketeer.Tiketeer.auth.jwt.JwtPayload;
 import com.tiketeer.Tiketeer.auth.jwt.JwtService;
+import com.tiketeer.Tiketeer.domain.member.RefreshToken;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidLoginException;
-import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
+import com.tiketeer.Tiketeer.domain.member.repository.RefreshTokenRepository;
 import com.tiketeer.Tiketeer.domain.member.service.dto.LoginCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.LoginResultDto;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
-import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
@@ -28,11 +30,7 @@ class LoginServiceTest {
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
-	private RoleRepository roleRepository;
-	@Autowired
-	private MemberRepository memberRepository;
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+	private RefreshTokenRepository refreshTokenRepository;
 	@Autowired
 	private LoginService loginService;
 	@Autowired
@@ -65,6 +63,16 @@ class LoginServiceTest {
 		JwtPayload jwtPayload = jwtService.verifyToken(loginResult.getAccessToken());
 		assertThat(jwtPayload.email()).isEqualTo("user@example.com");
 		assertThat(jwtPayload.roleEnum()).isEqualTo(RoleEnum.BUYER);
+
+		JwtPayload refreshToken = jwtService.verifyToken(loginResult.getRefreshToken());
+		assertThat(refreshToken.email()).isEqualTo("user@example.com");
+		assertThat(refreshToken.roleEnum()).isEqualTo(RoleEnum.BUYER);
+
+		RefreshToken token = refreshTokenRepository.findAll().getFirst();
+		assertThat(token).isNotNull();
+		assertThat(
+			Period.between(LocalDateTime.now().toLocalDate(), token.getExpiredAt().toLocalDate()).getDays()).isEqualTo(
+			7);
 	}
 
 	@Test

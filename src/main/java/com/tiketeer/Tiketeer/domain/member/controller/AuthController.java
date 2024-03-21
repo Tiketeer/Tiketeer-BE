@@ -68,8 +68,8 @@ public class AuthController {
 
 		return ResponseEntity.status(HttpStatus.OK)
 			.header(HttpHeaders.SET_COOKIE, createCookie(loginResult).toString())
+			.header(HttpHeaders.AUTHORIZATION, "Bearer " + loginResult.getRefreshToken())
 			.body(responseBody);
-
 	}
 
 	private ResponseCookie createCookie(LoginResultDto loginResult) {

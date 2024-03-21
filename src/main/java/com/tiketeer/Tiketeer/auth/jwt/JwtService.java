@@ -25,6 +25,9 @@ public class JwtService {
 	@Value("${jwt.access-key-expiration-ms}")
 	private long accessKeyExpirationInMs;
 
+	@Value("${jwt.refresh-key-expiration-ms}")
+	private long refreshKeyExpirationInMs;
+
 	public JwtService(@Value("${jwt.secret-key}") String secretKey) {
 		this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
 	}
@@ -57,4 +60,14 @@ public class JwtService {
 			.compact();
 	}
 
+	public String createRefreshToken(JwtPayload jwtPayload) {
+		return Jwts.builder()
+			.subject(jwtPayload.email())
+			.claim("role", jwtPayload.roleEnum().name())
+			.issuer(issuer)
+			.issuedAt(jwtPayload.issuedAt())
+			.expiration(new Date(jwtPayload.issuedAt().getTime() + refreshKeyExpirationInMs))
+			.signWith(secretKey)
+			.compact();
+	}
 }
