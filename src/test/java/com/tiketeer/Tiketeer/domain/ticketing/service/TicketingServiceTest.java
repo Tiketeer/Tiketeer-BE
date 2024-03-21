@@ -2,6 +2,7 @@ package com.tiketeer.Tiketeer.domain.ticketing.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -14,12 +15,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Limit;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
+import com.tiketeer.Tiketeer.domain.purchase.Purchase;
+import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
+import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.DeleteTicketingAfterSaleStartException;
@@ -31,6 +36,7 @@ import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSale
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.DeleteTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.GetTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.UpdateTicketingCommandDto;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
@@ -50,6 +56,8 @@ public class TicketingServiceTest {
 	private MemberRepository memberRepository;
 	@Autowired
 	private RoleRepository roleRepository;
+	@Autowired
+	private PurchaseRepository purchaseRepository;
 
 	@BeforeEach
 	void initTable() {
@@ -79,6 +87,33 @@ public class TicketingServiceTest {
 		IntStream.range(0, ticketCnt).forEach(idx -> {
 			Assertions.assertThat(results.get(idx).getTitle()).isEqualTo(idx + "");
 		});
+
+	}
+
+	@Test
+	@DisplayName("정상 조건 > 특정 티켓팅 조회 요청 > 성공")
+	@Transactional
+	void getTicketingSuccess() {
+		// given
+		var mockEmail = "test@test.com";
+		var member = testHelper.createMember(mockEmail);
+		var ticketings = createTicketings(member, 1);
+		var ticketing = ticketings.getFirst();
+		var stock = 10;
+		var purchasedStock = 2;
+		createTickets(ticketing, stock);
+		createPurchase(member, ticketing, purchasedStock);
+
+		var command = GetTicketingCommandDto.builder().ticketingId(ticketing.getId()).build();
+
+		// when
+		var result = ticketingService.getTickting(command);
+
+		// then
+		Assertions.assertThat(result.getTitle()).isEqualTo("0");
+		Assertions.assertThat(result.getStock()).isEqualTo(stock);
+		Assertions.assertThat(result.getRemainedStock()).isEqualTo(stock - purchasedStock);
+		Assertions.assertThat(result.getOwner()).isEqualTo(member.getEmail());
 
 	}
 
@@ -593,7 +628,19 @@ public class TicketingServiceTest {
 				.saleEnd(LocalDateTime.now().plusMonths(1))
 				.build()
 		).toList();
-
 		return ticketingRepository.saveAll(ticketings);
+	}
+
+	private List<Ticket> createTickets(Ticketing ticketing, int stock) {
+		return ticketRepository.saveAll(Arrays.stream(new int[stock])
+			.mapToObj(i -> Ticket.builder().ticketing(ticketing).build())
+			.toList());
+	}
+
+	private Purchase createPurchase(Member member, Ticketing ticketing, int count) {
+		var purchase = purchaseRepository.save(Purchase.builder().member(member).build());
+		var tickets = ticketRepository.findByTicketingIdAndPurchaseIsNullOrderById(ticketing.getId(), Limit.of(count));
+		tickets.forEach(ticket -> ticket.setPurchase(purchase));
+		return purchase;
 	}
 }

@@ -15,12 +15,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.GetAllTicketingsResponseDto;
+import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.GetTicketingResponseDto;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PatchTicketingRequestDto;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PostTicketingRequestDto;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PostTicketingResponseDto;
-import com.tiketeer.Tiketeer.domain.ticketing.dto.GetAllTicketingsDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.DeleteTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.GetTicketingCommandDto;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 
 import jakarta.validation.Valid;
@@ -36,9 +38,18 @@ public class TicketingController {
 	}
 
 	@GetMapping(path = "/")
-	public ResponseEntity<ApiResponse<List<GetAllTicketingsDto>>> getAllTicketings() {
-		var result = ticketingService.getAllTicketings();
-		var responseBody = ApiResponse.wrap(result);
+	public ResponseEntity<ApiResponse<List<GetAllTicketingsResponseDto>>> getAllTicketings() {
+		var results = ticketingService.getAllTicketings();
+		var responseBody = ApiResponse.wrap(
+			results.stream().map(GetAllTicketingsResponseDto::convertFromDto).toList());
+		return ResponseEntity.status(HttpStatus.OK).body(responseBody);
+	}
+
+	@GetMapping(path = "/{ticketingId}")
+	public ResponseEntity<ApiResponse<GetTicketingResponseDto>> getTicketing(@PathVariable UUID ticketingId) {
+		var result = ticketingService.getTickting(
+			GetTicketingCommandDto.builder().ticketingId(ticketingId).build());
+		var responseBody = ApiResponse.wrap(GetTicketingResponseDto.convertFromDto(result));
 		return ResponseEntity.status(HttpStatus.OK).body(responseBody);
 	}
 
