@@ -16,6 +16,7 @@ import com.tiketeer.Tiketeer.auth.jwt.JwtService;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidLoginException;
 import com.tiketeer.Tiketeer.domain.member.service.dto.LoginCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.LoginResultDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.LoginUseCase;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 

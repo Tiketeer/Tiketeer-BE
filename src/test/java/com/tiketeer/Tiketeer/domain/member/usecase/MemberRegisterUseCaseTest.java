@@ -1,4 +1,4 @@
-package com.tiketeer.Tiketeer.domain.member.service;
+package com.tiketeer.Tiketeer.domain.member.usecase;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -35,9 +35,9 @@ import jakarta.persistence.PersistenceContext;
 @Import({TestHelper.class})
 @SpringBootTest
 @DisplayName("Member Register Test")
-class MemberRegisterServiceTest {
+class MemberRegisterUseCaseTest {
 	@Autowired
-	private MemberRegisterService memberRegisterService;
+	private MemberRegisterUseCase memberRegisterUseCase;
 
 	@Autowired
 	private TestHelper testHelper;
@@ -83,7 +83,7 @@ class MemberRegisterServiceTest {
 		MemberRegisterRequestDto memberDto = new MemberRegisterRequestDto("test22@gmail.com", false);
 
 		// when
-		MemberRegisterResultDto registerMemberResultDto = memberRegisterService.register(
+		MemberRegisterResultDto registerMemberResultDto = memberRegisterUseCase.register(
 			MemberRegisterCommandDto.builder().email(memberDto.getEmail()).isSeller(memberDto.getIsSeller()).build());
 
 		Optional<Member> optionalMember = memberRepository.findByEmail("test22@gmail.com");
@@ -101,7 +101,7 @@ class MemberRegisterServiceTest {
 		MemberRegisterRequestDto memberDto = new MemberRegisterRequestDto("test@gmail.com", false);
 
 		// when
-		MemberRegisterResultDto registerMemberResponseDto = memberRegisterService.register(
+		memberRegisterUseCase.register(
 			MemberRegisterCommandDto.builder().email(memberDto.getEmail()).isSeller(memberDto.getIsSeller()).build());
 
 		// then
@@ -121,8 +121,10 @@ class MemberRegisterServiceTest {
 
 		// when
 		// then
-		Assertions.assertThatThrownBy(() -> memberRegisterService.register(
-				MemberRegisterCommandDto.builder().email(memberDto.getEmail()).isSeller(memberDto.getIsSeller()).build()))
+		Assertions.assertThatThrownBy(() -> memberRegisterUseCase.register(
+				MemberRegisterCommandDto
+					.builder().email(memberDto.getEmail()).isSeller(memberDto.getIsSeller()).build()))
+
 			.isInstanceOf(
 				RoleNotFoundException.class);
 	}
@@ -140,8 +142,9 @@ class MemberRegisterServiceTest {
 
 		// when
 		// then
-		Assertions.assertThatThrownBy(() -> memberRegisterService.register(
-				MemberRegisterCommandDto.builder().email(memberDto.getEmail()).isSeller(memberDto.getIsSeller()).build()))
+		Assertions.assertThatThrownBy(() -> memberRegisterUseCase.register(
+				MemberRegisterCommandDto
+					.builder().email(memberDto.getEmail()).isSeller(memberDto.getIsSeller()).build()))
 			.isInstanceOf(
 				DuplicatedEmailException.class);
 	}

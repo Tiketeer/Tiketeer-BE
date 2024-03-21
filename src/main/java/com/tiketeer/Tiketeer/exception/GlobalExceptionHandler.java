@@ -50,14 +50,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		// Role
 		RoleNotFoundException.class
 	})
-	protected ResponseEntity<ErrorResponse> handleDefinedException(final DefinedException e) {
-		logError(e);
-		return createErrorResponse(e.getExceptionCode());
+	protected ResponseEntity<ErrorResponse> handleDefinedException(final DefinedException ex) {
+		logError(ex);
+		return createErrorResponse(ex.getExceptionCode());
 	}
 
 	@ExceptionHandler(Exception.class)
-	protected ResponseEntity<ErrorResponse> handleUndefinedException(final Exception e) {
-		logError(e);
+	protected ResponseEntity<ErrorResponse> handleUndefinedException(final Exception ex) {
+		logError(ex);
 		return createErrorResponse(CommonExceptionCode.INTERNAL_SERVER_ERROR);
 	}
 
@@ -68,7 +68,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 			.build());
 	}
 
-	private void logError(final Exception e) {
-		log.error(e.getClass().getName(), e);
+	private void logError(final Exception ex) {
+		log.error(ex.getClass().getName(), ex);
 	}
 }
