@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
-import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberCommandDto;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})

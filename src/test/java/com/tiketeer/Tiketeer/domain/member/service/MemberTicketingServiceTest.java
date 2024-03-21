@@ -13,7 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
-import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberTicketingSalesCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberTicketingSalesUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberTicketingSalesCommandDto;
 import com.tiketeer.Tiketeer.domain.purchase.Purchase;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.ticket.Ticket;
@@ -35,7 +36,7 @@ class MemberTicketingServiceTest {
 	@Autowired
 	private TicketRepository ticketRepository;
 	@Autowired
-	private MemberTicketingService memberTicketingService;
+	private GetMemberTicketingSalesUseCase getMemberTicketingSalesUseCase;
 
 	@BeforeEach
 	void initTable() {
@@ -62,7 +63,7 @@ class MemberTicketingServiceTest {
 		ticketRepository.save(new Ticket(purchase, ticketing));
 
 		//when
-		var memberTicketingSale = memberTicketingService.getMemberTicketingSales(
+		var memberTicketingSale = getMemberTicketingSalesUseCase.getMemberTicketingSales(
 			new GetMemberTicketingSalesCommandDto(member.getId(), member.getEmail())).getFirst();
 
 		//then

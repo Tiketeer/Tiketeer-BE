@@ -3,7 +3,7 @@ package com.tiketeer.Tiketeer.domain.ticketing.controller.dto;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.CreateTicketingCommandDto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.tiketeer.Tiketeer.domain.member.service.dto.CreateEmailViewCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.CreateEmailViewCommandDto;
 
 @Component
 public class AuthenticateEmailViewFactory implements EmailViewFactory {

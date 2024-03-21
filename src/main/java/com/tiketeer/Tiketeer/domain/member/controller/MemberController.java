@@ -22,15 +22,15 @@ import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberTicketingSalesResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterRequestDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterResponseDto;
-import com.tiketeer.Tiketeer.domain.member.service.MemberTicketingService;
-import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberPurchasesCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberTicketingSalesCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.MemberRegisterCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberPurchasesUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberTicketingSalesUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.MemberChargePointUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.MemberRegisterUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberPurchasesCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberTicketingSalesCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.MemberRegisterCommandDto;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 
 import jakarta.validation.Valid;
@@ -41,18 +41,19 @@ public class MemberController {
 	private final MemberRegisterUseCase memberRegisterUseCase;
 	private final MemberChargePointUseCase memberChargePointUseCase;
 
-	private final MemberTicketingService memberTicketingService;
+	private final GetMemberTicketingSalesUseCase getMemberTicketingSalesUseCase;
 
 	private final GetMemberUseCase getMemberUseCase;
 	private final GetMemberPurchasesUseCase getMemberPurchasesUseCase;
 
 	@Autowired
 	public MemberController(MemberRegisterUseCase memberRegisterUseCase,
-		MemberChargePointUseCase memberChargePointUseCase, MemberTicketingService memberTicketingService,
+		MemberChargePointUseCase memberChargePointUseCase,
+		GetMemberTicketingSalesUseCase getMemberTicketingSalesUseCase,
 		GetMemberUseCase getMemberUseCase, GetMemberPurchasesUseCase getMemberPurchasesUseCase) {
 		this.memberRegisterUseCase = memberRegisterUseCase;
 		this.memberChargePointUseCase = memberChargePointUseCase;
-		this.memberTicketingService = memberTicketingService;
+		this.getMemberTicketingSalesUseCase = getMemberTicketingSalesUseCase;
 		this.getMemberUseCase = getMemberUseCase;
 		this.getMemberPurchasesUseCase = getMemberPurchasesUseCase;
 	}
@@ -96,7 +97,7 @@ public class MemberController {
 		@PathVariable UUID memberId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String email = (String)authentication.getPrincipal();
-		var result = memberTicketingService.getMemberTicketingSales(
+		var result = getMemberTicketingSalesUseCase.getMemberTicketingSales(
 			new GetMemberTicketingSalesCommandDto(memberId, email));
 		var response = result.stream().map(GetMemberTicketingSalesResponseDto::convertFromResult).toList();
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.wrap(response));

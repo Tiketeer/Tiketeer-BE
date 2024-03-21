@@ -9,13 +9,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
-import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberPurchasesResultDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberPurchasesResultDto;
 import com.tiketeer.Tiketeer.domain.purchase.Purchase;
 
 @Repository
 public interface PurchaseRepository extends JpaRepository<Purchase, UUID> {
 	@Query(
-		"SELECT new com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberPurchasesResultDto(p.id, tg.id, tg.title, tg.location, tg.eventTime, tg.saleStart, tg.saleEnd, p.createdAt, tg.category, tg.price, count(*)) "
+		"SELECT new com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberPurchasesResultDto(p.id, tg.id, tg.title, tg.location, tg.eventTime, tg.saleStart, tg.saleEnd, p.createdAt, tg.category, tg.price, count(*)) "
 			+ "FROM Purchase p LEFT JOIN Ticket t ON p = t.purchase LEFT JOIN Ticketing tg ON t.ticketing = tg "
 			+ "WHERE p.member = :member GROUP BY p, tg ORDER BY p.createdAt"
 	)

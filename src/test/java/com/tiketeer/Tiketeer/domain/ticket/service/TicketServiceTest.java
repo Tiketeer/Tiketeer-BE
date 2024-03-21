@@ -12,16 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
-import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
-import com.tiketeer.Tiketeer.domain.ticket.service.dto.CreateTicketCommandDto;
-import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropAllTicketsUnderSomeTicketingCommandDto;
-import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropNumOfTicketsUnderSomeTicketingCommandDto;
-import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.usecase.TicketService;
+import com.tiketeer.Tiketeer.domain.ticket.usecase.dto.CreateTicketCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.usecase.dto.DropAllTicketsUnderSomeTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.usecase.dto.DropNumOfTicketsUnderSomeTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.usecase.dto.ListTicketByTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
-import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.CreateTicketingUseCase;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.CreateTicketingCommandDto;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
@@ -33,11 +32,7 @@ public class TicketServiceTest {
 	@Autowired
 	private TicketService ticketService;
 	@Autowired
-	private TicketingService ticketingService;
-	@Autowired
-	private MemberRepository memberRepository;
-	@Autowired
-	private RoleRepository roleRepository;
+	private CreateTicketingUseCase createTicketingUseCase;
 
 	@BeforeEach
 	void initTable() {
@@ -292,6 +287,6 @@ public class TicketServiceTest {
 			.eventTime(eventTime)
 			.build();
 
-		return ticketingService.createTicketing(createTicketingCommand).getTicketingId();
+		return createTicketingUseCase.createTicketing(createTicketingCommand).getTicketingId();
 	}
 }

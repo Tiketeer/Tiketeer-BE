@@ -1,7 +1,5 @@
 package com.tiketeer.Tiketeer.domain.member.usecase;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
@@ -17,9 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidPointChargeRequestException;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberIdAndAuthNotMatchedException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.member.service.dto.ChargePointCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.ChargePointCommandDto;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
+
 @Import({TestHelper.class})
 @SpringBootTest
 class MemberChargePointUseCaseTest {

@@ -3,7 +3,7 @@ package com.tiketeer.Tiketeer.domain.ticketing.controller.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.tiketeer.Tiketeer.domain.ticketing.service.dto.GetTicketingResultDto;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.GetTicketingResultDto;
 
 import lombok.Builder;
 import lombok.Getter;
