@@ -16,7 +16,6 @@ import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropAllTicketsUnderSomeTi
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.DropNumOfTicketsUnderSomeTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.service.dto.ListTicketByTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
-import com.tiketeer.Tiketeer.domain.ticketing.dto.GetAllTicketingsDto;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.DeleteTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.ModifyForNotOwnedTicketingException;
@@ -27,6 +26,9 @@ import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.CreateTicketingResultDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.DeleteTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.GetAllTicketingsResultDto;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.GetTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticketing.service.dto.GetTicketingResultDto;
 import com.tiketeer.Tiketeer.domain.ticketing.service.dto.UpdateTicketingCommandDto;
 
 @Service
@@ -47,14 +49,14 @@ public class TicketingService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<GetAllTicketingsDto> getAllTicketings() {
+	public List<GetAllTicketingsResultDto> getAllTicketings() {
 		var ticketings = ticketingRepository.findAll()
 			.stream()
 			.map((ticketing) -> {
 				// Todo - query로 처리해서 remainTicketStock 개수 한번에 가져오기
 				var remainedTickets = ticketRepository.findByTicketingIdAndPurchaseIsNull(
 					ticketing.getId());
-				return GetAllTicketingsDto.builder().ticketingId(ticketing.getId())
+				return GetAllTicketingsResultDto.builder().ticketingId(ticketing.getId())
 					.price(ticketing.getPrice())
 					.category(ticketing.getCategory())
 					.location(ticketing.getLocation())
@@ -69,6 +71,29 @@ public class TicketingService {
 			})
 			.toList();
 		return ticketings;
+	}
+
+	@Transactional
+	public GetTicketingResultDto getTickting(GetTicketingCommandDto command) {
+		var ticketing = ticketingRepository.getReferenceById(command.getTicketingId());
+		var tickets = ticketService.listTicketByTicketing(
+			ListTicketByTicketingCommandDto.builder().ticketingId(ticketing.getId()).build()).getTickets();
+		var numOfRemainedTickets = (int)tickets.stream().filter(ticket -> ticket.getPurchase() == null).count();
+		return GetTicketingResultDto.builder().ticketingId(ticketing.getId())
+			.price(ticketing.getPrice())
+			.category(ticketing.getCategory())
+			.location(ticketing.getLocation())
+			.description(ticketing.getDescription())
+			.title(ticketing.getTitle())
+			.runningMinutes(ticketing.getRunningMinutes())
+			.eventTime(ticketing.getEventTime())
+			.saleStart(ticketing.getSaleStart())
+			.saleEnd(ticketing.getSaleEnd())
+			.createdAt(ticketing.getCreatedAt())
+			.stock(tickets.size())
+			.remainedStock(numOfRemainedTickets)
+			.owner(ticketing.getMember().getEmail())
+			.build();
 	}
 
 	@Transactional

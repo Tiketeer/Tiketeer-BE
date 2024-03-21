@@ -70,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		String path = request.getRequestURI();
-		return PublicPaths.appendApiPrefix(PublicPaths.getMemberPaths()).contains(path)
+		return PublicPaths.appendApiPrefix(PublicPaths.getAllPublicPaths()).contains(path)
 			|| PublicPaths.appendApiPrefix(PublicPaths.getSwaggerPathPrefixes()).stream().anyMatch(path::startsWith);
 	}
 }
