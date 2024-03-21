@@ -6,11 +6,8 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-<<<<<<< HEAD
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-=======
->>>>>>> c6728b2d5b217966580629d5737ee1911849b9cf
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,22 +17,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tiketeer.Tiketeer.domain.member.controller.dto.ChargePointRequestDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.ChargePointResponseDto;
-<<<<<<< HEAD
-import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberTicketingSalesResponseDto;
-=======
 import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberResponseDto;
->>>>>>> c6728b2d5b217966580629d5737ee1911849b9cf
+import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberTicketingSalesResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterRequestDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterResponseDto;
 import com.tiketeer.Tiketeer.domain.member.service.MemberPointService;
 import com.tiketeer.Tiketeer.domain.member.service.MemberRegisterService;
-<<<<<<< HEAD
-import com.tiketeer.Tiketeer.domain.member.service.MemberTicketingService;
-import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberTicketingSalesCommandDto;
-=======
 import com.tiketeer.Tiketeer.domain.member.service.MemberService;
+import com.tiketeer.Tiketeer.domain.member.service.MemberTicketingService;
 import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberCommandDto;
->>>>>>> c6728b2d5b217966580629d5737ee1911849b9cf
+import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberTicketingSalesCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.MemberRegisterCommandDto;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 

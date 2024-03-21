@@ -7,6 +7,7 @@ import java.time.temporal.ChronoUnit;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,7 +43,10 @@ class TicketingRepositoryTest {
 	}
 
 	@Test
+	@DisplayName("멤버/티케팅/구매내역 생성 > 특정 멤버가 판매중인 티케팅 조회 > 정상 반환")
 	void findTicketingWithTicketStock() {
+
+		//given
 		var now = now().truncatedTo(ChronoUnit.SECONDS);
 		var member = testHelper.createMember("user@example.com", "password");
 		var ticketing = ticketingRepository.save(
@@ -51,9 +55,10 @@ class TicketingRepositoryTest {
 		ticketRepository.save(new Ticket(null, ticketing));
 		ticketRepository.save(new Ticket(purchase, ticketing));
 		ticketRepository.save(new Ticket(purchase, ticketing));
-
+		//when
 		var memberTicketingSale = ticketingRepository.findTicketingWithTicketStock(member.getEmail()).getFirst();
 
+		//then
 		assertThat(memberTicketingSale.getTitle()).isEqualTo("test");
 		assertThat(memberTicketingSale.getLocation()).isEqualTo("Seoul");
 		assertThat(memberTicketingSale.getRunningMinutes()).isEqualTo(600);
