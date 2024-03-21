@@ -118,12 +118,11 @@ class MemberControllerTest {
 		var now = now().truncatedTo(ChronoUnit.SECONDS);
 		String token = testHelper.registerAndLoginAndReturnAccessToken("user@example.com", RoleEnum.SELLER);
 		Member member = memberRepository.findAll().getFirst();
-		Otp newOtp = new Otp(now().plusDays(1), member);
-		Otp savedOtp = otpRepository.save(newOtp);
+		Otp otp = testHelper.createOtp(member, now().plusDays(1));
 		Cookie cookie = new Cookie(JwtMetadata.ACCESS_TOKEN, token);
 
 		//when - then
-		ResetPasswordRequestDto req = new ResetPasswordRequestDto(savedOtp.getPassword(), "newpassword");
+		ResetPasswordRequestDto req = new ResetPasswordRequestDto(otp.getPassword(), "newpassword");
 		String content = objectMapper.writeValueAsString(req);
 
 		mockMvc.perform(put("/api/members/password")
@@ -134,6 +133,58 @@ class MemberControllerTest {
 			.cookie(cookie)
 			.content(content)
 		).andExpect(status().isOk());
+	}
+
+	@Test
+	@Transactional
+	@DisplayName("유저 회원가입 및 로그인 > 동일한 비밀번호로 변경 > 변경 실패")
+	void resetPasswordFailSamePassword() throws Exception {
+
+		//given
+		var now = now().truncatedTo(ChronoUnit.SECONDS);
+		String token = testHelper.registerAndLoginAndReturnAccessToken("user@example.com", RoleEnum.SELLER);
+		Member member = memberRepository.findAll().getFirst();
+		Otp otp = testHelper.createOtp(member, now().plusDays(1));
+		Cookie cookie = new Cookie(JwtMetadata.ACCESS_TOKEN, token);
+
+		//when - then
+		ResetPasswordRequestDto req = new ResetPasswordRequestDto(otp.getPassword(), "1q2w3e4r!!");
+		String content = objectMapper.writeValueAsString(req);
+
+		mockMvc.perform(put("/api/members/password")
+			.contextPath("/api")
+			.with(csrf())
+			.contentType(MediaType.APPLICATION_JSON)
+			.characterEncoding("utf-8")
+			.cookie(cookie)
+			.content(content)
+		).andExpect(status().isConflict());
+	}
+
+	@Test
+	@Transactional
+	@DisplayName("유저 회원가입 및 로그인 > 만료된 OTP > 변경 실패")
+	void resetPasswordFailExpiredOtp() throws Exception {
+
+		//given
+		var now = now().truncatedTo(ChronoUnit.SECONDS);
+		String token = testHelper.registerAndLoginAndReturnAccessToken("user@example.com", RoleEnum.SELLER);
+		Member member = memberRepository.findAll().getFirst();
+		Otp otp = testHelper.createOtp(member, now().minusDays(1));
+		Cookie cookie = new Cookie(JwtMetadata.ACCESS_TOKEN, token);
+
+		//when - then
+		ResetPasswordRequestDto req = new ResetPasswordRequestDto(otp.getPassword(), "1q2w3e4r!!");
+		String content = objectMapper.writeValueAsString(req);
+
+		mockMvc.perform(put("/api/members/password")
+			.contextPath("/api")
+			.with(csrf())
+			.contentType(MediaType.APPLICATION_JSON)
+			.characterEncoding("utf-8")
+			.cookie(cookie)
+			.content(content)
+		).andExpect(status().isBadRequest());
 	}
 
 }
