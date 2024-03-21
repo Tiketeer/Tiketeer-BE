@@ -93,7 +93,7 @@ public class MemberController {
 	}
 
 	@PutMapping("/password")
-	public ResponseEntity<?> resetPassword(ResetPasswordRequestDto request) {
+	public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequestDto request) {
 		resetPasswordUseCase.resetPassword(request.toCommand());
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
