@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,7 @@ import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberTicketingSalesResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterRequestDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterResponseDto;
+import com.tiketeer.Tiketeer.domain.member.controller.dto.ResetPasswordRequestDto;
 import com.tiketeer.Tiketeer.domain.member.service.MemberPointService;
 import com.tiketeer.Tiketeer.domain.member.service.MemberRegisterService;
 import com.tiketeer.Tiketeer.domain.member.service.MemberService;
@@ -28,6 +30,7 @@ import com.tiketeer.Tiketeer.domain.member.service.MemberTicketingService;
 import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberTicketingSalesCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.MemberRegisterCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.ResetPasswordUseCase;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 
 import jakarta.validation.Valid;
@@ -40,9 +43,13 @@ public class MemberController {
 	private final MemberPointService memberPointService;
 	private final MemberService memberService;
 
+	private final ResetPasswordUseCase resetPasswordUseCase;
+
 	@Autowired
-	public MemberController(MemberRegisterService memberRegisterService, MemberPointService memberPointService,
+	public MemberController(ResetPasswordUseCase resetPasswordUseCase, MemberRegisterService memberRegisterService,
+		MemberPointService memberPointService,
 		MemberTicketingService memberTicketingService, MemberService memberService) {
+		this.resetPasswordUseCase = resetPasswordUseCase;
 		this.memberRegisterService = memberRegisterService;
 		this.memberPointService = memberPointService;
 		this.memberTicketingService = memberTicketingService;
@@ -80,6 +87,12 @@ public class MemberController {
 			new GetMemberTicketingSalesCommandDto(memberId, email));
 		var response = result.stream().map(GetMemberTicketingSalesResponseDto::convertFromResult).toList();
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.wrap(response));
+	}
+
+	@PutMapping("/password")
+	public ResponseEntity<?> resetPassword(ResetPasswordRequestDto request) {
+		resetPasswordUseCase.resetPassword(request.toCommand());
+		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
 	@GetMapping("/")
