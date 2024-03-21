@@ -76,13 +76,11 @@ public class MemberService {
 		}
 	}
 
-	@Transactional
 	public List<GetMemberPurchasesResultDto> getMemberPurchases(GetMemberPurchasesCommandDto command) {
 		var member = memberRepository.findByEmail(command.getMemberEmail()).orElseThrow(MemberNotFoundException::new);
 		return purchaseRepository.findWithTicketingByMember(member);
 	}
 
-	@Transactional
 	public GetMemberResultDto getMember(GetMemberCommandDto command) {
 		var member = memberRepository.findByEmail(command.getMemberEmail()).orElseThrow(MemberNotFoundException::new);
 		return GetMemberResultDto.builder()
