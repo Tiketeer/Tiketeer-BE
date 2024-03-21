@@ -1,4 +1,6 @@
-package com.tiketeer.Tiketeer.domain.member.service;
+package com.tiketeer.Tiketeer.domain.member.usecase;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.UUID;
 
@@ -18,14 +20,13 @@ import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.service.dto.ChargePointCommandDto;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
-
 @Import({TestHelper.class})
 @SpringBootTest
-public class MemberPointServiceTest {
+class MemberChargePointUseCaseTest {
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
-	private MemberPointService memberPointService;
+	private MemberChargePointUseCase memberChargePointUseCase;
 	@Autowired
 	private MemberRepository memberRepository;
 	@Autowired
@@ -60,7 +61,7 @@ public class MemberPointServiceTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			memberPointService.chargePoint(command);
+			memberChargePointUseCase.chargePoint(command);
 			// then
 		}).isInstanceOf(InvalidPointChargeRequestException.class);
 	}
@@ -85,7 +86,7 @@ public class MemberPointServiceTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			memberPointService.chargePoint(command);
+			memberChargePointUseCase.chargePoint(command);
 			// then
 		}).isInstanceOf(MemberIdAndAuthNotMatchedException.class);
 	}
@@ -108,7 +109,7 @@ public class MemberPointServiceTest {
 			.build();
 
 		// when
-		var result = memberPointService.chargePoint(command);
+		var result = memberChargePointUseCase.chargePoint(command);
 
 		// then
 		Assertions.assertThat(result.getTotalPoint()).isEqualTo(initPoint + pointForCharge);

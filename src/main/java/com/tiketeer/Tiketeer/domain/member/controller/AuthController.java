@@ -2,6 +2,9 @@ package com.tiketeer.Tiketeer.domain.member.controller;
 
 import java.time.Duration;
 
+import com.tiketeer.Tiketeer.domain.member.usecase.InitPasswordWithOtpUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.LoginUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.RefreshAccessTokenUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -19,8 +22,6 @@ import com.tiketeer.Tiketeer.domain.member.controller.dto.LoginRequestDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.LoginResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.SetPasswordWithOtpRequestDto;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
-import com.tiketeer.Tiketeer.domain.member.service.LoginService;
-import com.tiketeer.Tiketeer.domain.member.service.MemberService;
 import com.tiketeer.Tiketeer.domain.member.service.dto.InitMemberPasswordWithOtpCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.LoginResultDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenCommandDto;
@@ -35,21 +36,23 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @Slf4j
 public class AuthController {
-	private final MemberService memberService;
-	private final LoginService loginService;
+	private final InitPasswordWithOtpUseCase initPasswordWithOtp;
+	private final RefreshAccessTokenUseCase refreshAccessToken;
+	private final LoginUseCase loginUseCase;
 
 	@Value("${jwt.access-key-expiration-ms}")
 	private long accessKeyExpirationInMs;
 
 	@Autowired
-	public AuthController(MemberService memberService, LoginService loginService) {
-		this.memberService = memberService;
-		this.loginService = loginService;
+	public AuthController(InitPasswordWithOtpUseCase initPasswordWithOtp, RefreshAccessTokenUseCase refreshAccessToken, LoginUseCase loginUseCase) {
+        this.initPasswordWithOtp = initPasswordWithOtp;
+        this.refreshAccessToken = refreshAccessToken;
+		this.loginUseCase = loginUseCase;
 	}
 
 	@PostMapping(path = "/otp/email")
 	public ResponseEntity setPasswordWithOtp(@Valid @RequestBody SetPasswordWithOtpRequestDto request) {
-		memberService.initPasswordWithOtp(
+		initPasswordWithOtp.init(
 			InitMemberPasswordWithOtpCommandDto
 				.builder()
 				.otp(request.getOtp())
@@ -61,7 +64,7 @@ public class AuthController {
 
 	@PostMapping(path = "/auth/login")
 	public ResponseEntity<ApiResponse<LoginResponseDto>> login(@Valid @RequestBody final LoginRequestDto request) {
-		LoginResultDto loginResult = loginService.login(request.toCommand());
+		LoginResultDto loginResult = loginUseCase.login(request.toCommand());
 		log.info("user {} logged in", request.getEmail());
 
 		var responseBody = ApiResponse.wrap(LoginResultDto.convertFromDto(loginResult));
@@ -85,7 +88,7 @@ public class AuthController {
 		HttpServletResponse response) {
 		String refreshToken = getRefreshToken(authorizationHeader);
 
-		RefreshAccessTokenResultDto refreshAccessTokenResultDto = memberService.refreshAccessToken(
+		RefreshAccessTokenResultDto refreshAccessTokenResultDto = refreshAccessToken.refresh(
 			RefreshAccessTokenCommandDto.builder().refreshToken(refreshToken).build());
 
 		Cookie cookie = setCookie(JwtMetadata.ACCESS_TOKEN, refreshAccessTokenResultDto.getAccessToken(),
