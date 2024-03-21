@@ -1,6 +1,5 @@
-package com.tiketeer.Tiketeer.domain.member.service;
+package com.tiketeer.Tiketeer.domain.member.usecase;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,11 +12,10 @@ import com.tiketeer.Tiketeer.domain.member.service.dto.ChargePointResultDto;
 
 @Service
 @Transactional(readOnly = true)
-public class MemberPointService {
+public class MemberChargePointUseCase {
 	private final MemberRepository memberRepository;
 
-	@Autowired
-	public MemberPointService(MemberRepository memberRepository) {
+	public MemberChargePointUseCase(MemberRepository memberRepository) {
 		this.memberRepository = memberRepository;
 	}
 

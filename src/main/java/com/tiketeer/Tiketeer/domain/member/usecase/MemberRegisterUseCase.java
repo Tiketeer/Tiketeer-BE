@@ -1,9 +1,8 @@
-package com.tiketeer.Tiketeer.domain.member.service;
+package com.tiketeer.Tiketeer.domain.member.usecase;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,23 +23,23 @@ import com.tiketeer.Tiketeer.infra.alarm.email.view.EmailViewFactory;
 
 @Service
 @Transactional(readOnly = true)
-public class MemberRegisterService {
+public class MemberRegisterUseCase {
 	private final MemberRepository memberRepository;
-	private final RoleRepository roleRepository;
 	private final OtpRepository otpRepository;
 	private final EmailService emailService;
 	private final EmailViewFactory emailViewFactory;
+	private final RoleRepository roleRepository;
+
 	private final int OTP_VALID_TIME = 30;
 	private final String AUTHENTICATE_EMAIL_TITLE = "[tiketeer] 인증메일 발송";
 
-	@Autowired
-	public MemberRegisterService(MemberRepository memberRepository, RoleRepository roleRepository,
-		OtpRepository otpRepository, EmailService emailService, EmailViewFactory emailViewFactory) {
+	public MemberRegisterUseCase(MemberRepository memberRepository, OtpRepository otpRepository,
+		EmailService emailService, EmailViewFactory emailViewFactory, RoleRepository roleRepository) {
 		this.memberRepository = memberRepository;
-		this.roleRepository = roleRepository;
 		this.otpRepository = otpRepository;
 		this.emailService = emailService;
 		this.emailViewFactory = emailViewFactory;
+		this.roleRepository = roleRepository;
 	}
 
 	@Transactional
@@ -65,8 +64,7 @@ public class MemberRegisterService {
 			otpRepository.save(otp);
 
 			// TODO: async task
-			var viewData = CreateEmailViewCommandDto.builder().email(member.getEmail()).otp(otp.getPassword()).build();
-			emailService.sendEmail(member.getEmail(), AUTHENTICATE_EMAIL_TITLE, emailViewFactory.createView(viewData));
+			sendEmail(member, otp);
 			return MemberRegisterResultDto.toDto(optionalMember.get());
 		}
 
@@ -86,8 +84,12 @@ public class MemberRegisterService {
 		otpRepository.save(otp);
 
 		// TODO: async task
-		var viewData = CreateEmailViewCommandDto.builder().email(saved.getEmail()).otp(otp.getPassword()).build();
-		emailService.sendEmail(saved.getEmail(), AUTHENTICATE_EMAIL_TITLE, emailViewFactory.createView(viewData));
+		sendEmail(saved, otp);
 		return MemberRegisterResultDto.toDto(saved);
+	}
+
+	private void sendEmail(Member member, Otp otp) {
+		var viewData = CreateEmailViewCommandDto.builder().email(member.getEmail()).otp(otp.getPassword()).build();
+		emailService.sendEmail(member.getEmail(), AUTHENTICATE_EMAIL_TITLE, emailViewFactory.createView(viewData));
 	}
 }

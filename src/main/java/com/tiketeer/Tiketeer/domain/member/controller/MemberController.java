@@ -22,14 +22,15 @@ import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberTicketingSalesResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterRequestDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterResponseDto;
-import com.tiketeer.Tiketeer.domain.member.service.MemberPointService;
-import com.tiketeer.Tiketeer.domain.member.service.MemberRegisterService;
-import com.tiketeer.Tiketeer.domain.member.service.MemberService;
 import com.tiketeer.Tiketeer.domain.member.service.MemberTicketingService;
 import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberPurchasesCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberTicketingSalesCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.MemberRegisterCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberPurchasesUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.MemberChargePointUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.MemberRegisterUseCase;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 
 import jakarta.validation.Valid;
@@ -37,25 +38,30 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/members")
 public class MemberController {
-	private final MemberRegisterService memberRegisterService;
+	private final MemberRegisterUseCase memberRegisterUseCase;
+	private final MemberChargePointUseCase memberChargePointUseCase;
+
 	private final MemberTicketingService memberTicketingService;
-	private final MemberPointService memberPointService;
-	private final MemberService memberService;
+
+	private final GetMemberUseCase getMemberUseCase;
+	private final GetMemberPurchasesUseCase getMemberPurchasesUseCase;
 
 	@Autowired
-	public MemberController(MemberRegisterService memberRegisterService, MemberPointService memberPointService,
-		MemberTicketingService memberTicketingService, MemberService memberService) {
-		this.memberRegisterService = memberRegisterService;
-		this.memberPointService = memberPointService;
+	public MemberController(MemberRegisterUseCase memberRegisterUseCase,
+		MemberChargePointUseCase memberChargePointUseCase, MemberTicketingService memberTicketingService,
+		GetMemberUseCase getMemberUseCase, GetMemberPurchasesUseCase getMemberPurchasesUseCase) {
+		this.memberRegisterUseCase = memberRegisterUseCase;
+		this.memberChargePointUseCase = memberChargePointUseCase;
 		this.memberTicketingService = memberTicketingService;
-		this.memberService = memberService;
+		this.getMemberUseCase = getMemberUseCase;
+		this.getMemberPurchasesUseCase = getMemberPurchasesUseCase;
 	}
 
 	@PostMapping("/register")
 	public ApiResponse<MemberRegisterResponseDto> registerMember(
 		final @Valid @RequestBody MemberRegisterRequestDto registerMemberDto) {
 		return ApiResponse.wrap(
-			MemberRegisterResponseDto.toDto(memberRegisterService.register(MemberRegisterCommandDto.builder()
+			MemberRegisterResponseDto.toDto(memberRegisterUseCase.register(MemberRegisterCommandDto.builder()
 				.email(registerMemberDto.getEmail())
 				.isSeller(registerMemberDto.getIsSeller())
 				.build()
@@ -68,7 +74,8 @@ public class MemberController {
 		@Valid @RequestBody ChargePointRequestDto request) {
 		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
 		var email = "mock@mock.com";
-		var totalPoint = memberPointService.chargePoint(request.convertToCommandDto(memberId, email)).getTotalPoint();
+		var totalPoint = memberChargePointUseCase.chargePoint(request.convertToCommandDto(memberId, email))
+			.getTotalPoint();
 		var result = ChargePointResponseDto.builder().totalPoint(totalPoint).build();
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.wrap(result));
 	}
@@ -77,7 +84,7 @@ public class MemberController {
 	public ResponseEntity<ApiResponse<List<GetMemberPurchasesResponseDto>>> getMemberPurchases(
 		@PathVariable UUID memberId) {
 		var email = "mock@mock.com";
-		var results = memberService.getMemberPurchases(
+		var results = getMemberPurchasesUseCase.getMemberPurchases(
 			GetMemberPurchasesCommandDto.builder().memberEmail(email).build());
 		var responseBody = ApiResponse.wrap(
 			results.stream().map(GetMemberPurchasesResponseDto::convertFromDto).toList());
@@ -98,7 +105,7 @@ public class MemberController {
 	@GetMapping("/")
 	public ResponseEntity<ApiResponse<GetMemberResponseDto>> getMember() {
 		var email = "mock@mock.com";
-		var result = memberService.getMember(GetMemberCommandDto.builder().memberEmail(email).build());
+		var result = getMemberUseCase.get(GetMemberCommandDto.builder().memberEmail(email).build());
 		var responseBody = ApiResponse.wrap(GetMemberResponseDto.convertFromDto(result));
 		return ResponseEntity.status(HttpStatus.OK).body(responseBody);
 	}
