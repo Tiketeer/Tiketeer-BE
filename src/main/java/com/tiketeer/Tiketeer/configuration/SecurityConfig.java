@@ -54,9 +54,9 @@ public class SecurityConfig {
 
 	private void configureTicketingSecurity(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests(req ->
-			req.requestMatchers(POST, "/ticketings").hasRole(SELLER.name())
-				.requestMatchers(PATCH, "/ticketings/*").hasRole(SELLER.name())
-				.requestMatchers(DELETE, "/ticketings/*").hasRole(SELLER.name())
+			req.requestMatchers(POST, "/ticketings").hasAuthority(SELLER.name())
+				.requestMatchers(PATCH, "/ticketings/*").hasAuthority(SELLER.name())
+				.requestMatchers(DELETE, "/ticketings/*").hasAuthority(SELLER.name())
 				.requestMatchers(GET, "/ticketings").permitAll()
 				.requestMatchers(GET, "/ticketings/*").permitAll()
 		);
@@ -66,13 +66,13 @@ public class SecurityConfig {
 		http.authorizeHttpRequests(req ->
 			req
 				.requestMatchers(POST, "/members/register").permitAll()
-				.requestMatchers(POST, "/members/password-reset/mail").hasRole(BUYER.name())
-				.requestMatchers(PUT, "/members/password").hasRole(BUYER.name())
-				.requestMatchers(DELETE, "/members/*").hasRole(BUYER.name())
-				.requestMatchers(GET, "/members/*").hasRole(BUYER.name())
-				.requestMatchers(GET, "/members/*/purchases").hasRole(BUYER.name())
-				.requestMatchers(GET, "/members/*/sell").hasRole(SELLER.name())
-				.requestMatchers(POST, "/members/*/points").hasRole(BUYER.name())
+				.requestMatchers(POST, "/members/password-reset/mail").hasAnyAuthority(BUYER.name(), SELLER.name())
+				.requestMatchers(PUT, "/members/password").hasAnyAuthority(BUYER.name(), SELLER.name())
+				.requestMatchers(DELETE, "/members/*").hasAnyAuthority(BUYER.name(), SELLER.name())
+				.requestMatchers(GET, "/members/*").hasAnyAuthority(BUYER.name(), SELLER.name())
+				.requestMatchers(GET, "/members/*/purchases").hasAnyAuthority(BUYER.name(), SELLER.name())
+				.requestMatchers(GET, "/members/*/sale").hasAuthority(SELLER.name())
+				.requestMatchers(POST, "/members/*/points").hasAnyAuthority(BUYER.name(), SELLER.name())
 		);
 	}
 
@@ -86,8 +86,8 @@ public class SecurityConfig {
 
 	private void configurePurchaseSecurity(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests(req ->
-			req.requestMatchers(POST, "/purchases").hasRole(BUYER.name())
-				.requestMatchers(DELETE, "/purchases/*/tickets").hasRole(BUYER.name())
+			req.requestMatchers(POST, "/purchases").hasAnyAuthority(BUYER.name(), SELLER.name())
+				.requestMatchers(DELETE, "/purchases/*/tickets").hasAnyAuthority(BUYER.name(), SELLER.name())
 		);
 	}
 
