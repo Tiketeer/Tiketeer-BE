@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberPurchasesCommandDto;
 import com.tiketeer.Tiketeer.domain.purchase.Purchase;
@@ -80,5 +81,21 @@ public class GetMemberPurchasesUseCaseTest {
 		Assertions.assertThat(results.get(0).getTicketingId()).isEqualTo(ticketing1.getId());
 		Assertions.assertThat(results.get(1).getCount()).isEqualTo(1);
 		Assertions.assertThat(results.get(1).getTicketingId()).isEqualTo(ticketing2.getId());
+	}
+
+	@Test
+	@DisplayName("멤버가 존재하지 않음 > 멤버 조회 > 실패")
+	@Transactional(readOnly = true)
+	void getMemberPurchasesFailNotFoundMember() {
+		// given
+		var mockEmail = "test@test.com";
+
+		var command = GetMemberPurchasesCommandDto.builder().memberEmail(mockEmail).build();
+
+		Assertions.assertThatThrownBy(() -> {
+			// when
+			getMemberPurchasesUseCase.getMemberPurchases(command);
+			// then
+		}).isInstanceOf(MemberNotFoundException.class);
 	}
 }
