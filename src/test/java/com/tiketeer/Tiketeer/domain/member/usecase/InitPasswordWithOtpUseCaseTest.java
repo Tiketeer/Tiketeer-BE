@@ -48,6 +48,7 @@ class InitPasswordWithOtpUseCaseTest {
 	void cleanTable() {
 		testHelper.cleanDB();
 	}
+
 	@Test
 	@DisplayName("유효하지 않은 OTP > InitPasswordWithOtpUseCase.init 호출 > 실패")
 	@Transactional

@@ -2,9 +2,6 @@ package com.tiketeer.Tiketeer.domain.member.controller;
 
 import java.time.Duration;
 
-import com.tiketeer.Tiketeer.domain.member.usecase.InitPasswordWithOtpUseCase;
-import com.tiketeer.Tiketeer.domain.member.usecase.LoginUseCase;
-import com.tiketeer.Tiketeer.domain.member.usecase.RefreshAccessTokenUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +23,9 @@ import com.tiketeer.Tiketeer.domain.member.service.dto.InitMemberPasswordWithOtp
 import com.tiketeer.Tiketeer.domain.member.service.dto.LoginResultDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenResultDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.InitPasswordWithOtpUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.LoginUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.RefreshAccessTokenUseCase;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 
 import jakarta.servlet.http.Cookie;
@@ -44,9 +44,10 @@ public class AuthController {
 	private long accessKeyExpirationInMs;
 
 	@Autowired
-	public AuthController(InitPasswordWithOtpUseCase initPasswordWithOtp, RefreshAccessTokenUseCase refreshAccessToken, LoginUseCase loginUseCase) {
-        this.initPasswordWithOtp = initPasswordWithOtp;
-        this.refreshAccessToken = refreshAccessToken;
+	public AuthController(InitPasswordWithOtpUseCase initPasswordWithOtp, RefreshAccessTokenUseCase refreshAccessToken,
+		LoginUseCase loginUseCase) {
+		this.initPasswordWithOtp = initPasswordWithOtp;
+		this.refreshAccessToken = refreshAccessToken;
 		this.loginUseCase = loginUseCase;
 	}
 

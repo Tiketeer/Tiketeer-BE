@@ -44,7 +44,8 @@ public class Ticketing {
 	private long price;
 
 	@ManyToOne
-	@JoinColumn(name = "owner_id", referencedColumnName = "member_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(name = "owner_id", referencedColumnName = "member_id", foreignKey = @ForeignKey(value =
+		ConstraintMode.NO_CONSTRAINT))
 	private Member member;
 
 	@Setter

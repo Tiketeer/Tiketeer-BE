@@ -122,7 +122,9 @@ class MemberRegisterUseCaseTest {
 		// when
 		// then
 		Assertions.assertThatThrownBy(() -> memberRegisterUseCase.register(
-				MemberRegisterCommandDto.builder().email(memberDto.getEmail()).isSeller(memberDto.getIsSeller()).build()))
+				MemberRegisterCommandDto
+					.builder().email(memberDto.getEmail()).isSeller(memberDto.getIsSeller()).build()))
+
 			.isInstanceOf(
 				RoleNotFoundException.class);
 	}
@@ -141,7 +143,8 @@ class MemberRegisterUseCaseTest {
 		// when
 		// then
 		Assertions.assertThatThrownBy(() -> memberRegisterUseCase.register(
-				MemberRegisterCommandDto.builder().email(memberDto.getEmail()).isSeller(memberDto.getIsSeller()).build()))
+				MemberRegisterCommandDto
+					.builder().email(memberDto.getEmail()).isSeller(memberDto.getIsSeller()).build()))
 			.isInstanceOf(
 				DuplicatedEmailException.class);
 	}

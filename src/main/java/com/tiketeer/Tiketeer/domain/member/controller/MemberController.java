@@ -1,8 +1,5 @@
 package com.tiketeer.Tiketeer.domain.member.controller;
 
-import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberUseCase;
-import com.tiketeer.Tiketeer.domain.member.usecase.MemberChargePointUseCase;
-import com.tiketeer.Tiketeer.domain.member.usecase.MemberRegisterUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +17,9 @@ import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterRequestD
 import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterResponseDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.MemberRegisterCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.MemberChargePointUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.MemberRegisterUseCase;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 
 import jakarta.validation.Valid;
@@ -33,10 +33,11 @@ public class MemberController {
 	private final GetMemberUseCase getMemberUseCase;
 
 	@Autowired
-	public MemberController(MemberRegisterUseCase memberRegisterUseCase, MemberChargePointUseCase memberChargePointUseCase, GetMemberUseCase getMemberUseCase) {
-        this.memberRegisterUseCase = memberRegisterUseCase;
-        this.memberChargePointUseCase = memberChargePointUseCase;
-        this.getMemberUseCase = getMemberUseCase;
+	public MemberController(MemberRegisterUseCase memberRegisterUseCase,
+		MemberChargePointUseCase memberChargePointUseCase, GetMemberUseCase getMemberUseCase) {
+		this.memberRegisterUseCase = memberRegisterUseCase;
+		this.memberChargePointUseCase = memberChargePointUseCase;
+		this.getMemberUseCase = getMemberUseCase;
 	}
 
 	@PostMapping("/register")
@@ -56,7 +57,8 @@ public class MemberController {
 		@Valid @RequestBody ChargePointRequestDto request) {
 		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
 		var email = "mock@mock.com";
-		var totalPoint = memberChargePointUseCase.chargePoint(request.convertToCommandDto(memberId, email)).getTotalPoint();
+		var totalPoint = memberChargePointUseCase.chargePoint(request.convertToCommandDto(memberId, email))
+			.getTotalPoint();
 		var result = ChargePointResponseDto.builder().totalPoint(totalPoint).build();
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.wrap(result));
 	}
