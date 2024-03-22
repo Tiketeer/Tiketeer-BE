@@ -60,9 +60,9 @@ public class PurchaseServiceTest {
 	}
 
 	@Test
-	@DisplayName("티케팅 판매 기간임 > 티케팅 ID로 판매 기간 테스트 > 통과")
+	@DisplayName("티케팅 판매 기간임 > 티케팅 판매 기간 테스트 > 통과")
 	@Transactional
-	void validateTicketingSalePeriodWithUuidParamSuccess() {
+	void validateTicketingSalePeriodSuccess() {
 		// given
 		var mockEmail = "test1@test.com";
 		var member = testHelper.createMember(mockEmail, "1234");
@@ -76,9 +76,9 @@ public class PurchaseServiceTest {
 	}
 
 	@Test
-	@DisplayName("티케팅 판매 기간이 아님 > 티케팅 ID로 판매 기간 테스트 > throw err")
+	@DisplayName("티케팅 판매 기간이 아님 > 티케팅 판매 기간 테스트 > throw err")
 	@Transactional
-	void validateTicketingSalePeriodWithUuidParamThrowErr() {
+	void validateTicketingSalePeriodThrowErr() {
 		// given
 		var mockEmail = "test1@test.com";
 		var member = testHelper.createMember(mockEmail, "1234");
@@ -87,37 +87,6 @@ public class PurchaseServiceTest {
 		Assertions.assertThatThrownBy(() -> {
 			// when
 			purchaseService.validateTicketingSalePeriod(ticketing.getId(), LocalDateTime.now());
-			// then
-		}).isInstanceOf(PurchaseNotInSalePeriodException.class);
-	}
-
-	@Test
-	@DisplayName("티케팅 판매 기간임 > 티케팅 객체로 판매 기간 테스트 > 통과")
-	@Transactional
-	void validateTicketingSalePeriodWithTicketingParamSuccess() {
-		// given
-		var mockEmail = "test1@test.com";
-		var member = testHelper.createMember(mockEmail, "1234");
-		var ticketing = createTicketing(member, 0, 1);
-
-		// when
-		// then
-		Assertions.assertThatNoException().isThrownBy(() -> {
-			purchaseService.validateTicketingSalePeriod(ticketing, LocalDateTime.now());
-		});
-	}
-
-	@Test
-	@DisplayName("티케팅 판매 기간이 아님 > 티케팅 객체로 판매 기간 테스트 > throw err")
-	void validateTicketingSalePeriodWithTicketingParamThrowErr() {
-		// given
-		var mockEmail = "test1@test.com";
-		var member = testHelper.createMember(mockEmail, "1234");
-		var ticketing = createTicketing(member, 1, 1);
-
-		Assertions.assertThatThrownBy(() -> {
-			// when
-			purchaseService.validateTicketingSalePeriod(ticketing, LocalDateTime.now());
 			// then
 		}).isInstanceOf(PurchaseNotInSalePeriodException.class);
 	}
@@ -135,7 +104,7 @@ public class PurchaseServiceTest {
 		// when
 		// then
 		Assertions.assertThatNoException().isThrownBy(() -> {
-			purchaseService.validatePurchaseOwnership(purchase, mockEmail);
+			purchaseService.validatePurchaseOwnership(purchase.getId(), mockEmail);
 		});
 	}
 
@@ -151,7 +120,7 @@ public class PurchaseServiceTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			purchaseService.validatePurchaseOwnership(purchase, "other@test.com");
+			purchaseService.validatePurchaseOwnership(purchase.getId(), "other@test.com");
 			// then
 		}).isInstanceOf(AccessForNotOwnedPurchaseException.class);
 	}
@@ -168,7 +137,7 @@ public class PurchaseServiceTest {
 		var tickets = purchaseTicketPair.getSecond();
 
 		// when
-		var ticketsUnderPurchase = purchaseService.findTicketsUnderPurchase(purchase);
+		var ticketsUnderPurchase = purchaseService.findTicketsUnderPurchase(purchase.getId());
 
 		// then
 		Assertions.assertThat(tickets.getFirst().getId()).isEqualTo(ticketsUnderPurchase.getFirst().getId());

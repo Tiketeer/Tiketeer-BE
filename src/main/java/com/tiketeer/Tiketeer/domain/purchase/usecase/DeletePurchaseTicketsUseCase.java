@@ -33,12 +33,12 @@ public class DeletePurchaseTicketsUseCase {
 	public void deletePurchaseTickets(DeletePurchaseTicketsCommandDto command) {
 		var purchase = purchaseRepository.findById(command.getPurchaseId()).orElseThrow(
 			PurchaseNotFoundException::new);
-		var ticketsUnderPurchase = purchaseService.findTicketsUnderPurchase(purchase);
+		var ticketsUnderPurchase = purchaseService.findTicketsUnderPurchase(purchase.getId());
 		var ticketsToRefund = ticketRepository.findAllById(command.getTicketIds());
 		var ticketing = ticketsUnderPurchase.getFirst().getTicketing();
 
-		purchaseService.validatePurchaseOwnership(purchase, command.getMemberEmail());
-		purchaseService.validateTicketingSalePeriod(ticketing, command.getCommandCreatedAt());
+		purchaseService.validatePurchaseOwnership(purchase.getId(), command.getMemberEmail());
+		purchaseService.validateTicketingSalePeriod(ticketing.getId(), command.getCommandCreatedAt());
 
 		var ticketIdUnderPurchase = ticketsUnderPurchase.stream().map(Ticket::getId).toList();
 		AtomicInteger numOfDeletedTicket = new AtomicInteger();

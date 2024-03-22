@@ -8,13 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tiketeer.Tiketeer.domain.purchase.Purchase;
 import com.tiketeer.Tiketeer.domain.purchase.exception.AccessForNotOwnedPurchaseException;
 import com.tiketeer.Tiketeer.domain.purchase.exception.EmptyPurchaseException;
+import com.tiketeer.Tiketeer.domain.purchase.exception.PurchaseNotFoundException;
 import com.tiketeer.Tiketeer.domain.purchase.exception.PurchaseNotInSalePeriodException;
+import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
-import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 
@@ -22,21 +22,20 @@ import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 public class PurchaseService {
 	private final TicketRepository ticketRepository;
 	private final TicketingRepository ticketingRepository;
+	private final PurchaseRepository purchaseRepository;
 
 	@Autowired
-	PurchaseService(TicketRepository ticketRepository, TicketingRepository ticketingRepository) {
+	PurchaseService(TicketRepository ticketRepository, TicketingRepository ticketingRepository,
+		PurchaseRepository purchaseRepository) {
 		this.ticketRepository = ticketRepository;
 		this.ticketingRepository = ticketingRepository;
+		this.purchaseRepository = purchaseRepository;
 	}
 
 	@Transactional(readOnly = true)
 	public void validateTicketingSalePeriod(UUID ticketingId, LocalDateTime now) {
 		var ticketing = ticketingRepository.findById(ticketingId).orElseThrow(
 			TicketingNotFoundException::new);
-		validateTicketingSalePeriod(ticketing, now);
-	}
-
-	public void validateTicketingSalePeriod(Ticketing ticketing, LocalDateTime now) {
 		var saleStart = ticketing.getSaleStart();
 		var saleEnd = ticketing.getSaleEnd();
 		if (now.isBefore(saleStart) || now.isAfter(saleEnd)) {
@@ -44,14 +43,17 @@ public class PurchaseService {
 		}
 	}
 
-	public void validatePurchaseOwnership(Purchase purchase, String email) {
+	@Transactional(readOnly = true)
+	public void validatePurchaseOwnership(UUID purchaseId, String email) {
+		var purchase = purchaseRepository.findById(purchaseId).orElseThrow(PurchaseNotFoundException::new);
 		if (!purchase.getMember().getEmail().equals(email)) {
 			throw new AccessForNotOwnedPurchaseException();
 		}
 	}
 
 	@Transactional(readOnly = true)
-	public List<Ticket> findTicketsUnderPurchase(Purchase purchase) {
+	public List<Ticket> findTicketsUnderPurchase(UUID purchaseId) {
+		var purchase = purchaseRepository.findById(purchaseId).orElseThrow(PurchaseNotFoundException::new);
 		var ticketsUnderPurchase = ticketRepository.findAllByPurchase(purchase);
 		if (ticketsUnderPurchase.isEmpty()) {
 			throw new EmptyPurchaseException();
