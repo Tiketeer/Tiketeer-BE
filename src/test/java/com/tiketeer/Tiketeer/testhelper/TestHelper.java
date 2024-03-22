@@ -139,11 +139,13 @@ public class TestHelper {
 			.build());
 	}
 
-	public <T> T getDeserializedListApiResponse(String json, Class<?> responseType) throws JsonProcessingException {
+	public <T> ApiResponse<List<T>> getDeserializedListApiResponse(String json, Class<T> responseType) throws
+		JsonProcessingException {
 		return objectMapper.readValue(json, getListApiResponseType(responseType));
 	}
 
-	public <T> T getDeserializedApiResponse(String json, Class<?> responseType) throws JsonProcessingException {
+	public <T> ApiResponse<T> getDeserializedApiResponse(String json, Class<T> responseType) throws
+		JsonProcessingException {
 		return objectMapper.readValue(json, getApiResponseType(responseType));
 	}
 
