@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
-import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberPurchasesCommandDto;
 import com.tiketeer.Tiketeer.domain.purchase.Purchase;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
@@ -31,9 +30,6 @@ public class GetMemberPurchasesUseCaseTest {
 
 	@Autowired
 	private GetMemberPurchasesUseCase getMemberPurchasesUseCase;
-
-	@Autowired
-	private MemberRepository memberRepository;
 
 	@Autowired
 	private TicketingRepository ticketingRepository;
