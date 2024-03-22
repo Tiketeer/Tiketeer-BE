@@ -59,7 +59,7 @@ class RefreshAccessTokenUseCaseTest {
 
 	@Test
 	@DisplayName("정상 토큰 > 재발급 > 재발급 확인")
-	void refreshAccessToken() {
+	void refreshAccessTokenSuccess() {
 		// given
 		LoginResultDto loginResultDto = testHelper.registerAndLoginAndReturnAccessTokenAndRefreshToken("test@gmail.com",
 			RoleEnum.BUYER);
