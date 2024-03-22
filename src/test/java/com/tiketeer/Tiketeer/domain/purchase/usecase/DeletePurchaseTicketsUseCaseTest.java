@@ -1,4 +1,4 @@
-package com.tiketeer.Tiketeer.domain.purchase.service;
+package com.tiketeer.Tiketeer.domain.purchase.usecase;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -19,7 +19,6 @@ import org.springframework.data.util.Pair;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
-import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.purchase.Purchase;
 import com.tiketeer.Tiketeer.domain.purchase.exception.AccessForNotOwnedPurchaseException;
@@ -28,8 +27,6 @@ import com.tiketeer.Tiketeer.domain.purchase.exception.NotEnoughTicketException;
 import com.tiketeer.Tiketeer.domain.purchase.exception.PurchaseNotFoundException;
 import com.tiketeer.Tiketeer.domain.purchase.exception.PurchaseNotInSalePeriodException;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
-import com.tiketeer.Tiketeer.domain.purchase.usecase.PurchaseUseCase;
-import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseCommandDto;
 import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.DeletePurchaseTicketsCommandDto;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.Ticket;
@@ -40,11 +37,11 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
 @SpringBootTest
-public class PurchaseUseCaseTest {
+public class DeletePurchaseTicketsUseCaseTest {
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
-	private PurchaseUseCase purchaseUseCase;
+	private DeletePurchaseTicketsUseCase deletePurchaseTicketsUseCase;
 	@Autowired
 	private PurchaseRepository purchaseRepository;
 	@Autowired
@@ -67,97 +64,6 @@ public class PurchaseUseCaseTest {
 	}
 
 	@Test
-	@DisplayName("정상 조건 > 구매 생성 요청 > 성공")
-	@Transactional
-	void createPurchaseSuccess() {
-		// given
-		var mockEmail = "test1@test.com";
-		var member = testHelper.createMember(mockEmail, "1234");
-		var ticketing = createTicketing(member, 0, 1);
-
-		var createPurchaseCommand = CreatePurchaseCommandDto.builder()
-			.memberEmail(mockEmail)
-			.ticketingId(ticketing.getId())
-			.count(1)
-			.build();
-
-		// when
-		var result = purchaseUseCase.createPurchase(createPurchaseCommand);
-
-		// then
-		var purchaseOptional = purchaseRepository.findById(result.getPurchaseId());
-		Assertions.assertThat(purchaseOptional.isPresent()).isTrue();
-
-		var tickets = ticketRepository.findAllByPurchase(purchaseOptional.get());
-		Assertions.assertThat(tickets.size()).isEqualTo(createPurchaseCommand.getCount());
-	}
-
-	@Test
-	@DisplayName("존재하지 않는 멤버 > 구매 생성 요청 > 실패")
-	@Transactional
-	void createPurchaseFailMemberNotFound() {
-		// given
-		var mockEmail = "test1@test.com";
-
-		var createPurchaseCommand = CreatePurchaseCommandDto.builder()
-			.memberEmail(mockEmail)
-			.ticketingId(UUID.randomUUID())
-			.count(1)
-			.build();
-
-		Assertions.assertThatThrownBy(() -> {
-			// when
-			purchaseUseCase.createPurchase(createPurchaseCommand);
-			// then
-		}).isInstanceOf(MemberNotFoundException.class);
-	}
-
-	@Test
-	@DisplayName("티케팅 판매 기간이 아님 > 구매 생성 요청 > 실패")
-	@Transactional
-	void createPurchaseFailNotInSalePeriod() {
-		// given
-		var mockEmail = "test1@test.com";
-		var member = testHelper.createMember(mockEmail, "1234");
-		var ticketing = createTicketing(member, 1, 1);
-		var ticketingInDb = ticketingRepository.findById(ticketing.getId());
-
-		var createPurchaseCommand = CreatePurchaseCommandDto.builder()
-			.memberEmail(mockEmail)
-			.ticketingId(ticketing.getId())
-			.count(1)
-			.build();
-
-		Assertions.assertThatThrownBy(() -> {
-			// when
-			purchaseUseCase.createPurchase(createPurchaseCommand);
-			// then
-		}).isInstanceOf(PurchaseNotInSalePeriodException.class);
-	}
-
-	@Test
-	@DisplayName("구매 가능한 티켓이 부족 > 구매 생성 요청 > 실패")
-	@Transactional
-	void createPurchaseFailNotEnoughTicket() {
-		// given
-		var mockEmail = "test1@test.com";
-		var member = testHelper.createMember(mockEmail, "1234");
-		var ticketing = createTicketing(member, 0, 1);
-
-		var createPurchaseCommand = CreatePurchaseCommandDto.builder()
-			.memberEmail(mockEmail)
-			.ticketingId(ticketing.getId())
-			.count(2)
-			.build();
-
-		Assertions.assertThatThrownBy(() -> {
-			// when
-			purchaseUseCase.createPurchase(createPurchaseCommand);
-			// then
-		}).isInstanceOf(NotEnoughTicketException.class);
-	}
-
-	@Test
 	@DisplayName("구매 내역 일부 환불 > 티켓 환불 요청 > 성공")
 	@Transactional
 	void deletePurchaseTicketsSuccess() {
@@ -177,7 +83,7 @@ public class PurchaseUseCaseTest {
 			.build();
 
 		// when
-		purchaseUseCase.deletePurchaseTickets(deletePurchaseCommand);
+		deletePurchaseTicketsUseCase.deletePurchaseTickets(deletePurchaseCommand);
 
 		// then
 		var purchaseInDbOpt = purchaseRepository.findById(purchase.getId());
@@ -207,7 +113,7 @@ public class PurchaseUseCaseTest {
 			.build();
 
 		// when
-		purchaseUseCase.deletePurchaseTickets(deletePurchaseCommand);
+		deletePurchaseTicketsUseCase.deletePurchaseTickets(deletePurchaseCommand);
 
 		// then
 		var purchaseInDbOpt = purchaseRepository.findById(purchase.getId());
@@ -234,7 +140,7 @@ public class PurchaseUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			purchaseUseCase.deletePurchaseTickets(deletePurchaseCommand);
+			deletePurchaseTicketsUseCase.deletePurchaseTickets(deletePurchaseCommand);
 			// then
 		}).isInstanceOf(PurchaseNotFoundException.class);
 	}
@@ -259,7 +165,7 @@ public class PurchaseUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			purchaseUseCase.deletePurchaseTickets(deletePurchaseCommand);
+			deletePurchaseTicketsUseCase.deletePurchaseTickets(deletePurchaseCommand);
 			// then
 		}).isInstanceOf(EmptyPurchaseException.class);
 	}
@@ -285,7 +191,7 @@ public class PurchaseUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			purchaseUseCase.deletePurchaseTickets(deletePurchaseCommand);
+			deletePurchaseTicketsUseCase.deletePurchaseTickets(deletePurchaseCommand);
 			// then
 		}).isInstanceOf(AccessForNotOwnedPurchaseException.class);
 	}
@@ -311,7 +217,7 @@ public class PurchaseUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			purchaseUseCase.deletePurchaseTickets(deletePurchaseCommand);
+			deletePurchaseTicketsUseCase.deletePurchaseTickets(deletePurchaseCommand);
 			// then
 		}).isInstanceOf(PurchaseNotInSalePeriodException.class);
 	}
@@ -360,5 +266,4 @@ public class PurchaseUseCaseTest {
 		});
 		return tickets;
 	}
-
 }
