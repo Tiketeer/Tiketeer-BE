@@ -51,7 +51,7 @@ public class TicketingController {
 		this.deleteTicketingUseCase = deleteTicketingUseCase;
 	}
 
-	@GetMapping(path = "/")
+	@GetMapping
 	public ResponseEntity<ApiResponse<List<GetAllTicketingsResponseDto>>> getAllTicketings() {
 		var results = ticketingService.getAllTicketings();
 		var responseBody = ApiResponse.wrap(
@@ -67,7 +67,7 @@ public class TicketingController {
 		return ResponseEntity.status(HttpStatus.OK).body(responseBody);
 	}
 
-	@PostMapping(path = "/")
+	@PostMapping
 	public ResponseEntity<ApiResponse<PostTicketingResponseDto>> postTicketing(
 		@Valid @RequestBody PostTicketingRequestDto request) {
 		var memberEmail = securityContextHelper.getEmailInToken();
