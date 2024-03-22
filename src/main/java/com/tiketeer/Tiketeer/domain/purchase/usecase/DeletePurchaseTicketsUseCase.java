@@ -3,6 +3,7 @@ package com.tiketeer.Tiketeer.domain.purchase.usecase;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
@@ -13,6 +14,7 @@ import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.DeletePurchaseTicketsCo
 import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 
+@Service
 public class DeletePurchaseTicketsUseCase {
 	private final PurchaseRepository purchaseRepository;
 	private final TicketRepository ticketRepository;
