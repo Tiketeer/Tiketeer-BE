@@ -18,8 +18,8 @@ import com.tiketeer.Tiketeer.domain.member.RefreshToken;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidLoginException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.RefreshTokenRepository;
-import com.tiketeer.Tiketeer.domain.member.service.dto.LoginCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.LoginResultDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginResultDto;
 
 import lombok.extern.slf4j.Slf4j;
 

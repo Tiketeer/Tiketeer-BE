@@ -4,8 +4,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.service.LoginService;
-import com.tiketeer.Tiketeer.domain.member.service.dto.LoginCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.LoginResultDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginResultDto;
 
 import lombok.extern.slf4j.Slf4j;
 
