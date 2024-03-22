@@ -1,4 +1,4 @@
-package com.tiketeer.Tiketeer.domain.member.usecase.dto;
+package com.tiketeer.Tiketeer.infra.alarm.email.view.dto;
 
 import java.util.UUID;
 

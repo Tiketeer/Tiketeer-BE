@@ -23,18 +23,17 @@ import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberTicketingSalesResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterRequestDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterResponseDto;
-
 import com.tiketeer.Tiketeer.domain.member.controller.dto.ResetPasswordRequestDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.ChargeMemberPointUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberPurchasesUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberTicketingSalesUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberUseCase;
-import com.tiketeer.Tiketeer.domain.member.usecase.MemberChargePointUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.MemberRegisterUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.ResetPasswordUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberPurchasesCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberTicketingSalesCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.MemberRegisterCommandDto;
-import com.tiketeer.Tiketeer.domain.member.usecase.ResetPasswordUseCase;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 
 import jakarta.validation.Valid;
@@ -43,7 +42,7 @@ import jakarta.validation.Valid;
 @RequestMapping("/members")
 public class MemberController {
 	private final MemberRegisterUseCase memberRegisterUseCase;
-	private final MemberChargePointUseCase memberChargePointUseCase;
+	private final ChargeMemberPointUseCase chargeMemberPointUseCase;
 
 	private final GetMemberTicketingSalesUseCase getMemberTicketingSalesUseCase;
 
@@ -54,11 +53,11 @@ public class MemberController {
 
 	@Autowired
 	public MemberController(MemberRegisterUseCase memberRegisterUseCase,
-		MemberChargePointUseCase memberChargePointUseCase, ResetPasswordUseCase resetPasswordUseCase,
+		ChargeMemberPointUseCase chargeMemberPointUseCase, ResetPasswordUseCase resetPasswordUseCase,
 		GetMemberTicketingSalesUseCase getMemberTicketingSalesUseCase,
 		GetMemberUseCase getMemberUseCase, GetMemberPurchasesUseCase getMemberPurchasesUseCase) {
 		this.memberRegisterUseCase = memberRegisterUseCase;
-		this.memberChargePointUseCase = memberChargePointUseCase;
+		this.chargeMemberPointUseCase = chargeMemberPointUseCase;
 		this.getMemberTicketingSalesUseCase = getMemberTicketingSalesUseCase;
 		this.getMemberUseCase = getMemberUseCase;
 		this.resetPasswordUseCase = resetPasswordUseCase;
@@ -82,7 +81,7 @@ public class MemberController {
 		@Valid @RequestBody ChargePointRequestDto request) {
 		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
 		var email = "mock@mock.com";
-		var totalPoint = memberChargePointUseCase.chargePoint(request.convertToCommandDto(memberId, email))
+		var totalPoint = chargeMemberPointUseCase.chargePoint(request.convertToCommandDto(memberId, email))
 			.getTotalPoint();
 		var result = ChargePointResponseDto.builder().totalPoint(totalPoint).build();
 		return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.wrap(result));

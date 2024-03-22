@@ -9,7 +9,6 @@ import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.InitMemberPasswordWithOtpCommandDto;
 
 @Service
-@Transactional(readOnly = true)
 public class InitPasswordWithOtpUseCase {
 	private final OtpRepository otpRepository;
 	private final PasswordEncoder passwordEncoder;

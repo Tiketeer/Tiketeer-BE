@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.tiketeer.Tiketeer.domain.member.usecase.dto.CreateEmailViewCommandDto;
+import com.tiketeer.Tiketeer.infra.alarm.email.view.dto.CreateEmailViewCommandDto;
 
 @Component
 public class AuthenticateEmailViewFactory implements EmailViewFactory {
@@ -17,7 +17,6 @@ public class AuthenticateEmailViewFactory implements EmailViewFactory {
 	@Override
 	public String createView(Object data) {
 		CreateEmailViewCommandDto authenticateEmailViewData = (CreateEmailViewCommandDto)data;
-		System.out.println(baseUrl);
 		var url =
 			UriComponentsBuilder.fromHttpUrl(baseUrl)
 				.port(port)

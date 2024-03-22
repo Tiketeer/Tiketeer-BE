@@ -12,10 +12,10 @@ import com.tiketeer.Tiketeer.domain.member.usecase.dto.ChargePointResultDto;
 
 @Service
 @Transactional(readOnly = true)
-public class MemberChargePointUseCase {
+public class ChargeMemberPointUseCase {
 	private final MemberRepository memberRepository;
 
-	public MemberChargePointUseCase(MemberRepository memberRepository) {
+	public ChargeMemberPointUseCase(MemberRepository memberRepository) {
 		this.memberRepository = memberRepository;
 	}
 

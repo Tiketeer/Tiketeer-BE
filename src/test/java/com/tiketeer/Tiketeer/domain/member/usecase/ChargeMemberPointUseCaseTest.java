@@ -21,11 +21,11 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
 @SpringBootTest
-class MemberChargePointUseCaseTest {
+class ChargeMemberPointUseCaseTest {
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
-	private MemberChargePointUseCase memberChargePointUseCase;
+	private ChargeMemberPointUseCase chargeMemberPointUseCase;
 	@Autowired
 	private MemberRepository memberRepository;
 	@Autowired
@@ -60,7 +60,7 @@ class MemberChargePointUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			memberChargePointUseCase.chargePoint(command);
+			chargeMemberPointUseCase.chargePoint(command);
 			// then
 		}).isInstanceOf(InvalidPointChargeRequestException.class);
 	}
@@ -85,7 +85,7 @@ class MemberChargePointUseCaseTest {
 
 		Assertions.assertThatThrownBy(() -> {
 			// when
-			memberChargePointUseCase.chargePoint(command);
+			chargeMemberPointUseCase.chargePoint(command);
 			// then
 		}).isInstanceOf(MemberIdAndAuthNotMatchedException.class);
 	}
@@ -108,7 +108,7 @@ class MemberChargePointUseCaseTest {
 			.build();
 
 		// when
-		var result = memberChargePointUseCase.chargePoint(command);
+		var result = chargeMemberPointUseCase.chargePoint(command);
 
 		// then
 		Assertions.assertThat(result.getTotalPoint()).isEqualTo(initPoint + pointForCharge);

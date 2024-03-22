@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.tiketeer.Tiketeer.domain.member.usecase.dto.CreateEmailViewCommandDto;
+import com.tiketeer.Tiketeer.infra.alarm.email.view.dto.CreateEmailViewCommandDto;
 
 @SpringBootTest
 class AuthenticateEmailViewFactoryTest {
