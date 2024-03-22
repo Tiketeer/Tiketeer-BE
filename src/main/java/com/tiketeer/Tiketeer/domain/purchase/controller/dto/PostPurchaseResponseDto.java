@@ -3,7 +3,7 @@ package com.tiketeer.Tiketeer.domain.purchase.controller.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.tiketeer.Tiketeer.domain.purchase.service.dto.CreatePurchaseResultDto;
+import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseResultDto;
 
 import lombok.Builder;
 import lombok.Getter;

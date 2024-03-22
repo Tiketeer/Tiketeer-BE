@@ -1,4 +1,4 @@
-package com.tiketeer.Tiketeer.domain.purchase.service.dto;
+package com.tiketeer.Tiketeer.domain.purchase.usecase.dto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

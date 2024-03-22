@@ -2,7 +2,7 @@ package com.tiketeer.Tiketeer.domain.purchase.controller.dto;
 
 import java.util.UUID;
 
-import com.tiketeer.Tiketeer.domain.purchase.service.dto.CreatePurchaseCommandDto;
+import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseCommandDto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;

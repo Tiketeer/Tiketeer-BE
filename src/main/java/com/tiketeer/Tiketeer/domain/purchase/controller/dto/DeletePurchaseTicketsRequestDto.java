@@ -3,7 +3,7 @@ package com.tiketeer.Tiketeer.domain.purchase.controller.dto;
 import java.util.List;
 import java.util.UUID;
 
-import com.tiketeer.Tiketeer.domain.purchase.service.dto.DeletePurchaseTicketsCommandDto;
+import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.DeletePurchaseTicketsCommandDto;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
