@@ -21,7 +21,6 @@ import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.RefreshToken;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
 import com.tiketeer.Tiketeer.domain.member.repository.RefreshTokenRepository;
-import com.tiketeer.Tiketeer.domain.member.service.LoginService;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginResultDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.RefreshAccessTokenCommandDto;
@@ -45,7 +44,7 @@ class RefreshAccessTokenUseCaseTest {
 	private RefreshTokenRepository refreshTokenRepository;
 
 	@Autowired
-	private LoginService loginService;
+	private LoginUseCase loginUseCase;
 
 	@BeforeEach
 	void init() {
@@ -105,7 +104,7 @@ class RefreshAccessTokenUseCaseTest {
 		LoginResultDto loginResultDto = testHelper.registerAndLoginAndReturnAccessTokenAndRefreshToken(email,
 			RoleEnum.BUYER);
 
-		loginService.login(LoginCommandDto.builder().email(email).password("1q2w3e4r!!").build());
+		loginUseCase.login(LoginCommandDto.builder().email(email).password("1q2w3e4r!!").build());
 
 		String refreshToken = loginResultDto.getRefreshToken();
 

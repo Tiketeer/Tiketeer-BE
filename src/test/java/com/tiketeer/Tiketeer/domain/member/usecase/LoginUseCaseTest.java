@@ -1,4 +1,4 @@
-package com.tiketeer.Tiketeer.domain.member.service;
+package com.tiketeer.Tiketeer.domain.member.usecase;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -27,13 +27,13 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
 @SpringBootTest
-class LoginServiceTest {
+class LoginUseCaseTest {
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
 	private RefreshTokenRepository refreshTokenRepository;
 	@Autowired
-	private LoginService loginService;
+	private LoginUseCase loginUseCase;
 	@Autowired
 	private JwtService jwtService;
 
@@ -58,7 +58,7 @@ class LoginServiceTest {
 			.build();
 
 		//when
-		LoginResultDto loginResult = loginService.login(command);
+		LoginResultDto loginResult = loginUseCase.login(command);
 
 		//then
 		AccessTokenPayload accessTokenPayload = jwtService.createAccessTokenPayload(
@@ -89,7 +89,7 @@ class LoginServiceTest {
 
 		//when - then
 		Assertions.assertThrows(InvalidLoginException.class, () -> {
-			loginService.login(command);
+			loginUseCase.login(command);
 		});
 	}
 
@@ -104,7 +104,7 @@ class LoginServiceTest {
 
 		//when - then
 		Assertions.assertThrows(InvalidLoginException.class, () -> {
-			loginService.login(command);
+			loginUseCase.login(command);
 		});
 
 	}
