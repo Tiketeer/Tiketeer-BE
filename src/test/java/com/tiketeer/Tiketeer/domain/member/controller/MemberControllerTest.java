@@ -23,7 +23,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiketeer.Tiketeer.auth.constant.JwtMetadata;
 import com.tiketeer.Tiketeer.domain.member.Member;
@@ -100,12 +99,11 @@ class MemberControllerTest {
 			.andExpect(status().isOk())
 			.andReturn();
 
-		JavaType apiResponseType = testHelper.getListApiResponseType(GetMemberTicketingSalesResponseDto.class);
 		String jsonResult = result.getResponse().getContentAsString();
 
-		ApiResponse<List<GetMemberTicketingSalesResponseDto>> apiResponse = objectMapper.readValue(jsonResult,
-			apiResponseType);
-		
+		ApiResponse<List<GetMemberTicketingSalesResponseDto>> apiResponse = testHelper.getDeserializedListApiResponse(
+			jsonResult, GetMemberTicketingSalesResponseDto.class);
+
 		var dto = apiResponse.getData().getFirst();
 
 		assertThat(dto.getPrice()).isEqualTo(1000);

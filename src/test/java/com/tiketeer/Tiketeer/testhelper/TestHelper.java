@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiketeer.Tiketeer.domain.member.Member;
@@ -138,20 +139,28 @@ public class TestHelper {
 			.build());
 	}
 
-	public JavaType getListApiResponseType(Class<?> clazz) {
+	public <T> T getDeserializedListApiResponse(String json, Class<?> responseType) throws JsonProcessingException {
+		return objectMapper.readValue(json, getListApiResponseType(responseType));
+	}
+
+	public <T> T getDeserializedApiResponse(String json, Class<?> responseType) throws JsonProcessingException {
+		return objectMapper.readValue(json, getApiResponseType(responseType));
+	}
+
+	private JavaType getListApiResponseType(Class<?> clazz) {
 		JavaType listType = getListType(clazz);
 		return getApiResponseType(listType);
 	}
 
-	public JavaType getApiResponseType(Class<?> clazz) {
+	private JavaType getApiResponseType(Class<?> clazz) {
 		return objectMapper.getTypeFactory().constructParametricType(ApiResponse.class, clazz);
 	}
 
-	public JavaType getApiResponseType(JavaType javaType) {
+	private JavaType getApiResponseType(JavaType javaType) {
 		return objectMapper.getTypeFactory().constructParametricType(ApiResponse.class, javaType);
 	}
 
-	public JavaType getListType(Class<?> clazz) {
+	private JavaType getListType(Class<?> clazz) {
 		return objectMapper.getTypeFactory().constructParametricType(List.class, clazz);
 	}
 }
