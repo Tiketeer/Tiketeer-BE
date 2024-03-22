@@ -6,10 +6,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidOtpException;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
-import com.tiketeer.Tiketeer.domain.member.service.dto.InitMemberPasswordWithOtpCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.InitMemberPasswordWithOtpCommandDto;
 
 @Service
-@Transactional(readOnly = true)
 public class InitPasswordWithOtpUseCase {
 	private final OtpRepository otpRepository;
 	private final PasswordEncoder passwordEncoder;

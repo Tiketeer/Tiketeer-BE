@@ -12,8 +12,8 @@ import com.tiketeer.Tiketeer.auth.jwt.RefreshTokenPayload;
 import com.tiketeer.Tiketeer.domain.member.RefreshToken;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
 import com.tiketeer.Tiketeer.domain.member.repository.RefreshTokenRepository;
-import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenResultDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.RefreshAccessTokenCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.RefreshAccessTokenResultDto;
 
 import io.jsonwebtoken.JwtException;
 

@@ -2,6 +2,7 @@ package com.tiketeer.Tiketeer.domain.member.controller;
 
 import static java.time.LocalDateTime.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.temporal.ChronoUnit;
@@ -16,12 +17,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiketeer.Tiketeer.auth.constant.JwtMetadata;
 import com.tiketeer.Tiketeer.domain.member.Member;
+import com.tiketeer.Tiketeer.domain.member.Otp;
+import com.tiketeer.Tiketeer.domain.member.controller.dto.ResetPasswordRequestDto;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
+import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
 import com.tiketeer.Tiketeer.domain.purchase.Purchase;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
@@ -50,6 +54,10 @@ class MemberControllerTest {
 	private TicketingRepository ticketingRepository;
 	@Autowired
 	private TicketRepository ticketRepository;
+	@Autowired
+	private ObjectMapper objectMapper;
+	@Autowired
+	private OtpRepository otpRepository;
 
 	@BeforeEach
 	void initDB() {
@@ -64,7 +72,7 @@ class MemberControllerTest {
 	@Test
 	@Transactional
 	@DisplayName("멤버/티케팅/티켓 생성 + 구매 > 멤버 판매목록 조회 > 성공적으로 반환")
-	void getMemberTicketingSales() throws Exception {
+	void getMemberTicketingSalesSuccess() throws Exception {
 		//given
 		var now = now().truncatedTo(ChronoUnit.SECONDS);
 		String token = testHelper.registerAndLoginAndReturnAccessToken("user@example.com", RoleEnum.SELLER);
@@ -79,7 +87,7 @@ class MemberControllerTest {
 
 		//when - then
 
-		mockMvc.perform(MockMvcRequestBuilders.get("/api/members/" + member.getId() + "/sale")
+		mockMvc.perform(get("/api/members/" + member.getId() + "/sale")
 				.contextPath("/api")
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
@@ -100,4 +108,83 @@ class MemberControllerTest {
 			.andExpect(jsonPath("$.data[0].category").value(""))
 			.andExpect(jsonPath("$.data[0].runningMinutes").value(600));
 	}
+
+	@Test
+	@Transactional
+	@DisplayName("유저 회원가입 및 로그인 > 비밀번호 변경 > 변경 확인")
+	void resetPasswordSuccess() throws Exception {
+
+		//given
+		var now = now().truncatedTo(ChronoUnit.SECONDS);
+		String token = testHelper.registerAndLoginAndReturnAccessToken("user@example.com", RoleEnum.SELLER);
+		Member member = memberRepository.findAll().getFirst();
+		Otp otp = testHelper.createOtp(member, now().plusDays(1));
+		Cookie cookie = new Cookie(JwtMetadata.ACCESS_TOKEN, token);
+
+		//when - then
+		ResetPasswordRequestDto req = new ResetPasswordRequestDto(otp.getPassword(), "newpassword");
+		String content = objectMapper.writeValueAsString(req);
+
+		mockMvc.perform(put("/api/members/password")
+			.contextPath("/api")
+			.with(csrf())
+			.contentType(MediaType.APPLICATION_JSON)
+			.characterEncoding("utf-8")
+			.cookie(cookie)
+			.content(content)
+		).andExpect(status().isOk());
+	}
+
+	@Test
+	@Transactional
+	@DisplayName("유저 회원가입 및 로그인 > 동일한 비밀번호로 변경 > 변경 실패")
+	void resetPasswordFailSamePassword() throws Exception {
+
+		//given
+		var now = now().truncatedTo(ChronoUnit.SECONDS);
+		String token = testHelper.registerAndLoginAndReturnAccessToken("user@example.com", RoleEnum.SELLER);
+		Member member = memberRepository.findAll().getFirst();
+		Otp otp = testHelper.createOtp(member, now().plusDays(1));
+		Cookie cookie = new Cookie(JwtMetadata.ACCESS_TOKEN, token);
+
+		//when - then
+		ResetPasswordRequestDto req = new ResetPasswordRequestDto(otp.getPassword(), "1q2w3e4r!!");
+		String content = objectMapper.writeValueAsString(req);
+
+		mockMvc.perform(put("/api/members/password")
+			.contextPath("/api")
+			.with(csrf())
+			.contentType(MediaType.APPLICATION_JSON)
+			.characterEncoding("utf-8")
+			.cookie(cookie)
+			.content(content)
+		).andExpect(status().isConflict());
+	}
+
+	@Test
+	@Transactional
+	@DisplayName("유저 회원가입 및 로그인 > 만료된 OTP > 변경 실패")
+	void resetPasswordFailExpiredOtp() throws Exception {
+
+		//given
+		var now = now().truncatedTo(ChronoUnit.SECONDS);
+		String token = testHelper.registerAndLoginAndReturnAccessToken("user@example.com", RoleEnum.SELLER);
+		Member member = memberRepository.findAll().getFirst();
+		Otp otp = testHelper.createOtp(member, now().minusDays(1));
+		Cookie cookie = new Cookie(JwtMetadata.ACCESS_TOKEN, token);
+
+		//when - then
+		ResetPasswordRequestDto req = new ResetPasswordRequestDto(otp.getPassword(), "1q2w3e4r!!");
+		String content = objectMapper.writeValueAsString(req);
+
+		mockMvc.perform(put("/api/members/password")
+			.contextPath("/api")
+			.with(csrf())
+			.contentType(MediaType.APPLICATION_JSON)
+			.characterEncoding("utf-8")
+			.cookie(cookie)
+			.content(content)
+		).andExpect(status().isBadRequest());
+	}
+
 }

@@ -1,6 +1,6 @@
 package com.tiketeer.Tiketeer.domain.member.controller.dto;
 
-import com.tiketeer.Tiketeer.domain.member.service.dto.LoginCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginCommandDto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

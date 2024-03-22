@@ -7,6 +7,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.tiketeer.Tiketeer.domain.member.exception.DuplicatedEmailException;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidLoginException;
+import com.tiketeer.Tiketeer.domain.member.exception.InvalidNewPasswordException;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidOtpException;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidPointChargeRequestException;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberIdAndAuthNotMatchedException;
@@ -35,6 +36,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		InvalidLoginException.class,
 		MemberIdAndAuthNotMatchedException.class,
 		InvalidPointChargeRequestException.class,
+		InvalidNewPasswordException.class,
 
 		// Ticketing
 		TicketingNotFoundException.class,

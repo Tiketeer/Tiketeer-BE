@@ -2,7 +2,7 @@ package com.tiketeer.Tiketeer.domain.member.controller.dto;
 
 import java.time.LocalDateTime;
 
-import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberResultDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberResultDto;
 
 import lombok.Builder;
 import lombok.Getter;
