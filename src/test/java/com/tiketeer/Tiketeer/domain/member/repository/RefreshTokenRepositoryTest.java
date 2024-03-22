@@ -3,6 +3,7 @@ package com.tiketeer.Tiketeer.domain.member.repository;
 import java.time.LocalDateTime;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -25,7 +26,8 @@ class RefreshTokenRepositoryTest {
 	private RoleRepository roleRepository;
 
 	@Test
-	void findByMember() {
+	@DisplayName("refresh token 저장 > member로 refresh token 조회 > 조회한 refresh token 검증")
+	void findByMemberSuccess() {
 		Role role = roleRepository.save(new Role(RoleEnum.BUYER));
 		Member member = memberRepository.save(Member.builder()
 			.email("test@mail.com")
