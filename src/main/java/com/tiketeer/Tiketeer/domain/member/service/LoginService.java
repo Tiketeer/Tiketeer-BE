@@ -52,6 +52,7 @@ public class LoginService {
 
 		Member member = getValidatedMember(command.getEmail(), command.getPassword());
 
+		refreshTokenRepository.findByMember(member).ifPresent(refreshTokenRepository::delete);
 		RefreshToken saved = refreshTokenRepository.save(RefreshToken.builder()
 			.member(member)
 			.expiredAt(LocalDateTime.now().plus(Duration.ofMillis(refreshKeyExpirationInMs)))

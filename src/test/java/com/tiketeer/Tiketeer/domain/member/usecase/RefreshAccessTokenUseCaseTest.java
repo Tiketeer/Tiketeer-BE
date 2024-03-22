@@ -21,6 +21,8 @@ import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.RefreshToken;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
 import com.tiketeer.Tiketeer.domain.member.repository.RefreshTokenRepository;
+import com.tiketeer.Tiketeer.domain.member.service.LoginService;
+import com.tiketeer.Tiketeer.domain.member.service.dto.LoginCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.LoginResultDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenCommandDto;
 import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenResultDto;
@@ -41,6 +43,9 @@ class RefreshAccessTokenUseCaseTest {
 
 	@Autowired
 	private RefreshTokenRepository refreshTokenRepository;
+
+	@Autowired
+	private LoginService loginService;
 
 	@BeforeEach
 	void init() {
@@ -87,6 +92,26 @@ class RefreshAccessTokenUseCaseTest {
 		// when
 		// then
 		assertThrows(InvalidTokenException.class, () -> {
+			refreshAccessTokenUseCase.refresh(
+				RefreshAccessTokenCommandDto.builder().refreshToken(refreshToken).build());
+		});
+	}
+
+	@Test
+	@DisplayName("중복 로그인(기존 refresh token 삭제) > 삭제된 refresh token으로 refresh 시도 > 예외 발생")
+	void refreshAccessTokenFailByDuplicatedLogin() {
+		// given
+		String email = "test@gmail.com";
+		LoginResultDto loginResultDto = testHelper.registerAndLoginAndReturnAccessTokenAndRefreshToken(email,
+			RoleEnum.BUYER);
+
+		loginService.login(LoginCommandDto.builder().email(email).password("1q2w3e4r!!").build());
+
+		String refreshToken = loginResultDto.getRefreshToken();
+
+		// then
+		assertThrows(InvalidTokenException.class, () -> {
+			// when
 			refreshAccessTokenUseCase.refresh(
 				RefreshAccessTokenCommandDto.builder().refreshToken(refreshToken).build());
 		});
