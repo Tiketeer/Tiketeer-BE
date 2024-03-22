@@ -2,9 +2,12 @@ package com.tiketeer.Tiketeer.domain.purchase.service;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
@@ -41,4 +44,27 @@ public class PurchaseServiceTest {
 		testHelper.cleanDB();
 	}
 
+	@Test
+	@DisplayName("")
+	@Transactional
+	void validateTicketingSalePeriodWithUuidParamSuccess() {
+
+	}
+
+	@Test
+	@DisplayName("")
+	@Transactional
+	void validateTicketingSalePeriodWithTicketingParamSuccess() {
+
+	}
+
+	@Test
+	@DisplayName("")
+	void validatePurchaseOwnershipSuccess() {
+	}
+
+	@Test
+	@DisplayName("")
+	void findTicketsUnderPurchaseSuccess() {
+	}
 }
