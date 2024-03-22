@@ -7,15 +7,15 @@ import com.tiketeer.Tiketeer.domain.member.exception.InvalidPointChargeRequestEx
 import com.tiketeer.Tiketeer.domain.member.exception.MemberIdAndAuthNotMatchedException;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.member.service.dto.ChargePointCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.ChargePointResultDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.ChargePointCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.ChargePointResultDto;
 
 @Service
 @Transactional(readOnly = true)
-public class MemberChargePointUseCase {
+public class ChargeMemberPointUseCase {
 	private final MemberRepository memberRepository;
 
-	public MemberChargePointUseCase(MemberRepository memberRepository) {
+	public ChargeMemberPointUseCase(MemberRepository memberRepository) {
 		this.memberRepository = memberRepository;
 	}
 

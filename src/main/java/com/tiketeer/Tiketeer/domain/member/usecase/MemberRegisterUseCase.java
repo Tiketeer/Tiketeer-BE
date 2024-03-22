@@ -11,15 +11,15 @@ import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.exception.DuplicatedEmailException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
-import com.tiketeer.Tiketeer.domain.member.service.dto.CreateEmailViewCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.MemberRegisterCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.MemberRegisterResultDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.MemberRegisterCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.MemberRegisterResultDto;
 import com.tiketeer.Tiketeer.domain.role.Role;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.exception.RoleNotFoundException;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.infra.alarm.email.EmailService;
 import com.tiketeer.Tiketeer.infra.alarm.email.view.EmailViewFactory;
+import com.tiketeer.Tiketeer.infra.alarm.email.view.dto.CreateEmailViewCommandDto;
 
 @Service
 @Transactional(readOnly = true)

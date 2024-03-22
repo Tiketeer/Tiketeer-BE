@@ -13,8 +13,8 @@ import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
-import com.tiketeer.Tiketeer.domain.member.service.LoginService;
-import com.tiketeer.Tiketeer.domain.member.service.dto.LoginCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.LoginUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginCommandDto;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.role.Permission;
 import com.tiketeer.Tiketeer.domain.role.Role;
@@ -38,7 +38,7 @@ public class TestHelper {
 	private final TicketRepository ticketRepository;
 	private final TicketingRepository ticketingRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final LoginService loginService;
+	private final LoginUseCase loginUseCase;
 
 	@Autowired
 	public TestHelper(
@@ -51,7 +51,7 @@ public class TestHelper {
 		TicketRepository ticketRepository,
 		TicketingRepository ticketingRepository,
 		PasswordEncoder passwordEncoder,
-		LoginService loginService
+		LoginUseCase loginUseCase
 	) {
 		this.permissionRepository = permissionRepository;
 		this.roleRepository = roleRepository;
@@ -62,7 +62,7 @@ public class TestHelper {
 		this.ticketRepository = ticketRepository;
 		this.ticketingRepository = ticketingRepository;
 		this.passwordEncoder = passwordEncoder;
-		this.loginService = loginService;
+		this.loginUseCase = loginUseCase;
 	}
 
 	@Transactional
@@ -100,8 +100,8 @@ public class TestHelper {
 	@Transactional
 	public String registerAndLoginAndReturnAccessToken(String email, RoleEnum roleEnum) {
 		var password = "1q2w3e4r!!";
-		Member member = createMember(email, "1q2w3e4r!!", roleEnum);
-		return loginService.login(LoginCommandDto.builder().email(email).password(password).build()).getAccessToken();
+		createMember(email, "1q2w3e4r!!", roleEnum);
+		return loginUseCase.login(LoginCommandDto.builder().email(email).password(password).build()).getAccessToken();
 	}
 
 	@Transactional

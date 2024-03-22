@@ -1,4 +1,4 @@
-package com.tiketeer.Tiketeer.domain.member.service.dto;
+package com.tiketeer.Tiketeer.domain.member.usecase.dto;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -6,11 +6,11 @@ import lombok.ToString;
 
 @Getter
 @ToString
-public class GetMemberPurchasesCommandDto {
+public class GetMemberCommandDto {
 	private final String memberEmail;
 
 	@Builder
-	public GetMemberPurchasesCommandDto(String memberEmail) {
+	public GetMemberCommandDto(String memberEmail) {
 		this.memberEmail = memberEmail;
 	}
 }

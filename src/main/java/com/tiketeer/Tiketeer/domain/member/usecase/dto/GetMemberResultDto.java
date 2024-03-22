@@ -1,4 +1,4 @@
-package com.tiketeer.Tiketeer.domain.member.service.dto;
+package com.tiketeer.Tiketeer.domain.member.usecase.dto;
 
 import java.time.LocalDateTime;
 

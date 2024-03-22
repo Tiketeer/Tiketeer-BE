@@ -5,8 +5,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberResultDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberResultDto;
 
 @Service
 @Transactional(readOnly = true)

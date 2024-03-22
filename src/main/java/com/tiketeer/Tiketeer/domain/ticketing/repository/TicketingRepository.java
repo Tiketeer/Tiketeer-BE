@@ -8,14 +8,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberTicketingSalesResultDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberTicketingSalesResultDto;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 
 @Repository
 public interface TicketingRepository extends JpaRepository<Ticketing, UUID> {
 
 	@Query(value = """
-		select new com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberTicketingSalesResultDto(
+		select new com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberTicketingSalesResultDto(
 			t.id, t.title, t.description, t.location, t.eventTime, t.saleStart, t.saleEnd,
 			(select count(tk) from Ticket tk where tk.ticketing = t),
 			(select count(tk) from Ticket tk where tk.ticketing = t and tk.purchase is null ),

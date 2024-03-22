@@ -1,22 +1,21 @@
-package com.tiketeer.Tiketeer.domain.member.service;
+package com.tiketeer.Tiketeer.domain.member.usecase;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberTicketingSalesCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.GetMemberTicketingSalesResultDto;
-import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberTicketingSalesCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberTicketingSalesResultDto;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 
 @Service
 @Transactional(readOnly = true)
-public class MemberTicketingService {
+public class GetMemberTicketingSalesUseCase {
 
 	private final TicketingRepository ticketingRepository;
 
-	public MemberTicketingService(TicketingRepository ticketingRepository, TicketRepository ticketRepository) {
+	public GetMemberTicketingSalesUseCase(TicketingRepository ticketingRepository) {
 		this.ticketingRepository = ticketingRepository;
 	}
 
@@ -24,5 +23,4 @@ public class MemberTicketingService {
 		return ticketingRepository.findTicketingWithTicketStock(
 			command.getEmail());
 	}
-
 }

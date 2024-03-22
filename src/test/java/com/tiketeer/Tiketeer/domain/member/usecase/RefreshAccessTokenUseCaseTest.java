@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Import;
 import com.tiketeer.Tiketeer.auth.jwt.JwtPayload;
 import com.tiketeer.Tiketeer.auth.jwt.JwtService;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
-import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenResultDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.RefreshAccessTokenCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.RefreshAccessTokenResultDto;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 

@@ -14,19 +14,19 @@ import org.springframework.context.annotation.Import;
 import com.tiketeer.Tiketeer.auth.jwt.JwtPayload;
 import com.tiketeer.Tiketeer.auth.jwt.JwtService;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidLoginException;
-import com.tiketeer.Tiketeer.domain.member.service.dto.LoginCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.LoginResultDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.LoginUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginResultDto;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
 @SpringBootTest
-class LoginServiceTest {
+class LoginUseCaseTest {
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
-	private LoginService loginService;
+	private LoginUseCase loginUseCase;
 	@Autowired
 	private JwtService jwtService;
 
@@ -51,7 +51,7 @@ class LoginServiceTest {
 			.build();
 
 		//when
-		LoginResultDto loginResult = loginService.login(command);
+		LoginResultDto loginResult = loginUseCase.login(command);
 
 		//then
 		JwtPayload jwtPayload = jwtService.verifyToken(loginResult.getAccessToken());
@@ -69,7 +69,7 @@ class LoginServiceTest {
 
 		//when - then
 		Assertions.assertThrows(InvalidLoginException.class, () -> {
-			loginService.login(command);
+			loginUseCase.login(command);
 		});
 	}
 
@@ -84,7 +84,7 @@ class LoginServiceTest {
 
 		//when - then
 		Assertions.assertThrows(InvalidLoginException.class, () -> {
-			loginService.login(command);
+			loginUseCase.login(command);
 		});
 
 	}

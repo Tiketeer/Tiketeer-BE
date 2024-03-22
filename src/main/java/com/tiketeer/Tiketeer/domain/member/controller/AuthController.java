@@ -19,13 +19,13 @@ import com.tiketeer.Tiketeer.domain.member.controller.dto.LoginRequestDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.LoginResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.SetPasswordWithOtpRequestDto;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
-import com.tiketeer.Tiketeer.domain.member.service.dto.InitMemberPasswordWithOtpCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.LoginResultDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.RefreshAccessTokenResultDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.InitPasswordWithOtpUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.LoginUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.RefreshAccessTokenUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.InitMemberPasswordWithOtpCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginResultDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.RefreshAccessTokenCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.RefreshAccessTokenResultDto;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 
 import jakarta.servlet.http.Cookie;

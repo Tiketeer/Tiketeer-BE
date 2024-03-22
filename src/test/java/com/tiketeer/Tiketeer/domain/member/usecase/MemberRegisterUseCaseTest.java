@@ -21,8 +21,8 @@ import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterRequestD
 import com.tiketeer.Tiketeer.domain.member.exception.DuplicatedEmailException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
-import com.tiketeer.Tiketeer.domain.member.service.dto.MemberRegisterCommandDto;
-import com.tiketeer.Tiketeer.domain.member.service.dto.MemberRegisterResultDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.MemberRegisterCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.MemberRegisterResultDto;
 import com.tiketeer.Tiketeer.domain.role.Role;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.domain.role.exception.RoleNotFoundException;

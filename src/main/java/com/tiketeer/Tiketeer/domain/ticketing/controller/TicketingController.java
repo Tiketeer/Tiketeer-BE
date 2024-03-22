@@ -77,7 +77,7 @@ public class TicketingController {
 	}
 
 	@PatchMapping(path = "/{ticketingId}")
-	public ResponseEntity patchTicketing(@PathVariable String ticketingId,
+	public ResponseEntity<?> patchTicketing(@PathVariable String ticketingId,
 		@RequestBody PatchTicketingRequestDto request) {
 		var memberEmail = securityContextHelper.getEmailInToken();
 		updateTicketingUseCase.updateTicketing(request.convertToDto(ticketingId, memberEmail));
@@ -85,7 +85,7 @@ public class TicketingController {
 	}
 
 	@DeleteMapping(path = "/{ticketingId}")
-	public ResponseEntity deleteTicketing(@PathVariable String ticketingId) {
+	public ResponseEntity<?> deleteTicketing(@PathVariable String ticketingId) {
 		var memberEmail = securityContextHelper.getEmailInToken();
 		deleteTicketingUseCase.deleteTicketing(DeleteTicketingCommandDto.builder()
 			.ticketingId(UUID.fromString(ticketingId))
