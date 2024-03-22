@@ -4,8 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tiketeer.Tiketeer.domain.ticket.usecase.TicketService;
-import com.tiketeer.Tiketeer.domain.ticket.usecase.dto.ListTicketByTicketingCommandDto;
+import com.tiketeer.Tiketeer.domain.ticket.service.TicketService;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.GetTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.GetTicketingResultDto;
@@ -24,8 +23,7 @@ public class GetTicketingUseCase {
 
 	public GetTicketingResultDto getTicketing(GetTicketingCommandDto command) {
 		var ticketing = ticketingRepository.getReferenceById(command.getTicketingId());
-		var tickets = ticketService.listTicketByTicketing(
-			ListTicketByTicketingCommandDto.builder().ticketingId(ticketing.getId()).build()).getTickets();
+		var tickets = ticketService.listTicketByTicketingId(ticketing.getId());
 		var numOfRemainedTickets = (int)tickets.stream().filter(ticket -> ticket.getPurchase() == null).count();
 		return GetTicketingResultDto.builder().ticketingId(ticketing.getId())
 			.price(ticketing.getPrice())

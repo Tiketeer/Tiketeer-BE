@@ -15,15 +15,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tiketeer.Tiketeer.auth.SecurityContextHelper;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.GetAllTicketingsResponseDto;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.GetTicketingResponseDto;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PatchTicketingRequestDto;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PostTicketingRequestDto;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PostTicketingResponseDto;
+import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.CreateTicketingUseCase;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.DeleteTicketingUseCase;
-import com.tiketeer.Tiketeer.domain.ticketing.usecase.GetAllTicketingsUseCase;
-import com.tiketeer.Tiketeer.domain.ticketing.usecase.GetTicketingUseCase;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.UpdateTicketingUseCase;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.DeleteTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.GetTicketingCommandDto;
@@ -34,30 +34,26 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/ticketings")
 public class TicketingController {
-
+	private final TicketingService ticketingService;
+	private final SecurityContextHelper securityContextHelper;
 	private final CreateTicketingUseCase createTicketingUseCase;
-	private final DeleteTicketingUseCase deleteTicketingUseCase;
-	private final GetAllTicketingsUseCase getAllTicketingsUseCase;
-
-	private final GetTicketingUseCase getTicketingUseCase;
-
 	private final UpdateTicketingUseCase updateTicketingUseCase;
+	private final DeleteTicketingUseCase deleteTicketingUseCase;
 
 	@Autowired
-	public TicketingController(CreateTicketingUseCase createTicketingUseCase,
-		DeleteTicketingUseCase deleteTicketingUseCase,
-		GetAllTicketingsUseCase getAllTicketingsUseCase, GetTicketingUseCase getTicketingUseCase,
-		UpdateTicketingUseCase updateTicketingUseCase) {
+	public TicketingController(TicketingService ticketingService, SecurityContextHelper securityContextHelper,
+		CreateTicketingUseCase createTicketingUseCase, UpdateTicketingUseCase updateTicketingUseCase,
+		DeleteTicketingUseCase deleteTicketingUseCase) {
+		this.ticketingService = ticketingService;
+		this.securityContextHelper = securityContextHelper;
 		this.createTicketingUseCase = createTicketingUseCase;
-		this.deleteTicketingUseCase = deleteTicketingUseCase;
-		this.getAllTicketingsUseCase = getAllTicketingsUseCase;
-		this.getTicketingUseCase = getTicketingUseCase;
 		this.updateTicketingUseCase = updateTicketingUseCase;
+		this.deleteTicketingUseCase = deleteTicketingUseCase;
 	}
 
 	@GetMapping(path = "/")
 	public ResponseEntity<ApiResponse<List<GetAllTicketingsResponseDto>>> getAllTicketings() {
-		var results = getAllTicketingsUseCase.getAllTicketings();
+		var results = ticketingService.getAllTicketings();
 		var responseBody = ApiResponse.wrap(
 			results.stream().map(GetAllTicketingsResponseDto::convertFromDto).toList());
 		return ResponseEntity.status(HttpStatus.OK).body(responseBody);
@@ -65,7 +61,7 @@ public class TicketingController {
 
 	@GetMapping(path = "/{ticketingId}")
 	public ResponseEntity<ApiResponse<GetTicketingResponseDto>> getTicketing(@PathVariable UUID ticketingId) {
-		var result = getTicketingUseCase.getTicketing(
+		var result = ticketingService.getTickting(
 			GetTicketingCommandDto.builder().ticketingId(ticketingId).build());
 		var responseBody = ApiResponse.wrap(GetTicketingResponseDto.convertFromDto(result));
 		return ResponseEntity.status(HttpStatus.OK).body(responseBody);
@@ -74,26 +70,23 @@ public class TicketingController {
 	@PostMapping(path = "/")
 	public ResponseEntity<ApiResponse<PostTicketingResponseDto>> postTicketing(
 		@Valid @RequestBody PostTicketingRequestDto request) {
-		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
-		var memberEmail = "mock@mock.com";
+		var memberEmail = securityContextHelper.getEmailInToken();
 		var result = createTicketingUseCase.createTicketing(request.convertToDto(memberEmail));
 		var responseBody = ApiResponse.wrap(PostTicketingResponseDto.convertFromDto(result));
 		return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
 	}
 
 	@PatchMapping(path = "/{ticketingId}")
-	public ResponseEntity patchTicketing(@PathVariable String ticketingId,
+	public ResponseEntity<?> patchTicketing(@PathVariable String ticketingId,
 		@RequestBody PatchTicketingRequestDto request) {
-		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
-		var memberEmail = "mock@mock.com";
+		var memberEmail = securityContextHelper.getEmailInToken();
 		updateTicketingUseCase.updateTicketing(request.convertToDto(ticketingId, memberEmail));
 		return ResponseEntity.ok().build();
 	}
 
 	@DeleteMapping(path = "/{ticketingId}")
-	public ResponseEntity deleteTicketing(@PathVariable String ticketingId) {
-		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
-		var memberEmail = "mock@mock.com";
+	public ResponseEntity<?> deleteTicketing(@PathVariable String ticketingId) {
+		var memberEmail = securityContextHelper.getEmailInToken();
 		deleteTicketingUseCase.deleteTicketing(DeleteTicketingCommandDto.builder()
 			.ticketingId(UUID.fromString(ticketingId))
 			.memberEmail(memberEmail)

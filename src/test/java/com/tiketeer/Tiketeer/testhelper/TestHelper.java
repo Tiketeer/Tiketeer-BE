@@ -1,5 +1,6 @@
 package com.tiketeer.Tiketeer.testhelper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
+import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
 import com.tiketeer.Tiketeer.domain.member.usecase.LoginUseCase;
@@ -100,6 +102,12 @@ public class TestHelper {
 		var password = "1q2w3e4r!!";
 		createMember(email, "1q2w3e4r!!", roleEnum);
 		return loginUseCase.login(LoginCommandDto.builder().email(email).password(password).build()).getAccessToken();
+	}
+
+	@Transactional
+	public Otp createOtp(Member member, LocalDateTime expiredAt) {
+		Otp otp = new Otp(expiredAt, member);
+		return otpRepository.save(otp);
 	}
 
 	@Transactional

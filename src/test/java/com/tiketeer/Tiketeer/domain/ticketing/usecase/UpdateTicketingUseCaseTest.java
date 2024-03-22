@@ -11,10 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
-import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.EventTimeNotValidException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.ModifyForNotOwnedTicketingException;
@@ -22,15 +20,14 @@ import com.tiketeer.Tiketeer.domain.ticketing.exception.SaleDurationNotValidExce
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.UpdateTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
+import com.tiketeer.Tiketeer.domain.ticketing.service.TicketingService;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.CreateTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.UpdateTicketingCommandDto;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
 @SpringBootTest
-@DisplayName("UpdateTicketingUseCaseTest Test")
-class UpdateTicketingUseCaseTest {
-
+public class UpdateTicketingUseCaseTest {
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
@@ -38,15 +35,11 @@ class UpdateTicketingUseCaseTest {
 	@Autowired
 	private CreateTicketingUseCase createTicketingUseCase;
 	@Autowired
+	private TicketingService ticketingService;
+	@Autowired
 	private TicketingRepository ticketingRepository;
 	@Autowired
 	private TicketRepository ticketRepository;
-	@Autowired
-	private MemberRepository memberRepository;
-	@Autowired
-	private RoleRepository roleRepository;
-	@Autowired
-	private PurchaseRepository purchaseRepository;
 
 	@BeforeEach
 	void initTable() {
@@ -75,6 +68,7 @@ class UpdateTicketingUseCaseTest {
 
 	@Test
 	@DisplayName("본인 소유가 아닌 티케팅 > 티케팅 수정 요청 > 실패")
+	@Transactional
 	void updateTicketingFailBecauseNotOwnedTicketing() {
 		// given
 		var memberEmailOwnedTicketing = "test@test.com";
@@ -84,6 +78,7 @@ class UpdateTicketingUseCaseTest {
 		var saleStart = now.plusYears(1);
 		var saleEnd = now.plusYears(2);
 		var eventTime = now.plusYears(3);
+
 		var createCmd = createTicketingCommand(memberEmailOwnedTicketing, eventTime, saleStart, saleEnd);
 
 		var ticketingId = createTicketingUseCase.createTicketing(createCmd).getTicketingId();
@@ -101,7 +96,7 @@ class UpdateTicketingUseCaseTest {
 			.saleStart(createCmd.getSaleStart())
 			.saleEnd(createCmd.getSaleEnd())
 			.eventTime(createCmd.getEventTime())
-			.commandCreatedAt(saleStart.plusDays(1))
+			.commandCreatedAt(now)
 			.build();
 
 		Assertions.assertThatThrownBy(() -> {
@@ -334,5 +329,4 @@ class UpdateTicketingUseCaseTest {
 			.saleEnd(saleEnd)
 			.build();
 	}
-
 }

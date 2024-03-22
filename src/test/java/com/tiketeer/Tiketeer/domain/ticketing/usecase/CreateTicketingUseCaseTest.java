@@ -21,17 +21,15 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
 @SpringBootTest
-@DisplayName("CreateTicketingUseCaseTest Test")
-class CreateTicketingUseCaseTest {
-
+public class CreateTicketingUseCaseTest {
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
 	private CreateTicketingUseCase createTicketingUseCase;
 	@Autowired
-	private TicketRepository ticketRepository;
-	@Autowired
 	private TicketingRepository ticketingRepository;
+	@Autowired
+	private TicketRepository ticketRepository;
 
 	@BeforeEach
 	void initTable() {
@@ -169,5 +167,4 @@ class CreateTicketingUseCaseTest {
 			.saleEnd(saleEnd)
 			.build();
 	}
-
 }

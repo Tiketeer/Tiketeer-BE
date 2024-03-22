@@ -11,24 +11,30 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
+import com.tiketeer.Tiketeer.domain.ticketing.exception.DeleteTicketingAfterSaleStartException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.ModifyForNotOwnedTicketingException;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
+import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.CreateTicketingCommandDto;
 import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.DeleteTicketingCommandDto;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 @Import({TestHelper.class})
 @SpringBootTest
-@DisplayName("DeleteTicketingUseCaseTest Test")
-class DeleteTicketingUseCaseTest {
-
+public class DeleteTicketingUseCaseTest {
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
 	private DeleteTicketingUseCase deleteTicketingUseCase;
 	@Autowired
 	private CreateTicketingUseCase createTicketingUseCase;
+	@Autowired
+	private TicketingRepository ticketingRepository;
+	@Autowired
+	private TicketRepository ticketRepository;
 
 	@BeforeEach
 	void initTable() {
@@ -79,6 +85,70 @@ class DeleteTicketingUseCaseTest {
 			deleteTicketingUseCase.deleteTicketing(deleteTicketingCommand);
 			// then
 		}).isInstanceOf(ModifyForNotOwnedTicketingException.class);
+	}
+
+	@Test
+	@DisplayName("판매를 시작한 티케팅 > 티케팅 삭제 요청 > 실패")
+	void deleteTicketingFailBecauseSaleDurationHasBeenStarted() {
+		// given
+		var email = "test@test.com";
+		testHelper.createMember(email);
+
+		var now = LocalDateTime.now();
+		var saleStart = now.plusYears(1);
+		var createTicketingCommand = createTicketingCommand(email, now.plusYears(3), saleStart,
+			now.plusYears(2));
+		var ticketingId = createTicketingUseCase.createTicketing(createTicketingCommand).getTicketingId();
+
+		var deleteTicketingCommand = DeleteTicketingCommandDto.builder()
+			.ticketingId(ticketingId)
+			.memberEmail(email)
+			.commandCreatedAt(saleStart.plusDays(1))
+			.build();
+
+		Assertions.assertThatThrownBy(() -> {
+			// when
+			deleteTicketingUseCase.deleteTicketing(deleteTicketingCommand);
+			// then
+		}).isInstanceOf(DeleteTicketingAfterSaleStartException.class);
+	}
+
+	@Test
+	@DisplayName("삭제 가능한 조건의 티케팅 > 삭제 요청 > 삭제 성공 및 모든 하위 티켓 삭제")
+	@Transactional
+	void deleteTicketingSuccess() {
+		// given
+		var email = "test@test.com";
+		testHelper.createMember(email);
+
+		var now = LocalDateTime.now();
+		var createTicketingCommand = createTicketingCommand(email, now.plusYears(3), now.plusYears(1),
+			now.plusYears(2));
+		var ticketingId = createTicketingUseCase.createTicketing(createTicketingCommand).getTicketingId();
+
+		var ticketingOpt = ticketingRepository.findById(ticketingId);
+		Assertions.assertThat(ticketingOpt.isPresent()).isTrue();
+
+		var ticketing = ticketingOpt.get();
+		Assertions.assertThat(ticketRepository.findAllByTicketing(ticketing).size())
+			.isEqualTo(createTicketingCommand.getStock());
+
+		var deleteTicketingCommand = DeleteTicketingCommandDto.builder()
+			.ticketingId(ticketingId)
+			.memberEmail(email)
+			.commandCreatedAt(now)
+			.build();
+
+		// when
+		deleteTicketingUseCase.deleteTicketing(deleteTicketingCommand);
+
+		// then
+		var ticketsUnderTicketing = ticketRepository.findAllByTicketing(ticketing);
+		Assertions.assertThat(ticketsUnderTicketing.size()).isEqualTo(0);
+
+		var ticketingInDBOpt = ticketingRepository.findById(ticketingId);
+		Assertions.assertThat(ticketingInDBOpt.isPresent()).isFalse();
+
 	}
 
 	private CreateTicketingCommandDto createTicketingCommand(String email, LocalDateTime eventTime,
