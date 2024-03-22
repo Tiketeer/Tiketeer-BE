@@ -14,8 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
-import com.tiketeer.Tiketeer.auth.jwt.JwtPayload;
+import com.tiketeer.Tiketeer.auth.jwt.AccessTokenPayload;
 import com.tiketeer.Tiketeer.auth.jwt.JwtService;
+import com.tiketeer.Tiketeer.auth.jwt.RefreshTokenPayload;
 import com.tiketeer.Tiketeer.domain.member.RefreshToken;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidLoginException;
 import com.tiketeer.Tiketeer.domain.member.repository.RefreshTokenRepository;
@@ -60,18 +61,21 @@ class LoginServiceTest {
 		LoginResultDto loginResult = loginService.login(command);
 
 		//then
-		JwtPayload jwtPayload = jwtService.verifyToken(loginResult.getAccessToken());
-		assertThat(jwtPayload.email()).isEqualTo("user@example.com");
-		assertThat(jwtPayload.roleEnum()).isEqualTo(RoleEnum.BUYER);
+		AccessTokenPayload accessTokenPayload = jwtService.createAccessTokenPayload(
+			jwtService.verifyToken(loginResult.getAccessToken()));
+		assertThat(accessTokenPayload.email()).isEqualTo("user@example.com");
+		assertThat(accessTokenPayload.roleEnum()).isEqualTo(RoleEnum.BUYER);
 
-		JwtPayload refreshToken = jwtService.verifyToken(loginResult.getRefreshToken());
-		assertThat(refreshToken.email()).isEqualTo("user@example.com");
-		assertThat(refreshToken.roleEnum()).isEqualTo(RoleEnum.BUYER);
+		RefreshTokenPayload refreshTokenPayload = jwtService.createRefreshTokenPayload(
+			jwtService.verifyToken(loginResult.getRefreshToken()));
 
-		RefreshToken token = refreshTokenRepository.findAll().getFirst();
-		assertThat(token).isNotNull();
+		RefreshToken refreshToken = refreshTokenRepository.findAll().getFirst();
+
+		assertThat(refreshToken).isNotNull();
+		assertThat(refreshTokenPayload.tokenId()).isEqualTo(refreshToken.getId().toString());
 		assertThat(
-			Period.between(LocalDateTime.now().toLocalDate(), token.getExpiredAt().toLocalDate()).getDays()).isEqualTo(
+			Period.between(LocalDateTime.now().toLocalDate(), refreshToken.getExpiredAt().toLocalDate())
+				.getDays()).isEqualTo(
 			7);
 	}
 

@@ -13,6 +13,7 @@ import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
 import com.tiketeer.Tiketeer.domain.member.service.LoginService;
 import com.tiketeer.Tiketeer.domain.member.service.dto.LoginCommandDto;
+import com.tiketeer.Tiketeer.domain.member.service.dto.LoginResultDto;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.role.Permission;
 import com.tiketeer.Tiketeer.domain.role.Role;
@@ -100,6 +101,13 @@ public class TestHelper {
 		var password = "1q2w3e4r!!";
 		createMember(email, "1q2w3e4r!!", roleEnum);
 		return loginService.login(LoginCommandDto.builder().email(email).password(password).build()).getAccessToken();
+	}
+
+	@Transactional
+	public LoginResultDto registerAndLoginAndReturnAccessTokenAndRefreshToken(String email, RoleEnum roleEnum) {
+		String password = "1q2w3e4r!!";
+		createMember(email, password, roleEnum);
+		return loginService.login(LoginCommandDto.builder().email(email).password(password).build());
 	}
 
 	@Transactional
