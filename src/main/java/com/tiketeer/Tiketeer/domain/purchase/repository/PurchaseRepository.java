@@ -17,7 +17,7 @@ public interface PurchaseRepository extends JpaRepository<Purchase, UUID> {
 	@Query(
 		"SELECT new com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberPurchasesResultDto(p.id, tg.id, tg.title, tg.location, tg.eventTime, tg.saleStart, tg.saleEnd, p.createdAt, tg.category, tg.price, count(*)) "
 			+ "FROM Purchase p LEFT JOIN Ticket t ON p = t.purchase LEFT JOIN Ticketing tg ON t.ticketing = tg "
-			+ "WHERE p.member = :member GROUP BY p, tg ORDER BY p.createdAt"
+			+ "WHERE p.member = :member GROUP BY p, tg ORDER BY p.createdAt, p.id"
 	)
 	List<GetMemberPurchasesResultDto> findWithTicketingByMember(@Param("member") Member member);
 }

@@ -70,13 +70,21 @@ public class GetMemberPurchasesUseCaseTest {
 		// when
 		var results = getMemberPurchasesUseCase.getMemberPurchases(
 			GetMemberPurchasesCommandDto.builder().memberEmail(mockEmail).build());
+		var findPurchase1 = results.stream()
+			.filter(purchase -> purchase.getPurchaseId().equals(purchase1.getId()))
+			.toList();
+		var findPurchase2 = results.stream()
+			.filter(purchase -> purchase.getPurchaseId().equals(purchase2.getId()))
+			.toList();
 
 		// then
 		Assertions.assertThat(results.size()).isEqualTo(2);
-		Assertions.assertThat(results.get(0).getCount()).isEqualTo(2);
-		Assertions.assertThat(results.get(0).getTicketingId()).isEqualTo(ticketing1.getId());
-		Assertions.assertThat(results.get(1).getCount()).isEqualTo(1);
-		Assertions.assertThat(results.get(1).getTicketingId()).isEqualTo(ticketing2.getId());
+		Assertions.assertThat(findPurchase1.size()).isEqualTo(1);
+		Assertions.assertThat(findPurchase2.size()).isEqualTo(1);
+		Assertions.assertThat(findPurchase1.getFirst().getTitle()).isEqualTo(ticketing1.getTitle());
+		Assertions.assertThat(findPurchase2.getFirst().getTitle()).isEqualTo(ticketing2.getTitle());
+		Assertions.assertThat(findPurchase1.getFirst().getCount()).isEqualTo(2);
+		Assertions.assertThat(findPurchase2.getFirst().getCount()).isEqualTo(1);
 	}
 
 	@Test
