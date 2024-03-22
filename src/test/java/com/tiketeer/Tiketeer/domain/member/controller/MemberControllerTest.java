@@ -1,11 +1,14 @@
 package com.tiketeer.Tiketeer.domain.member.controller;
 
 import static java.time.LocalDateTime.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,15 +20,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiketeer.Tiketeer.auth.constant.JwtMetadata;
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
+import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberTicketingSalesResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.ResetPasswordRequestDto;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
 import com.tiketeer.Tiketeer.domain.purchase.Purchase;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
@@ -33,6 +38,7 @@ import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
+import com.tiketeer.Tiketeer.response.ApiResponse;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
 import jakarta.servlet.http.Cookie;
@@ -56,8 +62,6 @@ class MemberControllerTest {
 	private TicketRepository ticketRepository;
 	@Autowired
 	private ObjectMapper objectMapper;
-	@Autowired
-	private OtpRepository otpRepository;
 
 	@BeforeEach
 	void initDB() {
@@ -74,7 +78,7 @@ class MemberControllerTest {
 	@DisplayName("멤버/티케팅/티켓 생성 + 구매 > 멤버 판매목록 조회 > 성공적으로 반환")
 	void getMemberTicketingSalesSuccess() throws Exception {
 		//given
-		var now = now().truncatedTo(ChronoUnit.SECONDS);
+		var now = LocalDateTime.of(2024, 1, 1, 1, 1, 1);
 		String token = testHelper.registerAndLoginAndReturnAccessToken("user@example.com", RoleEnum.SELLER);
 		Member member = memberRepository.findAll().getFirst();
 		Cookie cookie = new Cookie(JwtMetadata.ACCESS_TOKEN, token);
@@ -86,8 +90,7 @@ class MemberControllerTest {
 		ticketRepository.save(new Ticket(purchase, ticketing));
 
 		//when - then
-
-		mockMvc.perform(get("/api/members/" + member.getId() + "/sale")
+		MvcResult result = mockMvc.perform(get("/api/members/" + member.getId() + "/sale")
 				.contextPath("/api")
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
@@ -95,18 +98,28 @@ class MemberControllerTest {
 				.cookie(cookie)
 			)
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data").isArray())
-			.andExpect(jsonPath("$.data[0].price").value(1000))
-			.andExpect(jsonPath("$.data[0].description").value(""))
-			.andExpect(jsonPath("$.data[0].title").value("test"))
-			.andExpect(jsonPath("$.data[0].location").value("Seoul"))
-			.andExpect(jsonPath("$.data[0].eventTime").value(now.toString()))
-			.andExpect(jsonPath("$.data[0].saleStart").value(now.toString()))
-			.andExpect(jsonPath("$.data[0].saleEnd").value(now.toString()))
-			.andExpect(jsonPath("$.data[0].stock").value(3))
-			.andExpect(jsonPath("$.data[0].remainStock").value(1))
-			.andExpect(jsonPath("$.data[0].category").value(""))
-			.andExpect(jsonPath("$.data[0].runningMinutes").value(600));
+			.andReturn();
+
+		JavaType apiResponseType = testHelper.getListApiResponseType(GetMemberTicketingSalesResponseDto.class);
+		String jsonResult = result.getResponse().getContentAsString();
+
+		ApiResponse<List<GetMemberTicketingSalesResponseDto>> apiResponse = objectMapper.readValue(jsonResult,
+			apiResponseType);
+		
+		var dto = apiResponse.getData().getFirst();
+
+		assertThat(dto.getPrice()).isEqualTo(1000);
+		assertThat(dto.getDescription()).isEqualTo("");
+		assertThat(dto.getTitle()).isEqualTo("test");
+		assertThat(dto.getLocation()).isEqualTo("Seoul");
+		assertThat(dto.getEventTime()).isEqualToIgnoringNanos(now);
+		assertThat(dto.getSaleStart()).isEqualToIgnoringNanos(now);
+		assertThat(dto.getSaleEnd()).isEqualToIgnoringNanos(now);
+		assertThat(dto.getStock()).isEqualTo(3);
+		assertThat(dto.getRemainStock()).isEqualTo(1);
+		assertThat(dto.getCategory()).isEqualTo("");
+		assertThat(dto.getRunningMinutes()).isEqualTo(600);
+
 	}
 
 	@Test

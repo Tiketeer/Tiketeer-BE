@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
@@ -26,6 +28,7 @@ import com.tiketeer.Tiketeer.domain.role.repository.RolePermissionRepository;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
+import com.tiketeer.Tiketeer.response.ApiResponse;
 
 @TestComponent
 public class TestHelper {
@@ -39,6 +42,7 @@ public class TestHelper {
 	private final TicketingRepository ticketingRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final LoginUseCase loginUseCase;
+	private final ObjectMapper objectMapper;
 
 	@Autowired
 	public TestHelper(
@@ -51,7 +55,8 @@ public class TestHelper {
 		TicketRepository ticketRepository,
 		TicketingRepository ticketingRepository,
 		PasswordEncoder passwordEncoder,
-		LoginUseCase loginUseCase
+		LoginUseCase loginUseCase,
+		ObjectMapper objectMapper
 	) {
 		this.permissionRepository = permissionRepository;
 		this.roleRepository = roleRepository;
@@ -63,6 +68,7 @@ public class TestHelper {
 		this.ticketingRepository = ticketingRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.loginUseCase = loginUseCase;
+		this.objectMapper = objectMapper;
 	}
 
 	@Transactional
@@ -130,5 +136,22 @@ public class TestHelper {
 			.enabled(true)
 			.role(role)
 			.build());
+	}
+
+	public JavaType getListApiResponseType(Class<?> clazz) {
+		JavaType listType = getListType(clazz);
+		return getApiResponseType(listType);
+	}
+
+	public JavaType getApiResponseType(Class<?> clazz) {
+		return objectMapper.getTypeFactory().constructParametricType(ApiResponse.class, clazz);
+	}
+
+	public JavaType getApiResponseType(JavaType javaType) {
+		return objectMapper.getTypeFactory().constructParametricType(ApiResponse.class, javaType);
+	}
+
+	public JavaType getListType(Class<?> clazz) {
+		return objectMapper.getTypeFactory().constructParametricType(List.class, clazz);
 	}
 }
