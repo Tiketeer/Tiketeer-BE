@@ -46,6 +46,7 @@ public class SecurityConfig {
 					.hasAnyAuthority(SELLER.name())
 					.requestMatchers(requestMatcherManager.getRequestMatchersByMinRole(BUYER))
 					.hasAnyAuthority(BUYER.name(), SELLER.name())
+					.anyRequest().authenticated()
 			);
 
 		return http.build();
