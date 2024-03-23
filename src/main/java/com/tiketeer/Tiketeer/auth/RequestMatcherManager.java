@@ -12,12 +12,14 @@ import org.springframework.stereotype.Component;
 
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 
+import jakarta.annotation.Nullable;
+
 @Component
 public class RequestMatcherManager {
 	/**
 	 * if role == null, return permitAll Path
 	 */
-	public RequestMatcher getRequestMatchersByMinRole(RoleEnum minRole) {
+	public RequestMatcher getRequestMatchersByMinRole(@Nullable RoleEnum minRole) {
 		return new OrRequestMatcher(REQUEST_INFO_LIST.stream()
 			.filter(reqInfo -> {
 				if (reqInfo.minRole() == null) {
