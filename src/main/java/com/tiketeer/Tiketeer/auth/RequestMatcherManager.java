@@ -63,6 +63,6 @@ public class RequestMatcherManager {
 		new RequestInfo(GET, "/swagger-ui/**", null)
 	);
 
-	record RequestInfo(HttpMethod method, String pattern, RoleEnum minRole) {
+	private record RequestInfo(HttpMethod method, String pattern, RoleEnum minRole) {
 	}
 }
