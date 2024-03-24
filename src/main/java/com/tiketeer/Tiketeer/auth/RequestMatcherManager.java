@@ -3,6 +3,7 @@ package com.tiketeer.Tiketeer.auth;
 import static org.springframework.http.HttpMethod.*;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -16,19 +17,33 @@ import jakarta.annotation.Nullable;
 
 @Component
 public class RequestMatcherManager {
+	private final ConcurrentHashMap<String, RequestMatcher> reqMatcherCacheMap = new ConcurrentHashMap<>();
+
 	/**
 	 * if role == null, return permitAll Path
 	 */
 	public RequestMatcher getRequestMatchersByMinRole(@Nullable RoleEnum minRole) {
-		return new OrRequestMatcher(REQUEST_INFO_LIST.stream()
-			.filter(reqInfo -> {
-				if (reqInfo.minRole() == null) {
-					return minRole == null;
-				}
-				return reqInfo.minRole().equals(minRole);
-			})
-			.map(reqInfo -> new AntPathRequestMatcher(reqInfo.pattern(), reqInfo.method().name()))
-			.toArray(AntPathRequestMatcher[]::new));
+		var key = getKeyByRole(minRole);
+		if (!reqMatcherCacheMap.containsKey(key)) {
+			var requestMatcherByMinRole = new OrRequestMatcher(REQUEST_INFO_LIST.stream()
+				.filter(reqInfo -> {
+					if (reqInfo.minRole() == null) {
+						return minRole == null;
+					}
+					return reqInfo.minRole().equals(minRole);
+				})
+				.map(reqInfo -> new AntPathRequestMatcher(reqInfo.pattern(), reqInfo.method().name()))
+				.toArray(AntPathRequestMatcher[]::new));
+			reqMatcherCacheMap.put(key, requestMatcherByMinRole);
+		}
+		return reqMatcherCacheMap.get(key);
+	}
+
+	private String getKeyByRole(@Nullable RoleEnum minRole) {
+		if (minRole == null) {
+			return "VISITOR";
+		}
+		return minRole.name();
 	}
 
 	private static final List<RequestInfo> REQUEST_INFO_LIST = List.of(
