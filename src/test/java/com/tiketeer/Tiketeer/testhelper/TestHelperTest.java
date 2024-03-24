@@ -271,7 +271,7 @@ public class TestHelperTest {
 		DeserializeTestClass test2 = deserializedListApiResponse.getData().get(1);
 
 		assertThat(test1.name()).isEqualTo("test1");
-		assertThat(test1.name()).isEqualTo("test2");
+		assertThat(test2.name()).isEqualTo("test2");
 	}
 
 	@Test
