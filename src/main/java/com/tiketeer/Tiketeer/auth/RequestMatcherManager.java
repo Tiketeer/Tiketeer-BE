@@ -3,6 +3,7 @@ package com.tiketeer.Tiketeer.auth;
 import static org.springframework.http.HttpMethod.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.http.HttpMethod;
@@ -26,12 +27,7 @@ public class RequestMatcherManager {
 		var key = getKeyByRole(minRole);
 		if (!reqMatcherCacheMap.containsKey(key)) {
 			var requestMatcherByMinRole = new OrRequestMatcher(REQUEST_INFO_LIST.stream()
-				.filter(reqInfo -> {
-					if (reqInfo.minRole() == null) {
-						return minRole == null;
-					}
-					return reqInfo.minRole().equals(minRole);
-				})
+				.filter(reqInfo -> Objects.equals(reqInfo.minRole(), minRole))
 				.map(reqInfo -> new AntPathRequestMatcher(reqInfo.pattern(), reqInfo.method().name()))
 				.toArray(AntPathRequestMatcher[]::new));
 			reqMatcherCacheMap.put(key, requestMatcherByMinRole);
