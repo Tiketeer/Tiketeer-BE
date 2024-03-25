@@ -103,7 +103,7 @@ public class TestHelper {
 			rolePermissionRepository,
 			roleRepository,
 			permissionRepository
-		).forEach(JpaRepository::deleteAll);
+		).forEach(JpaRepository::deleteAllInBatch);
 	}
 
 	@Transactional
