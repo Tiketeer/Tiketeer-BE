@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tiketeer.Tiketeer.auth.jwt.AccessTokenPayload;
 import com.tiketeer.Tiketeer.auth.jwt.JwtService;
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
@@ -30,6 +31,8 @@ import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
+
+import io.jsonwebtoken.Claims;
 
 @Import({TestHelper.class})
 @SpringBootTest
@@ -239,7 +242,8 @@ public class TestHelperTest {
 		Assertions.assertThat(member.getRole().getName()).isEqualTo(roleEnum);
 		defaultMemberPropertiesTest(member);
 
-		var payload = jwtService.verifyToken(accessToken);
+		Claims claims = jwtService.verifyToken(accessToken);
+		AccessTokenPayload payload = jwtService.createAccessTokenPayload(claims);
 		Assertions.assertThat(payload.email()).isEqualTo(email);
 		Assertions.assertThat(payload.roleEnum()).isEqualTo(roleEnum);
 	}
