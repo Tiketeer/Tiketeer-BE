@@ -42,10 +42,12 @@ dependencies {
 	testRuntimeOnly 'com.h2database:h2'
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-mysql'
-	
+
 	// Util
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
 	ext {
 		JJWT_VERSION = "0.12.5"
 	}
