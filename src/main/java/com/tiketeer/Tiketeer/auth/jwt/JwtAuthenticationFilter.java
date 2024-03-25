@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.tiketeer.Tiketeer.auth.FilterExceptionResolver;
+import com.tiketeer.Tiketeer.auth.RequestMatcherHolder;
 import com.tiketeer.Tiketeer.auth.constant.JwtMetadata;
-import com.tiketeer.Tiketeer.auth.constant.PublicPaths;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -32,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtService jwtService;
 	private final FilterExceptionResolver<JwtException> jwtFilterExceptionResolver;
+	private final RequestMatcherHolder requestMatcherHolder;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -71,8 +72,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
-		String path = request.getRequestURI();
-		return PublicPaths.appendApiPrefix(PublicPaths.getAllPublicPaths()).contains(path)
-			|| PublicPaths.appendApiPrefix(PublicPaths.getSwaggerPathPrefixes()).stream().anyMatch(path::startsWith);
+		return requestMatcherHolder.getRequestMatchersByMinRole(null).matches(request);
 	}
 }
