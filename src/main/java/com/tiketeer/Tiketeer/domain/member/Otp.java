@@ -55,4 +55,6 @@ public class Otp {
 		this.expiredAt = expiredAt;
 		this.member = member;
 	}
+
+	public static final int OTP_VALID_MINUTE = 30;
 }

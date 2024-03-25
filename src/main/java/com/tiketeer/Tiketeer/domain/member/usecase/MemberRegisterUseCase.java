@@ -29,9 +29,7 @@ public class MemberRegisterUseCase {
 	private final EmailService emailService;
 	private final EmailViewFactory emailViewFactory;
 	private final RoleRepository roleRepository;
-
-	private final int OTP_VALID_TIME = 30;
-	private final String AUTHENTICATE_EMAIL_TITLE = "[tiketeer] 인증메일 발송";
+	private static final String AUTHENTICATE_EMAIL_TITLE = "[tiketeer] 인증메일 발송";
 
 	public MemberRegisterUseCase(MemberRepository memberRepository, OtpRepository otpRepository,
 		EmailService emailService, EmailViewFactory emailViewFactory, RoleRepository roleRepository) {
@@ -59,13 +57,13 @@ public class MemberRegisterUseCase {
 			Otp otp =
 				Otp.builder()
 					.member(member)
-					.expiredAt(LocalDateTime.now().plusMinutes(OTP_VALID_TIME))
+					.expiredAt(LocalDateTime.now().plusMinutes(Otp.OTP_VALID_MINUTE))
 					.build();
 			otpRepository.save(otp);
 
 			// TODO: async task
 			sendEmail(member, otp);
-			return MemberRegisterResultDto.toDto(optionalMember.get());
+			return MemberRegisterResultDto.toDto(member);
 		}
 
 		Role role = roleRepository.findByName(registerMemberDto.getIsSeller() ? RoleEnum.SELLER : RoleEnum.BUYER)
@@ -80,7 +78,7 @@ public class MemberRegisterUseCase {
 			.build();
 		Member saved = memberRepository.save(member);
 
-		Otp otp = Otp.builder().member(saved).expiredAt(LocalDateTime.now().plusMinutes(OTP_VALID_TIME)).build();
+		Otp otp = Otp.builder().member(saved).expiredAt(LocalDateTime.now().plusMinutes(Otp.OTP_VALID_MINUTE)).build();
 		otpRepository.save(otp);
 
 		// TODO: async task
