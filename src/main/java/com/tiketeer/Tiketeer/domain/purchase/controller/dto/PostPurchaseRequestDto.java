@@ -7,10 +7,12 @@ import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseCommandDt
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @ToString
+@NoArgsConstructor(force = true)
 public class PostPurchaseRequestDto {
 	@NotNull
 	private final UUID ticketingId;
