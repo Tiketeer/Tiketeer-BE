@@ -6,6 +6,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import com.tiketeer.Tiketeer.infra.alarm.email.exception.MessagingRuntimeException;
+import com.tiketeer.Tiketeer.infra.alarm.email.view.EmailViewStrategy;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -35,5 +36,9 @@ public class EmailService {
 		}
 
 		emailSender.send(message);
+	}
+
+	public void sendEmail(String toEmail, String title, EmailViewStrategy emailViewStrategy) {
+		sendEmail(toEmail, title, emailViewStrategy.createView());
 	}
 }
