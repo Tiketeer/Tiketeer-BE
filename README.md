@@ -10,11 +10,10 @@
 - .env 추가
   ```yml
   DB_USERNAME= # DB Username
+  DB_DATABASE= # DB database name
   DB_PASSWORD= # DB Password
-  EMAIL_ACCOUNT= # email server account
-  EMAIL_PASSWORD= # app password
   ```
-
+  
 - application.yml 추가
   ```yml
   # src/main/resources/application.yml
@@ -31,8 +30,10 @@
       password: ${DB_PASSWORD}
     jpa:
       hibernate:
-        ddl-auto: update
+        ddl-auto: validate
       show-sql: true
+    flyway:
+      enabled: true
     mail:
       host: smtp.gmail.com
       port: 587
@@ -53,6 +54,18 @@
   logging:
     level:
       org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  
+  jwt:
+        secret-key: ${SECRET_KEY}
+        access-key-expiration-ms: ${ACCESS_KEY_EXPIRATION}
+  
+  custom:
+    service:
+      baseUrl: ${BASE_URL}
+  ```
+- 도커 컴포즈
+  ```dtd
+  docker-compose -f docker-compose.dev.yml -d up
   ```
 
 - 서버 실행
@@ -67,4 +80,4 @@
 ## API
 
 - 서버 실행 후 스웨거를 통해 확인 가능
-- /swagger-ui/index.html
+- /api/swagger-ui/index.html

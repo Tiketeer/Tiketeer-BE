@@ -1,5 +1,6 @@
 package com.tiketeer.Tiketeer.testhelper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +9,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tiketeer.Tiketeer.domain.member.Member;
+import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
+import com.tiketeer.Tiketeer.domain.member.usecase.LoginUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginResultDto;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.role.Permission;
 import com.tiketeer.Tiketeer.domain.role.Role;
@@ -21,6 +30,8 @@ import com.tiketeer.Tiketeer.domain.role.repository.RolePermissionRepository;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
+import com.tiketeer.Tiketeer.response.ApiResponse;
+import com.tiketeer.Tiketeer.testhelper.dto.TestLoginResultDto;
 
 @TestComponent
 public class TestHelper {
@@ -32,8 +43,9 @@ public class TestHelper {
 	private final PurchaseRepository purchaseRepository;
 	private final TicketRepository ticketRepository;
 	private final TicketingRepository ticketingRepository;
-
 	private final PasswordEncoder passwordEncoder;
+	private final LoginUseCase loginUseCase;
+	private final ObjectMapper objectMapper;
 
 	@Autowired
 	public TestHelper(
@@ -45,7 +57,9 @@ public class TestHelper {
 		PurchaseRepository purchaseRepository,
 		TicketRepository ticketRepository,
 		TicketingRepository ticketingRepository,
-		PasswordEncoder passwordEncoder
+		PasswordEncoder passwordEncoder,
+		LoginUseCase loginUseCase,
+		ObjectMapper objectMapper
 	) {
 		this.permissionRepository = permissionRepository;
 		this.roleRepository = roleRepository;
@@ -56,6 +70,8 @@ public class TestHelper {
 		this.ticketRepository = ticketRepository;
 		this.ticketingRepository = ticketingRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.loginUseCase = loginUseCase;
+		this.objectMapper = objectMapper;
 	}
 
 	@Transactional
@@ -87,6 +103,77 @@ public class TestHelper {
 			rolePermissionRepository,
 			roleRepository,
 			permissionRepository
-		).forEach(JpaRepository::deleteAll);
+		).forEach(JpaRepository::deleteAllInBatch);
+	}
+
+	@Transactional
+	public String registerAndLoginAndReturnAccessToken(String email, RoleEnum roleEnum) {
+		var password = "1q2w3e4r!!";
+		createMember(email, "1q2w3e4r!!", roleEnum);
+		return loginUseCase.login(LoginCommandDto.builder().email(email).password(password).build()).getAccessToken();
+	}
+
+	@Transactional
+	public Otp createOtp(Member member, LocalDateTime expiredAt) {
+		Otp otp = new Otp(expiredAt, member);
+		return otpRepository.save(otp);
+	}
+
+	@Transactional
+	public TestLoginResultDto registerAndLoginAndReturnAccessTokenAndRefreshToken(String email, RoleEnum roleEnum) {
+		String password = "1q2w3e4r!!";
+		createMember(email, password, roleEnum);
+		LoginResultDto login = loginUseCase.login(LoginCommandDto.builder().email(email).password(password).build());
+
+		return new TestLoginResultDto(login.getAccessToken(), login.getRefreshToken(), login.getMember());
+	}
+
+	@Transactional
+	public Member createMember(String email) {
+		return createMember(email, "1q2w3e4r!!");
+	}
+
+	@Transactional
+	public Member createMember(String email, String password) {
+		return createMember(email, password, RoleEnum.BUYER);
+	}
+
+	@Transactional
+	public Member createMember(String email, String password, RoleEnum roleEnum) {
+		var role = roleRepository.findByName(roleEnum).orElseThrow();
+		return memberRepository.save(Member.builder()
+			.email(email)
+			.password(passwordEncoder.encode(password))
+			.point(0)
+			.enabled(true)
+			.role(role)
+			.build());
+	}
+
+	public <T> ApiResponse<List<T>> getDeserializedListApiResponse(String json, Class<T> responseType) throws
+		JsonProcessingException {
+		return objectMapper.readValue(json, getListApiResponseType(responseType));
+	}
+
+	public <T> ApiResponse<T> getDeserializedApiResponse(String json, Class<T> responseType) throws
+		JsonProcessingException {
+		return objectMapper.readValue(json, getApiResponseType(responseType));
+	}
+
+	private JavaType getListApiResponseType(Class<?> clazz) {
+		JavaType listType = getListType(clazz);
+		return getApiResponseType(listType);
+	}
+
+	private JavaType getApiResponseType(Class<?> clazz) {
+		return objectMapper.getTypeFactory().constructParametricType(ApiResponse.class, clazz);
+	}
+
+	private JavaType getApiResponseType(JavaType javaType) {
+		return objectMapper.getTypeFactory().constructParametricType(ApiResponse.class, javaType);
+	}
+
+	private JavaType getListType(Class<?> clazz) {
+		return objectMapper.getTypeFactory().constructParametricType(List.class, clazz);
 	}
 }

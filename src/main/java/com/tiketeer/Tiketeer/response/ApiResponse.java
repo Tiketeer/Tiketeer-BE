@@ -1,10 +1,12 @@
 package com.tiketeer.Tiketeer.response;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @ToString
+@NoArgsConstructor(force = true)
 public class ApiResponse<T> {
 	private final T data;
 

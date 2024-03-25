@@ -12,9 +12,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.tiketeer.Tiketeer.auth.FilterExceptionResolver;
+import com.tiketeer.Tiketeer.auth.RequestMatcherHolder;
 import com.tiketeer.Tiketeer.auth.constant.JwtMetadata;
-import com.tiketeer.Tiketeer.auth.constant.PublicPaths;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -31,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtService jwtService;
 	private final FilterExceptionResolver<JwtException> jwtFilterExceptionResolver;
+	private final RequestMatcherHolder requestMatcherHolder;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -38,9 +40,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		try {
 			final String accessToken = getAccessTokenFromCookie(request);
-			JwtPayload jwtPayload = jwtService.verifyToken(accessToken);
-			var email = jwtPayload.email();
-			var role = jwtPayload.roleEnum().name();
+			Claims claims = jwtService.verifyToken(accessToken);
+			AccessTokenPayload accessTokenPayload = jwtService.createAccessTokenPayload(claims);
+			var email = accessTokenPayload.email();
+			var role = accessTokenPayload.roleEnum().name();
 			GrantedAuthority authority = new SimpleGrantedAuthority(role);
 			Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, List.of(authority));
 			SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -69,8 +72,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
-		String path = request.getRequestURI();
-		return PublicPaths.appendApiPrefix(PublicPaths.getMemberPaths()).contains(path)
-			|| PublicPaths.appendApiPrefix(PublicPaths.getSwaggerPathPrefixes()).stream().anyMatch(path::startsWith);
+		return requestMatcherHolder.getRequestMatchersByMinRole(null).matches(request);
 	}
 }

@@ -1,5 +1,6 @@
 package com.tiketeer.Tiketeer.domain.member.controller;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -12,18 +13,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiketeer.Tiketeer.auth.constant.JwtMetadata;
-import com.tiketeer.Tiketeer.domain.member.Member;
+import com.tiketeer.Tiketeer.auth.jwt.JwtService;
+import com.tiketeer.Tiketeer.domain.member.constant.CookieConfig;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.LoginRequestDto;
-import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.role.Role;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
-import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
+import com.tiketeer.Tiketeer.testhelper.dto.TestLoginResultDto;
 
 @Import({TestHelper.class})
 @SpringBootTest
@@ -37,34 +37,17 @@ class AuthControllerTest {
 	@Autowired
 	private TestHelper testHelper;
 	@Autowired
-	private RoleRepository roleRepository;
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-	@Autowired
-	private MemberRepository memberRepository;
+	private JwtService jwtService;
 
 	@BeforeEach
 	void initDB() {
 		testHelper.initDB();
-		saveMember("user@example.com", "password");
+		testHelper.createMember("user@example.com", "password");
 	}
 
 	@AfterEach
 	void cleanDB() {
 		testHelper.cleanDB();
-	}
-
-	private void saveMember(String email, String password) {
-		Role role = roleRepository.findByName(RoleEnum.BUYER).orElseThrow();
-		Member member = Member.builder()
-			.email(email)
-			.password(passwordEncoder.encode(password))
-			.point(0)
-			.enabled(true)
-			.role(role)
-			.build();
-		memberRepository.save(member);
-
 	}
 
 	@Test
@@ -76,7 +59,7 @@ class AuthControllerTest {
 			.password("password")
 			.build();
 
-		mockMvc
+		MvcResult result = mockMvc
 			.perform(post("/api/auth/login")
 				.contextPath("/api")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -84,7 +67,31 @@ class AuthControllerTest {
 				.content(objectMapper.writeValueAsString(loginRequestDto)))
 
 			.andExpect(status().isOk())
-			.andExpect(cookie().exists(JwtMetadata.ACCESS_TOKEN));
+			.andExpect(cookie().exists(JwtMetadata.ACCESS_TOKEN))
+			.andExpect(header().exists("Authorization"))
+			.andReturn();
+
+		String authorization = result.getResponse().getHeader("Authorization");
+		assertThat(authorization).startsWith("Bearer ");
 	}
 
+	@Test
+	@DisplayName("authorization bearer에 refresh token 추가 > 컨트롤러에 요청 > access token 확인")
+	void refreshAccessToken() throws Exception {
+		TestLoginResultDto testLoginResultDto = testHelper.registerAndLoginAndReturnAccessTokenAndRefreshToken(
+			"mock@mock.com", RoleEnum.BUYER);
+
+		String token = testLoginResultDto.getRefreshToken();
+
+		mockMvc
+			.perform(
+				post("/api/auth/refresh")
+					.header("Authorization",
+						"Bearer " + token)
+					.contextPath("/api")
+			)
+			.andExpect(status().isOk())
+			.andExpect(cookie().exists(JwtMetadata.ACCESS_TOKEN))
+			.andExpect(cookie().maxAge(JwtMetadata.ACCESS_TOKEN, CookieConfig.MAX_AGE));
+	}
 }

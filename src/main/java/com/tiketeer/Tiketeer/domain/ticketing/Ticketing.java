@@ -13,6 +13,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -25,12 +26,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "ticketings")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
+@ToString
 public class Ticketing {
 	@Id
 	@UuidGenerator
@@ -41,8 +44,9 @@ public class Ticketing {
 	@Column(name = "price", nullable = false)
 	private long price;
 
-	@ManyToOne
-	@JoinColumn(name = "owner_id", referencedColumnName = "member_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "owner_id", referencedColumnName = "member_id", foreignKey = @ForeignKey(value =
+		ConstraintMode.NO_CONSTRAINT))
 	private Member member;
 
 	@Setter

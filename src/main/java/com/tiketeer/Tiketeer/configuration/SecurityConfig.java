@@ -1,6 +1,6 @@
 package com.tiketeer.Tiketeer.configuration;
 
-import java.util.stream.Stream;
+import static com.tiketeer.Tiketeer.domain.role.constant.RoleEnum.*;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import com.tiketeer.Tiketeer.auth.constant.PublicPaths;
+import com.tiketeer.Tiketeer.auth.RequestMatcherHolder;
 import com.tiketeer.Tiketeer.auth.jwt.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
@@ -22,8 +22,8 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final RequestMatcherHolder requestMatcherHolder;
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -33,23 +33,23 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-		return http.csrf(AbstractHttpConfigurer::disable)
+		http.csrf(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
 			.addFilterAfter(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(req ->
-				req.requestMatchers(getPermitAllPaths()).permitAll()
-			)
-			.build();
+				req
+					.requestMatchers(requestMatcherHolder.getRequestMatchersByMinRole(null))
+					.permitAll()
+					.requestMatchers(requestMatcherHolder.getRequestMatchersByMinRole(SELLER))
+					.hasAnyAuthority(SELLER.name())
+					.requestMatchers(requestMatcherHolder.getRequestMatchersByMinRole(BUYER))
+					.hasAnyAuthority(BUYER.name(), SELLER.name())
+					.anyRequest().authenticated()
+			);
+
+		return http.build();
 
 	}
-
-	private String[] getPermitAllPaths() {
-		return Stream.concat(
-			PublicPaths.getMemberPaths().stream(),
-			PublicPaths.getSwaggerPaths().stream()
-		).toList().toArray(String[]::new);
-	}
-
 }

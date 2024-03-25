@@ -1,18 +1,23 @@
 package com.tiketeer.Tiketeer.testhelper;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.tiketeer.Tiketeer.auth.jwt.AccessTokenPayload;
+import com.tiketeer.Tiketeer.auth.jwt.JwtService;
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
@@ -28,42 +33,35 @@ import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
+import com.tiketeer.Tiketeer.response.ApiResponse;
+
+import io.jsonwebtoken.Claims;
 
 @Import({TestHelper.class})
 @SpringBootTest
 public class TestHelperTest {
-	private final TestHelper testHelper;
-	private final PermissionRepository permissionRepository;
-	private final RoleRepository roleRepository;
-	private final RolePermissionRepository rolePermissionRepository;
-	private final MemberRepository memberRepository;
-	private final OtpRepository otpRepository;
-	private final PurchaseRepository purchaseRepository;
-	private final TicketRepository ticketRepository;
-	private final TicketingRepository ticketingRepository;
-
 	@Autowired
-	public TestHelperTest(
-		TestHelper testHelper,
-		PermissionRepository permissionRepository,
-		RoleRepository roleRepository,
-		RolePermissionRepository rolePermissionRepository,
-		MemberRepository memberRepository,
-		OtpRepository otpRepository,
-		PurchaseRepository purchaseRepository,
-		TicketRepository ticketRepository,
-		TicketingRepository ticketingRepository
-	) {
-		this.testHelper = testHelper;
-		this.permissionRepository = permissionRepository;
-		this.roleRepository = roleRepository;
-		this.rolePermissionRepository = rolePermissionRepository;
-		this.memberRepository = memberRepository;
-		this.otpRepository = otpRepository;
-		this.purchaseRepository = purchaseRepository;
-		this.ticketingRepository = ticketingRepository;
-		this.ticketRepository = ticketRepository;
-	}
+	private TestHelper testHelper;
+	@Autowired
+	private PermissionRepository permissionRepository;
+	@Autowired
+	private RoleRepository roleRepository;
+	@Autowired
+	private RolePermissionRepository rolePermissionRepository;
+	@Autowired
+	private MemberRepository memberRepository;
+	@Autowired
+	private OtpRepository otpRepository;
+	@Autowired
+	private PurchaseRepository purchaseRepository;
+	@Autowired
+	private TicketRepository ticketRepository;
+	@Autowired
+	private TicketingRepository ticketingRepository;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	@Autowired
+	private JwtService jwtService;
 
 	@AfterEach
 	void clearTable() {
@@ -79,13 +77,13 @@ public class TestHelperTest {
 
 		// then
 		var permitList = permissionRepository.findAll();
-		Assertions.assertThat(permitList.size()).isEqualTo(PermissionEnum.values().length);
+		assertThat(permitList.size()).isEqualTo(PermissionEnum.values().length);
 
 		var permissionNameList = Arrays.stream(PermissionEnum.values()).map(PermissionEnum::name).toList();
 		permitList.forEach(permit -> isInTest(permissionNameList, permit.getName().name()));
 
 		var roleList = roleRepository.findAll();
-		Assertions.assertThat(roleList.size()).isEqualTo(RoleEnum.values().length);
+		assertThat(roleList.size()).isEqualTo(RoleEnum.values().length);
 
 		var roleNameList = Arrays.stream(RoleEnum.values()).map(RoleEnum::name).toList();
 		roleList.forEach(role -> isInTest(roleNameList, role.getName().name()));
@@ -140,7 +138,7 @@ public class TestHelperTest {
 		);
 
 		repoForTestList.forEach(repo -> {
-			Assertions.assertThat(repo.findAll()).isNotEmpty();
+			assertThat(repo.findAll()).isNotEmpty();
 		});
 
 		// when
@@ -148,11 +146,149 @@ public class TestHelperTest {
 
 		// then
 		repoForTestList.forEach(repo -> {
-			Assertions.assertThat(repo.findAll()).isEmpty();
+			assertThat(repo.findAll()).isEmpty();
 		});
 	}
 
+	@Test
+	@DisplayName("이메일만 지정 > 멤버 생성 요청 > 이메일만 지정된 멤버 생성 (나머지는 메서드 내 기본 값)")
+	@Transactional
+	void createMemberEmailParamSuccess() {
+		// given
+		testHelper.initDB();
+
+		var email = "test@test.com";
+
+		// when
+		var memberId = testHelper.createMember(email).getId();
+
+		// then
+		var memberOpt = memberRepository.findById(memberId);
+		assertThat(memberOpt.isPresent()).isTrue();
+
+		var member = memberOpt.get();
+		assertThat(member.getEmail()).isEqualTo(email);
+		assertThat(passwordEncoder.matches("1q2w3e4r!!", member.getPassword())).isTrue();
+		assertThat(member.getRole().getName()).isEqualTo(RoleEnum.BUYER);
+		defaultMemberPropertiesTest(member);
+	}
+
+	@Test
+	@DisplayName("이메일, 패스워드 지정 > 멤버 생성 요청 > 이메일, 패스워드가 지정된 멤버 생성 (나머지는 메서드 내 기본 값)")
+	@Transactional
+	void createMemberEmailAndPasswordParamSuccess() {
+		// given
+		testHelper.initDB();
+
+		var email = "test@test.com";
+		var password = "qwerty12345!@#$";
+
+		// when
+		var memberId = testHelper.createMember(email, password).getId();
+
+		// then
+		var memberOpt = memberRepository.findById(memberId);
+		assertThat(memberOpt.isPresent()).isTrue();
+
+		var member = memberOpt.get();
+		assertThat(member.getEmail()).isEqualTo(email);
+		assertThat(passwordEncoder.matches(password, member.getPassword())).isTrue();
+		assertThat(member.getRole().getName()).isEqualTo(RoleEnum.BUYER);
+		defaultMemberPropertiesTest(member);
+	}
+
+	@Test
+	@DisplayName("이메일, 패스워드, 역할 지정 > 멤버 생성 요청 > 이메일, 패스워드, 역할이 지정된 멤버 생성 (나머지는 메서드 내 기본 값)")
+	@Transactional
+	void createMemberEmailAndPasswordAndRoleParamSuccess() {
+		// given
+		testHelper.initDB();
+
+		var email = "test@test.com";
+		var password = "qwerty12345!@#$";
+		var roleEnum = RoleEnum.SELLER;
+
+		// when
+		var memberId = testHelper.createMember(email, password, roleEnum).getId();
+
+		// then
+		var memberOpt = memberRepository.findById(memberId);
+		assertThat(memberOpt.isPresent()).isTrue();
+
+		var member = memberOpt.get();
+		assertThat(member.getEmail()).isEqualTo(email);
+		assertThat(passwordEncoder.matches(password, member.getPassword())).isTrue();
+		assertThat(member.getRole().getName()).isEqualTo(roleEnum);
+		defaultMemberPropertiesTest(member);
+	}
+
+	@Test
+	@DisplayName("이메일, 역할 지정 > 멤버 생성, 로그인, 액세스 토큰 반환 요청 > 성공")
+	@Transactional
+	void registerAndLoginReturnAccessTokenSuccess() {
+		// given
+		testHelper.initDB();
+
+		var email = "test@test.com";
+		var roleEnum = RoleEnum.SELLER;
+
+		// when
+		var accessToken = testHelper.registerAndLoginAndReturnAccessToken(email, roleEnum);
+
+		// then
+		var memberOpt = memberRepository.findByEmail(email);
+		assertThat(memberOpt.isPresent()).isTrue();
+
+		var member = memberOpt.get();
+		assertThat(member.getEmail()).isEqualTo(email);
+		assertThat(passwordEncoder.matches("1q2w3e4r!!", member.getPassword())).isTrue();
+		assertThat(member.getRole().getName()).isEqualTo(roleEnum);
+		defaultMemberPropertiesTest(member);
+
+		Claims claims = jwtService.verifyToken(accessToken);
+		AccessTokenPayload payload = jwtService.createAccessTokenPayload(claims);
+		assertThat(payload.email()).isEqualTo(email);
+		assertThat(payload.roleEnum()).isEqualTo(roleEnum);
+	}
+
 	private <T> void isInTest(Iterable<T> iterable, T target) {
-		Assertions.assertThat(target).isIn(iterable);
+		assertThat(target).isIn(iterable);
+	}
+
+	private void defaultMemberPropertiesTest(Member member) {
+		assertThat(member.getPoint()).isEqualTo(0);
+		assertThat(member.isEnabled()).isTrue();
+		assertThat(member.getProfileUrl()).isNull();
+	}
+
+	private record DeserializeTestClass(String name) {
+	}
+
+	@Test
+	@DisplayName("ApiResponse 내부 List 형태 JSON 문자열 > 역직렬화 > 지정된 클래스 객체로 반환, 값 동일")
+	void getDeserializedListApiResponseSuccess() throws JsonProcessingException {
+		String json = "{\"data\":[{\"name\":\"test1\"},{\"name\":\"test2\"}]}";
+
+		ApiResponse<List<DeserializeTestClass>> deserializedListApiResponse = testHelper.getDeserializedListApiResponse(
+			json, DeserializeTestClass.class);
+
+		DeserializeTestClass test1 = deserializedListApiResponse.getData().get(0);
+		DeserializeTestClass test2 = deserializedListApiResponse.getData().get(1);
+
+		assertThat(test1.name()).isEqualTo("test1");
+		assertThat(test2.name()).isEqualTo("test2");
+	}
+
+	@Test
+	@DisplayName("ApiResponse 형태 JSON 문자열 > 역직렬화 > 지정된 클래스 객체로 반환, 값 동일")
+	void getDeserializedApiResponseSuccess() throws JsonProcessingException {
+		String json = "{\"data\":{\"name\":\"test1\"}}";
+
+		ApiResponse<DeserializeTestClass> deserializedApiResponse = testHelper.getDeserializedApiResponse(
+			json, DeserializeTestClass.class);
+
+		DeserializeTestClass test1 = deserializedApiResponse.getData();
+
+		assertThat(test1.name()).isEqualTo("test1");
 	}
 }
