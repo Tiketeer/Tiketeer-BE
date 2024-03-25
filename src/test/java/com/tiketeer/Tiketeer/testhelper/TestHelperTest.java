@@ -261,6 +261,7 @@ public class TestHelperTest {
 	}
 
 	@Test
+	@DisplayName("ApiResponse 내부 List 형태 JSON 문자열 > 역직렬화 > 지정된 클래스 객체로 반환, 값 동일")
 	void getDeserializedListApiResponseSuccess() throws JsonProcessingException {
 		String json = "{\"data\":[{\"name\":\"test1\"},{\"name\":\"test2\"}]}";
 
@@ -275,6 +276,7 @@ public class TestHelperTest {
 	}
 
 	@Test
+	@DisplayName("ApiResponse 형태 JSON 문자열 > 역직렬화 > 지정된 클래스 객체로 반환, 값 동일")
 	void getDeserializedApiResponseSuccess() throws JsonProcessingException {
 		String json = "{\"data\":{\"name\":\"test1\"}}";
 
