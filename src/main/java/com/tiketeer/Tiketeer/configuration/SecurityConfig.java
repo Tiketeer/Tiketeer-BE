@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import com.tiketeer.Tiketeer.auth.RequestMatcherManager;
+import com.tiketeer.Tiketeer.auth.RequestMatcherHolder;
 import com.tiketeer.Tiketeer.auth.jwt.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
-	private final RequestMatcherManager requestMatcherManager;
+	private final RequestMatcherHolder requestMatcherHolder;
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -40,11 +40,11 @@ public class SecurityConfig {
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(req ->
 				req
-					.requestMatchers(requestMatcherManager.getRequestMatchersByMinRole(null))
+					.requestMatchers(requestMatcherHolder.getRequestMatchersByMinRole(null))
 					.permitAll()
-					.requestMatchers(requestMatcherManager.getRequestMatchersByMinRole(SELLER))
+					.requestMatchers(requestMatcherHolder.getRequestMatchersByMinRole(SELLER))
 					.hasAnyAuthority(SELLER.name())
-					.requestMatchers(requestMatcherManager.getRequestMatchersByMinRole(BUYER))
+					.requestMatchers(requestMatcherHolder.getRequestMatchersByMinRole(BUYER))
 					.hasAnyAuthority(BUYER.name(), SELLER.name())
 					.anyRequest().authenticated()
 			);

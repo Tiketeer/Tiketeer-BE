@@ -17,7 +17,7 @@ import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import jakarta.annotation.Nullable;
 
 @Component
-public class RequestMatcherManager {
+public class RequestMatcherHolder {
 	private final ConcurrentHashMap<String, RequestMatcher> reqMatcherCacheMap = new ConcurrentHashMap<>();
 
 	/**
