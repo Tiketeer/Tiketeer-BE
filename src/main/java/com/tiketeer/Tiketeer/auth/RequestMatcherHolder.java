@@ -49,6 +49,7 @@ public class RequestMatcherHolder {
 		new RequestInfo(PUT, "/members/password", RoleEnum.BUYER),
 		new RequestInfo(DELETE, "/members/*", RoleEnum.BUYER),
 		new RequestInfo(GET, "/members/*", RoleEnum.BUYER),
+		new RequestInfo(GET, "/members", RoleEnum.BUYER),
 		new RequestInfo(GET, "/members/*/purchases", RoleEnum.BUYER),
 		new RequestInfo(GET, "/members/*/sale", RoleEnum.SELLER),
 		new RequestInfo(POST, "/members/*/points", RoleEnum.BUYER),
