@@ -7,6 +7,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.tiketeer.Tiketeer.domain.member.exception.DuplicatedEmailException;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidLoginException;
+import com.tiketeer.Tiketeer.domain.member.exception.InvalidNewPasswordException;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidOtpException;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidPointChargeRequestException;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberIdAndAuthNotMatchedException;
@@ -35,6 +36,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		InvalidLoginException.class,
 		MemberIdAndAuthNotMatchedException.class,
 		InvalidPointChargeRequestException.class,
+		InvalidNewPasswordException.class,
 
 		// Ticketing
 		TicketingNotFoundException.class,
@@ -50,14 +52,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		// Role
 		RoleNotFoundException.class
 	})
-	protected ResponseEntity<ErrorResponse> handleDefinedException(final DefinedException e) {
-		logError(e);
-		return createErrorResponse(e.getExceptionCode());
+	protected ResponseEntity<ErrorResponse> handleDefinedException(final DefinedException ex) {
+		logError(ex);
+		return createErrorResponse(ex.getExceptionCode());
 	}
 
 	@ExceptionHandler(Exception.class)
-	protected ResponseEntity<ErrorResponse> handleUndefinedException(final Exception e) {
-		logError(e);
+	protected ResponseEntity<ErrorResponse> handleUndefinedException(final Exception ex) {
+		logError(ex);
 		return createErrorResponse(CommonExceptionCode.INTERNAL_SERVER_ERROR);
 	}
 
@@ -68,7 +70,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 			.build());
 	}
 
-	private void logError(final Exception e) {
-		log.error(e.getClass().getName(), e);
+	private void logError(final Exception ex) {
+		log.error(ex.getClass().getName(), ex);
 	}
 }

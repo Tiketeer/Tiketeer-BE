@@ -3,101 +3,37 @@ package com.tiketeer.Tiketeer.domain.purchase.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
-import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
-import com.tiketeer.Tiketeer.domain.purchase.Purchase;
 import com.tiketeer.Tiketeer.domain.purchase.exception.AccessForNotOwnedPurchaseException;
 import com.tiketeer.Tiketeer.domain.purchase.exception.EmptyPurchaseException;
-import com.tiketeer.Tiketeer.domain.purchase.exception.NotEnoughTicketException;
 import com.tiketeer.Tiketeer.domain.purchase.exception.PurchaseNotFoundException;
 import com.tiketeer.Tiketeer.domain.purchase.exception.PurchaseNotInSalePeriodException;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
-import com.tiketeer.Tiketeer.domain.purchase.service.dto.CreatePurchaseCommandDto;
-import com.tiketeer.Tiketeer.domain.purchase.service.dto.CreatePurchaseResultDto;
-import com.tiketeer.Tiketeer.domain.purchase.service.dto.DeletePurchaseTicketsCommandDto;
 import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
-import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.exception.TicketingNotFoundException;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 
 @Service
 public class PurchaseService {
-	private final PurchaseRepository purchaseRepository;
 	private final TicketRepository ticketRepository;
-	private final MemberRepository memberRepository;
 	private final TicketingRepository ticketingRepository;
+	private final PurchaseRepository purchaseRepository;
 
 	@Autowired
-	PurchaseService(PurchaseRepository purchaseRepository,
-		TicketRepository ticketRepository, MemberRepository memberRepository, TicketingRepository ticketingRepository) {
-		this.purchaseRepository = purchaseRepository;
+	PurchaseService(TicketRepository ticketRepository, TicketingRepository ticketingRepository,
+		PurchaseRepository purchaseRepository) {
 		this.ticketRepository = ticketRepository;
-		this.memberRepository = memberRepository;
 		this.ticketingRepository = ticketingRepository;
+		this.purchaseRepository = purchaseRepository;
 	}
 
-	@Transactional
-	public CreatePurchaseResultDto createPurchase(CreatePurchaseCommandDto command) {
-		var ticketingId = command.getTicketingId();
-		var count = command.getCount();
-
-		var member = memberRepository.findByEmail(command.getMemberEmail()).orElseThrow(
-			MemberNotFoundException::new);
-
-		validateTicketingSalePeriod(ticketingId, command.getCommandCreatedAt());
-
-		var newPurchase = purchaseRepository.save(Purchase.builder().member(member).build());
-
-		var tickets = ticketRepository.findByTicketingIdAndPurchaseIsNullOrderById(
-			ticketingId, Limit.of(count));
-
-		if (tickets.size() < count) {
-			throw new NotEnoughTicketException();
-		}
-
-		tickets.forEach(ticket -> {
-			ticket.setPurchase(newPurchase);
-		});
-
-		return CreatePurchaseResultDto.builder()
-			.purchaseId(newPurchase.getId())
-			.createdAt(newPurchase.getCreatedAt())
-			.build();
-	}
-
-	@Transactional
-	public void deletePurchaseTickets(DeletePurchaseTicketsCommandDto command) {
-		var purchase = purchaseRepository.findById(command.getPurchaseId()).orElseThrow(
-			PurchaseNotFoundException::new);
-		var ticketsUnderPurchase = findTicketsUnderPurchase(purchase);
-		var ticketsToRefund = ticketRepository.findAllById(command.getTicketIds());
-		var ticketing = ticketsUnderPurchase.getFirst().getTicketing();
-
-		validatePurchaseOwnership(purchase, command.getMemberEmail());
-		validateTicketingSalePeriod(ticketing, command.getCommandCreatedAt());
-
-		var ticketIdUnderPurchase = ticketsUnderPurchase.stream().map(Ticket::getId).toList();
-		AtomicInteger numOfDeletedTicket = new AtomicInteger();
-		ticketsToRefund.forEach(ticket -> {
-			if (ticketIdUnderPurchase.contains(ticket.getId())) {
-				ticket.setPurchase(null);
-				numOfDeletedTicket.getAndIncrement();
-			}
-		});
-		if (numOfDeletedTicket.get() == ticketsUnderPurchase.size()) {
-			purchaseRepository.delete(purchase);
-		}
-	}
-
-	private void validateTicketingSalePeriod(UUID ticketingId, LocalDateTime now) {
+	@Transactional(readOnly = true)
+	public void validateTicketingSalePeriod(UUID ticketingId, LocalDateTime now) {
 		var ticketing = ticketingRepository.findById(ticketingId).orElseThrow(
 			TicketingNotFoundException::new);
 		var saleStart = ticketing.getSaleStart();
@@ -107,21 +43,17 @@ public class PurchaseService {
 		}
 	}
 
-	private void validateTicketingSalePeriod(Ticketing ticketing, LocalDateTime now) {
-		var saleStart = ticketing.getSaleStart();
-		var saleEnd = ticketing.getSaleEnd();
-		if (now.isBefore(saleStart) || now.isAfter(saleEnd)) {
-			throw new PurchaseNotInSalePeriodException();
-		}
-	}
-
-	private void validatePurchaseOwnership(Purchase purchase, String email) {
+	@Transactional(readOnly = true)
+	public void validatePurchaseOwnership(UUID purchaseId, String email) {
+		var purchase = purchaseRepository.findById(purchaseId).orElseThrow(PurchaseNotFoundException::new);
 		if (!purchase.getMember().getEmail().equals(email)) {
 			throw new AccessForNotOwnedPurchaseException();
 		}
 	}
 
-	private List<Ticket> findTicketsUnderPurchase(Purchase purchase) {
+	@Transactional(readOnly = true)
+	public List<Ticket> findTicketsUnderPurchase(UUID purchaseId) {
+		var purchase = purchaseRepository.findById(purchaseId).orElseThrow(PurchaseNotFoundException::new);
 		var ticketsUnderPurchase = ticketRepository.findAllByPurchase(purchase);
 		if (ticketsUnderPurchase.isEmpty()) {
 			throw new EmptyPurchaseException();

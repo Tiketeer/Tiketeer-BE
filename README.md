@@ -10,56 +10,63 @@
 - .env 추가
   ```yml
   DB_USERNAME= # DB Username
+  DB_DATABASE= # DB database name
   DB_PASSWORD= # DB Password
   ```
-
-    - application.yml 추가
-      ```yml
-      # src/main/resources/application.yml
-      server:
-        port: # Server Port
-        servlet:
-          context-path: "/api"
   
-      spring:
-        datasource:
-          driver-class-name: com.mysql.cj.jdbc.Driver
-          url: # JDBC Connection URL
-          username: ${DB_USERNAME}
-          password: ${DB_PASSWORD}
-        jpa:
-          hibernate:
-            ddl-auto: update
-          show-sql: true
+- application.yml 추가
+  ```yml
+  # src/main/resources/application.yml
+  server:
+    port: # Server Port
+    servlet:
+      context-path: "/api"
+
+  spring:
+    datasource:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: # JDBC Connection URL
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+    jpa:
+      hibernate:
+        ddl-auto: validate
+      show-sql: true
+    flyway:
+      enabled: true
+    mail:
+      host: smtp.gmail.com
+      port: 587
+      username: ${EMAIL_ACCOUNT}
+      password: ${EMAIL_PASSWORD}
+      properties:
         mail:
-          host: smtp.gmail.com
-          port: 587
-          username: ${EMAIL_ACCOUNT}
-          password: ${EMAIL_PASSWORD}
-          properties:
-            mail:
-              smtp:
-                auth: true
-                starttls:
-                  enable: true
-                  required: true
-                connectiontimeout: 5000
-                timeout: 5000
-                writetimeout: 5000
-              mime:
-                charset: UTF-8
-      logging:
-        level:
-          org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    
-      jwt:
+          smtp:
+            auth: true
+            starttls:
+              enable: true
+              required: true
+            connectiontimeout: 5000
+            timeout: 5000
+            writetimeout: 5000
+          mime:
+            charset: UTF-8
+  logging:
+    level:
+      org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  
+  jwt:
         secret-key: ${SECRET_KEY}
         access-key-expiration-ms: ${ACCESS_KEY_EXPIRATION}
   
-      custom:
-        service:
-          baseUrl: ${BASE_URL}
-      ```
+  custom:
+    service:
+      baseUrl: ${BASE_URL}
+  ```
+- 도커 컴포즈
+  ```dtd
+  docker-compose -f docker-compose.dev.yml -d up
+  ```
 
 - 서버 실행
   ```shell

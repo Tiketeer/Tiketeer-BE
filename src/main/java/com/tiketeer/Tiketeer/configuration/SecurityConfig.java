@@ -1,6 +1,7 @@
 package com.tiketeer.Tiketeer.configuration;
 
-import java.util.stream.Stream;
+import static com.tiketeer.Tiketeer.domain.role.constant.RoleEnum.*;
+import static org.springframework.http.HttpMethod.*;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,23 +34,61 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-		return http.csrf(AbstractHttpConfigurer::disable)
+		http.csrf(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
 			.addFilterAfter(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(req ->
-				req.requestMatchers(getPermitAllPaths()).permitAll()
-			)
-			.build();
+				req.requestMatchers(PublicPaths.getSwaggerPaths().toArray(String[]::new)).permitAll()
+			);
+
+		configureTicketingSecurity(http);
+		configureMemberSecurity(http);
+		configureAuthSecurity(http);
+		configurePurchaseSecurity(http);
+
+		return http.build();
 
 	}
 
-	private String[] getPermitAllPaths() {
-		return Stream.concat(
-			PublicPaths.getMemberPaths().stream(),
-			PublicPaths.getSwaggerPaths().stream()
-		).toList().toArray(String[]::new);
+	private void configureTicketingSecurity(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(req ->
+			req.requestMatchers(POST, "/ticketings").hasAuthority(SELLER.name())
+				.requestMatchers(PATCH, "/ticketings/*").hasAuthority(SELLER.name())
+				.requestMatchers(DELETE, "/ticketings/*").hasAuthority(SELLER.name())
+				.requestMatchers(GET, "/ticketings").permitAll()
+				.requestMatchers(GET, "/ticketings/*").permitAll()
+		);
+	}
+
+	private void configureMemberSecurity(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(req ->
+			req
+				.requestMatchers(POST, "/members/register").permitAll()
+				.requestMatchers(POST, "/members/password-reset/mail").hasAnyAuthority(BUYER.name(), SELLER.name())
+				.requestMatchers(PUT, "/members/password").hasAnyAuthority(BUYER.name(), SELLER.name())
+				.requestMatchers(DELETE, "/members/*").hasAnyAuthority(BUYER.name(), SELLER.name())
+				.requestMatchers(GET, "/members/*").hasAnyAuthority(BUYER.name(), SELLER.name())
+				.requestMatchers(GET, "/members/*/purchases").hasAnyAuthority(BUYER.name(), SELLER.name())
+				.requestMatchers(GET, "/members/*/sale").hasAuthority(SELLER.name())
+				.requestMatchers(POST, "/members/*/points").hasAnyAuthority(BUYER.name(), SELLER.name())
+		);
+	}
+
+	private void configureAuthSecurity(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(req ->
+			req
+				.requestMatchers(POST, "/auth/login").permitAll()
+				.requestMatchers(POST, "/auth/refresh").permitAll()
+		);
+	}
+
+	private void configurePurchaseSecurity(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(req ->
+			req.requestMatchers(POST, "/purchases").hasAnyAuthority(BUYER.name(), SELLER.name())
+				.requestMatchers(DELETE, "/purchases/*/tickets").hasAnyAuthority(BUYER.name(), SELLER.name())
+		);
 	}
 
 }
