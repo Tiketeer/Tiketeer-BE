@@ -226,13 +226,12 @@ class MemberControllerTest {
 
 	@Test
 	@DisplayName("정상 조건 > 멤버 조회 > 성공")
-	@Transactional
 	void getMemberSuccess() throws Exception {
 		//given
 		String token = testHelper.registerAndLoginAndReturnAccessToken("user@example.com", RoleEnum.SELLER);
 		Member memberInDb = memberRepository.findAll().getFirst();
 		Cookie cookie = new Cookie(JwtMetadata.ACCESS_TOKEN, token);
-		System.out.print("send request");
+
 		//when
 		var result = mockMvc.perform(get("/api/members")
 				.contextPath("/api")

@@ -51,7 +51,7 @@ public class TicketingController {
 		this.deleteTicketingUseCase = deleteTicketingUseCase;
 	}
 
-	@GetMapping()
+	@GetMapping
 	public ResponseEntity<ApiResponse<List<GetAllTicketingsResponseDto>>> getAllTicketings() {
 		var results = ticketingService.getAllTicketings();
 		var responseBody = ApiResponse.wrap(

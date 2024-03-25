@@ -102,21 +102,6 @@ public class PurchaseControllerTest {
 			.andExpect(status().isCreated())
 			.andExpect(jsonPath("$.data.purchaseId").value(purchaseRepository.findAll().getFirst().getId().toString()
 			));
-		// System.out.println("print response content");
-		// System.out.println(result.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8));
-		// ApiResponse response = objectMapper.readValue(
-		// 	result.andReturn().getResponse().getContentAsString(),
-		// 	ApiResponse.class);
-		// PostPurchaseResponseDto dto = objectMapper.convertValue(response.getData(), PostPurchaseResponseDto.class);
-		// System.out.println("print PostPurchaseResponseDto");
-		// var purchases = purchaseRepository.findAll();
-		//
-		// //then
-		// Assertions.assertThat(purchases.size()).isEqualTo(1);
-		// result
-		// 	.andExpect(status().isCreated())
-		// 	.andExpect(jsonPath("$.data.purchaseId").value(purchases.getFirst().getId().toString()
-		// 	));
 	}
 
 	@Test

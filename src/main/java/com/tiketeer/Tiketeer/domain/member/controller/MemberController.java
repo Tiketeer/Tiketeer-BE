@@ -115,7 +115,7 @@ public class MemberController {
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
-	@GetMapping()
+	@GetMapping
 	public ResponseEntity<ApiResponse<GetMemberResponseDto>> getMember() {
 		var email = securityContextHelper.getEmailInToken();
 		var result = getMemberUseCase.get(GetMemberCommandDto.builder().memberEmail(email).build());
