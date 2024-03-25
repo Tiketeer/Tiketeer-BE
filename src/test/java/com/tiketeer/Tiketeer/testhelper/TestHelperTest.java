@@ -1,10 +1,11 @@
 package com.tiketeer.Tiketeer.testhelper;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tiketeer.Tiketeer.auth.jwt.AccessTokenPayload;
 import com.tiketeer.Tiketeer.auth.jwt.JwtService;
 import com.tiketeer.Tiketeer.domain.member.Member;
@@ -31,6 +33,7 @@ import com.tiketeer.Tiketeer.domain.ticket.Ticket;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
+import com.tiketeer.Tiketeer.response.ApiResponse;
 
 import io.jsonwebtoken.Claims;
 
@@ -74,13 +77,13 @@ public class TestHelperTest {
 
 		// then
 		var permitList = permissionRepository.findAll();
-		Assertions.assertThat(permitList.size()).isEqualTo(PermissionEnum.values().length);
+		assertThat(permitList.size()).isEqualTo(PermissionEnum.values().length);
 
 		var permissionNameList = Arrays.stream(PermissionEnum.values()).map(PermissionEnum::name).toList();
 		permitList.forEach(permit -> isInTest(permissionNameList, permit.getName().name()));
 
 		var roleList = roleRepository.findAll();
-		Assertions.assertThat(roleList.size()).isEqualTo(RoleEnum.values().length);
+		assertThat(roleList.size()).isEqualTo(RoleEnum.values().length);
 
 		var roleNameList = Arrays.stream(RoleEnum.values()).map(RoleEnum::name).toList();
 		roleList.forEach(role -> isInTest(roleNameList, role.getName().name()));
@@ -135,7 +138,7 @@ public class TestHelperTest {
 		);
 
 		repoForTestList.forEach(repo -> {
-			Assertions.assertThat(repo.findAll()).isNotEmpty();
+			assertThat(repo.findAll()).isNotEmpty();
 		});
 
 		// when
@@ -143,7 +146,7 @@ public class TestHelperTest {
 
 		// then
 		repoForTestList.forEach(repo -> {
-			Assertions.assertThat(repo.findAll()).isEmpty();
+			assertThat(repo.findAll()).isEmpty();
 		});
 	}
 
@@ -161,12 +164,12 @@ public class TestHelperTest {
 
 		// then
 		var memberOpt = memberRepository.findById(memberId);
-		Assertions.assertThat(memberOpt.isPresent()).isTrue();
+		assertThat(memberOpt.isPresent()).isTrue();
 
 		var member = memberOpt.get();
-		Assertions.assertThat(member.getEmail()).isEqualTo(email);
-		Assertions.assertThat(passwordEncoder.matches("1q2w3e4r!!", member.getPassword()));
-		Assertions.assertThat(member.getRole().getName()).isEqualTo(RoleEnum.BUYER);
+		assertThat(member.getEmail()).isEqualTo(email);
+		assertThat(passwordEncoder.matches("1q2w3e4r!!", member.getPassword())).isTrue();
+		assertThat(member.getRole().getName()).isEqualTo(RoleEnum.BUYER);
 		defaultMemberPropertiesTest(member);
 	}
 
@@ -185,12 +188,12 @@ public class TestHelperTest {
 
 		// then
 		var memberOpt = memberRepository.findById(memberId);
-		Assertions.assertThat(memberOpt.isPresent()).isTrue();
+		assertThat(memberOpt.isPresent()).isTrue();
 
 		var member = memberOpt.get();
-		Assertions.assertThat(member.getEmail()).isEqualTo(email);
-		Assertions.assertThat(passwordEncoder.matches(password, member.getPassword()));
-		Assertions.assertThat(member.getRole().getName()).isEqualTo(RoleEnum.BUYER);
+		assertThat(member.getEmail()).isEqualTo(email);
+		assertThat(passwordEncoder.matches(password, member.getPassword())).isTrue();
+		assertThat(member.getRole().getName()).isEqualTo(RoleEnum.BUYER);
 		defaultMemberPropertiesTest(member);
 	}
 
@@ -210,12 +213,12 @@ public class TestHelperTest {
 
 		// then
 		var memberOpt = memberRepository.findById(memberId);
-		Assertions.assertThat(memberOpt.isPresent()).isTrue();
+		assertThat(memberOpt.isPresent()).isTrue();
 
 		var member = memberOpt.get();
-		Assertions.assertThat(member.getEmail()).isEqualTo(email);
-		Assertions.assertThat(passwordEncoder.matches(password, member.getPassword()));
-		Assertions.assertThat(member.getRole().getName()).isEqualTo(roleEnum);
+		assertThat(member.getEmail()).isEqualTo(email);
+		assertThat(passwordEncoder.matches(password, member.getPassword())).isTrue();
+		assertThat(member.getRole().getName()).isEqualTo(roleEnum);
 		defaultMemberPropertiesTest(member);
 	}
 
@@ -234,27 +237,58 @@ public class TestHelperTest {
 
 		// then
 		var memberOpt = memberRepository.findByEmail(email);
-		Assertions.assertThat(memberOpt.isPresent()).isTrue();
+		assertThat(memberOpt.isPresent()).isTrue();
 
 		var member = memberOpt.get();
-		Assertions.assertThat(member.getEmail()).isEqualTo(email);
-		Assertions.assertThat(passwordEncoder.matches("1q2w3e4r!!", member.getPassword()));
-		Assertions.assertThat(member.getRole().getName()).isEqualTo(roleEnum);
+		assertThat(member.getEmail()).isEqualTo(email);
+		assertThat(passwordEncoder.matches("1q2w3e4r!!", member.getPassword())).isTrue();
+		assertThat(member.getRole().getName()).isEqualTo(roleEnum);
 		defaultMemberPropertiesTest(member);
 
 		Claims claims = jwtService.verifyToken(accessToken);
 		AccessTokenPayload payload = jwtService.createAccessTokenPayload(claims);
-		Assertions.assertThat(payload.email()).isEqualTo(email);
-		Assertions.assertThat(payload.roleEnum()).isEqualTo(roleEnum);
+		assertThat(payload.email()).isEqualTo(email);
+		assertThat(payload.roleEnum()).isEqualTo(roleEnum);
 	}
 
 	private <T> void isInTest(Iterable<T> iterable, T target) {
-		Assertions.assertThat(target).isIn(iterable);
+		assertThat(target).isIn(iterable);
 	}
 
 	private void defaultMemberPropertiesTest(Member member) {
-		Assertions.assertThat(member.getPoint()).isEqualTo(0);
-		Assertions.assertThat(member.isEnabled()).isTrue();
-		Assertions.assertThat(member.getProfileUrl()).isNull();
+		assertThat(member.getPoint()).isEqualTo(0);
+		assertThat(member.isEnabled()).isTrue();
+		assertThat(member.getProfileUrl()).isNull();
+	}
+
+	private record DeserializeTestClass(String name) {
+	}
+
+	@Test
+	@DisplayName("ApiResponse 내부 List 형태 JSON 문자열 > 역직렬화 > 지정된 클래스 객체로 반환, 값 동일")
+	void getDeserializedListApiResponseSuccess() throws JsonProcessingException {
+		String json = "{\"data\":[{\"name\":\"test1\"},{\"name\":\"test2\"}]}";
+
+		ApiResponse<List<DeserializeTestClass>> deserializedListApiResponse = testHelper.getDeserializedListApiResponse(
+			json, DeserializeTestClass.class);
+
+		DeserializeTestClass test1 = deserializedListApiResponse.getData().get(0);
+		DeserializeTestClass test2 = deserializedListApiResponse.getData().get(1);
+
+		assertThat(test1.name()).isEqualTo("test1");
+		assertThat(test2.name()).isEqualTo("test2");
+	}
+
+	@Test
+	@DisplayName("ApiResponse 형태 JSON 문자열 > 역직렬화 > 지정된 클래스 객체로 반환, 값 동일")
+	void getDeserializedApiResponseSuccess() throws JsonProcessingException {
+		String json = "{\"data\":{\"name\":\"test1\"}}";
+
+		ApiResponse<DeserializeTestClass> deserializedApiResponse = testHelper.getDeserializedApiResponse(
+			json, DeserializeTestClass.class);
+
+		DeserializeTestClass test1 = deserializedApiResponse.getData();
+
+		assertThat(test1.name()).isEqualTo("test1");
 	}
 }
