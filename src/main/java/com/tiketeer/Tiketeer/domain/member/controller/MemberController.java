@@ -31,10 +31,12 @@ import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberTicketingSalesUseCas
 import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.MemberRegisterUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.ResetPasswordUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.SendPasswordChangeEmailUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberPurchasesCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberTicketingSalesCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.MemberRegisterCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.SendPwdChangeEmailCommandDto;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 
 import jakarta.validation.Valid;
@@ -48,6 +50,7 @@ public class MemberController {
 	private final GetMemberUseCase getMemberUseCase;
 	private final GetMemberPurchasesUseCase getMemberPurchasesUseCase;
 	private final ResetPasswordUseCase resetPasswordUseCase;
+	private final SendPasswordChangeEmailUseCase sendPasswordChangeEmailUseCase;
 	private final SecurityContextHelper securityContextHelper;
 
 	@Autowired
@@ -55,6 +58,7 @@ public class MemberController {
 		ChargeMemberPointUseCase chargeMemberPointUseCase, ResetPasswordUseCase resetPasswordUseCase,
 		GetMemberTicketingSalesUseCase getMemberTicketingSalesUseCase,
 		GetMemberUseCase getMemberUseCase, GetMemberPurchasesUseCase getMemberPurchasesUseCase,
+		SendPasswordChangeEmailUseCase sendPasswordChangeEmailUseCase,
 		SecurityContextHelper securityContextHelper) {
 		this.memberRegisterUseCase = memberRegisterUseCase;
 		this.chargeMemberPointUseCase = chargeMemberPointUseCase;
@@ -62,6 +66,7 @@ public class MemberController {
 		this.getMemberUseCase = getMemberUseCase;
 		this.resetPasswordUseCase = resetPasswordUseCase;
 		this.getMemberPurchasesUseCase = getMemberPurchasesUseCase;
+		this.sendPasswordChangeEmailUseCase = sendPasswordChangeEmailUseCase;
 		this.securityContextHelper = securityContextHelper;
 	}
 
@@ -77,18 +82,18 @@ public class MemberController {
 		);
 	}
 
-	// TODO: 이메일 전송 EP들의 Path 가독성 논의 후 Path 수정
-	@PostMapping(path = "/{memberId}/password")
+	@PostMapping(path = "/password-reset/mail")
 	public ResponseEntity sendPasswordChangeEmail(@PathVariable UUID memberId) {
 		var email = securityContextHelper.getEmailInToken();
+		sendPasswordChangeEmailUseCase.sendEmail(
+			SendPwdChangeEmailCommandDto.builder().email(email).memberId(memberId).build());
 		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping(path = "/{memberId}/points")
 	public ResponseEntity<ApiResponse<ChargePointResponseDto>> chargePoint(@PathVariable String memberId,
 		@Valid @RequestBody ChargePointRequestDto request) {
-		// TODO: JWT 구현이 완료되면 SecurityContext를 통해 가져오는 것으로 대체
-		var email = "mock@mock.com";
+		var email = securityContextHelper.getEmailInToken();
 		var totalPoint = chargeMemberPointUseCase.chargePoint(request.convertToCommandDto(memberId, email))
 			.getTotalPoint();
 		var result = ChargePointResponseDto.builder().totalPoint(totalPoint).build();
@@ -98,7 +103,7 @@ public class MemberController {
 	@GetMapping("/{memberId}/purchases")
 	public ResponseEntity<ApiResponse<List<GetMemberPurchasesResponseDto>>> getMemberPurchases(
 		@PathVariable UUID memberId) {
-		var email = "mock@mock.com";
+		var email = securityContextHelper.getEmailInToken();
 		var results = getMemberPurchasesUseCase.getMemberPurchases(
 			GetMemberPurchasesCommandDto.builder().memberEmail(email).build());
 		var responseBody = ApiResponse.wrap(
@@ -123,9 +128,9 @@ public class MemberController {
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 
-	@GetMapping("/")
+	@GetMapping
 	public ResponseEntity<ApiResponse<GetMemberResponseDto>> getMember() {
-		var email = "mock@mock.com";
+		var email = securityContextHelper.getEmailInToken();
 		var result = getMemberUseCase.get(GetMemberCommandDto.builder().memberEmail(email).build());
 		var responseBody = ApiResponse.wrap(GetMemberResponseDto.convertFromDto(result));
 		return ResponseEntity.status(HttpStatus.OK).body(responseBody);
