@@ -27,6 +27,7 @@ import com.tiketeer.Tiketeer.domain.role.repository.RolePermissionRepository;
 import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
+import com.tiketeer.Tiketeer.testhelper.dto.TestLoginResultDto;
 
 @TestComponent
 public class TestHelper {
@@ -112,10 +113,12 @@ public class TestHelper {
 	}
 
 	@Transactional
-	public LoginResultDto registerAndLoginAndReturnAccessTokenAndRefreshToken(String email, RoleEnum roleEnum) {
+	public TestLoginResultDto registerAndLoginAndReturnAccessTokenAndRefreshToken(String email, RoleEnum roleEnum) {
 		String password = "1q2w3e4r!!";
 		createMember(email, password, roleEnum);
-		return loginUseCase.login(LoginCommandDto.builder().email(email).password(password).build());
+		LoginResultDto login = loginUseCase.login(LoginCommandDto.builder().email(email).password(password).build());
+
+		return new TestLoginResultDto(login.getAccessToken(), login.getRefreshToken(), login.getMember());
 	}
 
 	@Transactional

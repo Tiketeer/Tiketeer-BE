@@ -22,11 +22,11 @@ import com.tiketeer.Tiketeer.domain.member.RefreshToken;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidTokenException;
 import com.tiketeer.Tiketeer.domain.member.repository.RefreshTokenRepository;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginCommandDto;
-import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginResultDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.RefreshAccessTokenCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.RefreshAccessTokenResultDto;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
+import com.tiketeer.Tiketeer.testhelper.dto.TestLoginResultDto;
 
 @Import({TestHelper.class})
 @SpringBootTest
@@ -60,9 +60,10 @@ class RefreshAccessTokenUseCaseTest {
 	@DisplayName("정상 토큰 > 재발급 > 재발급 확인")
 	void refreshAccessTokenSuccess() {
 		// given
-		LoginResultDto loginResultDto = testHelper.registerAndLoginAndReturnAccessTokenAndRefreshToken("test@gmail.com",
+		TestLoginResultDto testLoginResultDto = testHelper.registerAndLoginAndReturnAccessTokenAndRefreshToken(
+			"test@gmail.com",
 			RoleEnum.BUYER);
-		String refreshToken = loginResultDto.getRefreshToken();
+		String refreshToken = testLoginResultDto.getRefreshToken();
 
 		// when
 		RefreshAccessTokenResultDto refreshAccessTokenResultDto = refreshAccessTokenUseCase.refresh(
@@ -101,12 +102,12 @@ class RefreshAccessTokenUseCaseTest {
 	void refreshAccessTokenFailByDuplicatedLogin() {
 		// given
 		String email = "test@gmail.com";
-		LoginResultDto loginResultDto = testHelper.registerAndLoginAndReturnAccessTokenAndRefreshToken(email,
+		TestLoginResultDto testLoginResultDto = testHelper.registerAndLoginAndReturnAccessTokenAndRefreshToken(email,
 			RoleEnum.BUYER);
 
 		loginUseCase.login(LoginCommandDto.builder().email(email).password("1q2w3e4r!!").build());
 
-		String refreshToken = loginResultDto.getRefreshToken();
+		String refreshToken = testLoginResultDto.getRefreshToken();
 
 		// then
 		assertThrows(InvalidTokenException.class, () -> {
