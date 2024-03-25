@@ -7,10 +7,12 @@ import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.CreatePurchaseResultDto
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @ToString
+@NoArgsConstructor(force = true)
 public class PostPurchaseResponseDto {
 	private final UUID purchaseId;
 	private LocalDateTime createdAt;

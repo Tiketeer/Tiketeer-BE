@@ -198,6 +198,30 @@ public class TestHelperTest {
 	}
 
 	@Test
+	@DisplayName("이메일, 역할 지정 > 멤버 생성 요청 > 이메일, 역할이 지정된 멤버 생성 (나머지는 메서드 내 기본 값)")
+	@Transactional
+	void createMemberEmailAndRoleParamSuccess() {
+		// given
+		testHelper.initDB();
+
+		var email = "test@test.com";
+		var role = RoleEnum.SELLER;
+
+		// when
+		var memberId = testHelper.createMember(email, role).getId();
+
+		// then
+		var memberOpt = memberRepository.findById(memberId);
+		assertThat(memberOpt.isPresent()).isTrue();
+
+		var member = memberOpt.get();
+		assertThat(member.getEmail()).isEqualTo(email);
+		assertThat(passwordEncoder.matches("1q2w3e4r!!", member.getPassword())).isTrue();
+		assertThat(member.getRole().getName()).isEqualTo(role);
+		defaultMemberPropertiesTest(member);
+	}
+
+	@Test
 	@DisplayName("이메일, 패스워드, 역할 지정 > 멤버 생성 요청 > 이메일, 패스워드, 역할이 지정된 멤버 생성 (나머지는 메서드 내 기본 값)")
 	@Transactional
 	void createMemberEmailAndPasswordAndRoleParamSuccess() {
