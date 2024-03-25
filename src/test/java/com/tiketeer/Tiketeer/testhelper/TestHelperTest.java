@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.tiketeer.Tiketeer.auth.jwt.AccessTokenPayload;
 import com.tiketeer.Tiketeer.auth.jwt.JwtService;
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
@@ -33,6 +34,8 @@ import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.response.ApiResponse;
+
+import io.jsonwebtoken.Claims;
 
 @Import({TestHelper.class})
 @SpringBootTest
@@ -165,7 +168,7 @@ public class TestHelperTest {
 
 		var member = memberOpt.get();
 		assertThat(member.getEmail()).isEqualTo(email);
-		assertThat(passwordEncoder.matches("1q2w3e4r!!", member.getPassword()));
+		assertThat(passwordEncoder.matches("1q2w3e4r!!", member.getPassword())).isTrue();
 		assertThat(member.getRole().getName()).isEqualTo(RoleEnum.BUYER);
 		defaultMemberPropertiesTest(member);
 	}
@@ -189,7 +192,7 @@ public class TestHelperTest {
 
 		var member = memberOpt.get();
 		assertThat(member.getEmail()).isEqualTo(email);
-		assertThat(passwordEncoder.matches(password, member.getPassword()));
+		assertThat(passwordEncoder.matches(password, member.getPassword())).isTrue();
 		assertThat(member.getRole().getName()).isEqualTo(RoleEnum.BUYER);
 		defaultMemberPropertiesTest(member);
 	}
@@ -214,7 +217,7 @@ public class TestHelperTest {
 
 		var member = memberOpt.get();
 		assertThat(member.getEmail()).isEqualTo(email);
-		assertThat(passwordEncoder.matches(password, member.getPassword()));
+		assertThat(passwordEncoder.matches(password, member.getPassword())).isTrue();
 		assertThat(member.getRole().getName()).isEqualTo(roleEnum);
 		defaultMemberPropertiesTest(member);
 	}
@@ -238,11 +241,12 @@ public class TestHelperTest {
 
 		var member = memberOpt.get();
 		assertThat(member.getEmail()).isEqualTo(email);
-		assertThat(passwordEncoder.matches("1q2w3e4r!!", member.getPassword()));
+		assertThat(passwordEncoder.matches("1q2w3e4r!!", member.getPassword())).isTrue();
 		assertThat(member.getRole().getName()).isEqualTo(roleEnum);
 		defaultMemberPropertiesTest(member);
 
-		var payload = jwtService.verifyToken(accessToken);
+		Claims claims = jwtService.verifyToken(accessToken);
+		AccessTokenPayload payload = jwtService.createAccessTokenPayload(claims);
 		assertThat(payload.email()).isEqualTo(email);
 		assertThat(payload.roleEnum()).isEqualTo(roleEnum);
 	}

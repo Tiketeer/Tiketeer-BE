@@ -4,6 +4,6 @@ import java.util.Date;
 
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
 
-public record JwtPayload(String email, RoleEnum roleEnum, Date issuedAt) {
+public record AccessTokenPayload(String email, RoleEnum roleEnum, Date issuedAt) {
 
 }

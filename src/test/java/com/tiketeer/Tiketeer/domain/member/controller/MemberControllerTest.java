@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiketeer.Tiketeer.auth.constant.JwtMetadata;
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
+import com.tiketeer.Tiketeer.domain.member.controller.dto.ChargePointRequestDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.GetMemberTicketingSalesResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.ResetPasswordRequestDto;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
@@ -198,4 +199,25 @@ class MemberControllerTest {
 		).andExpect(status().isBadRequest());
 	}
 
+	@Test
+	@DisplayName("포인트 충전량 정보 > 포인트 충전 컨트롤러에 요청 > point 검증")
+	void chargePoint() throws Exception {
+		String token = testHelper.registerAndLoginAndReturnAccessToken("mock@mock.com", RoleEnum.SELLER);
+		Cookie cookie = new Cookie(JwtMetadata.ACCESS_TOKEN, token);
+
+		ChargePointRequestDto dto = ChargePointRequestDto.builder().pointForCharge(1000L).build();
+		Member member = memberRepository.findByEmail("mock@mock.com").orElseThrow();
+
+		mockMvc.perform(post("/api/members/" + member.getId() + "/points")
+				.cookie(cookie)
+				.contextPath("/api")
+				.contentType(MediaType.APPLICATION_JSON)
+				.characterEncoding("utf-8")
+				.content(objectMapper.writeValueAsString(dto))
+			)
+			.andExpect(status().isOk())
+			.andExpect(
+				jsonPath("$.data.totalPoint").value(1000L)
+			);
+	}
 }

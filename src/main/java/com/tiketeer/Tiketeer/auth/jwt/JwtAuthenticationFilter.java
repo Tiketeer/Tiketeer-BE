@@ -15,6 +15,7 @@ import com.tiketeer.Tiketeer.auth.FilterExceptionResolver;
 import com.tiketeer.Tiketeer.auth.constant.JwtMetadata;
 import com.tiketeer.Tiketeer.auth.constant.PublicPaths;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -38,9 +39,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		try {
 			final String accessToken = getAccessTokenFromCookie(request);
-			JwtPayload jwtPayload = jwtService.verifyToken(accessToken);
-			var email = jwtPayload.email();
-			var role = jwtPayload.roleEnum().name();
+			Claims claims = jwtService.verifyToken(accessToken);
+			AccessTokenPayload accessTokenPayload = jwtService.createAccessTokenPayload(claims);
+			var email = accessTokenPayload.email();
+			var role = accessTokenPayload.roleEnum().name();
 			GrantedAuthority authority = new SimpleGrantedAuthority(role);
 			Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, List.of(authority));
 			SecurityContextHolder.getContext().setAuthentication(authentication);

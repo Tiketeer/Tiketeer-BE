@@ -25,28 +25,37 @@ public class JwtService {
 	@Value("${jwt.access-key-expiration-ms}")
 	private long accessKeyExpirationInMs;
 
+	@Value("${jwt.refresh-key-expiration-ms}")
+	private long refreshKeyExpirationInMs;
+
 	public JwtService(@Value("${jwt.secret-key}") String secretKey) {
 		this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
 	}
 
-	public JwtPayload verifyToken(String jwt) {
-		Claims payload = Jwts.parser()
+	public Claims verifyToken(String jwt) {
+		return Jwts.parser()
 			.verifyWith(secretKey)
 			.build()
 			.parseSignedClaims(jwt)
 			.getPayload();
+	}
 
+	public AccessTokenPayload createAccessTokenPayload(Claims payload) {
 		String roleString = payload.get("role", String.class);
 		RoleEnum roleEnum = RoleEnum.valueOf(roleString);
 
-		return new JwtPayload(
+		return new AccessTokenPayload(
 			payload.getSubject(),
 			roleEnum,
 			payload.getIssuedAt()
 		);
 	}
 
-	public String createToken(JwtPayload jwtPayload) {
+	public RefreshTokenPayload createRefreshTokenPayload(Claims payload) {
+		return new RefreshTokenPayload(payload.getSubject(), payload.getIssuedAt());
+	}
+
+	public String createAccessToken(AccessTokenPayload jwtPayload) {
 		return Jwts.builder()
 			.subject(jwtPayload.email())
 			.claim("role", jwtPayload.roleEnum().name())
@@ -57,4 +66,13 @@ public class JwtService {
 			.compact();
 	}
 
+	public String createRefreshToken(RefreshTokenPayload jwtPayload) {
+		return Jwts.builder()
+			.subject(jwtPayload.tokenId())
+			.issuer(issuer)
+			.issuedAt(jwtPayload.issuedAt())
+			.expiration(new Date(jwtPayload.issuedAt().getTime() + refreshKeyExpirationInMs))
+			.signWith(secretKey)
+			.compact();
+	}
 }

@@ -18,6 +18,7 @@ import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
 import com.tiketeer.Tiketeer.domain.member.usecase.LoginUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginResultDto;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.role.Permission;
 import com.tiketeer.Tiketeer.domain.role.Role;
@@ -30,6 +31,7 @@ import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.response.ApiResponse;
+import com.tiketeer.Tiketeer.testhelper.dto.TestLoginResultDto;
 
 @TestComponent
 public class TestHelper {
@@ -115,6 +117,15 @@ public class TestHelper {
 	public Otp createOtp(Member member, LocalDateTime expiredAt) {
 		Otp otp = new Otp(expiredAt, member);
 		return otpRepository.save(otp);
+	}
+
+	@Transactional
+	public TestLoginResultDto registerAndLoginAndReturnAccessTokenAndRefreshToken(String email, RoleEnum roleEnum) {
+		String password = "1q2w3e4r!!";
+		createMember(email, password, roleEnum);
+		LoginResultDto login = loginUseCase.login(LoginCommandDto.builder().email(email).password(password).build());
+
+		return new TestLoginResultDto(login.getAccessToken(), login.getRefreshToken(), login.getMember());
 	}
 
 	@Transactional
