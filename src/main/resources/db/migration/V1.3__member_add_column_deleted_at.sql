@@ -1,0 +1,1 @@
+alter table members add deleted_at timestamp(6);
