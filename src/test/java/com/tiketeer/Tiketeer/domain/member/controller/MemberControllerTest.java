@@ -137,7 +137,7 @@ class MemberControllerTest {
 		Cookie cookie = new Cookie(JwtMetadata.ACCESS_TOKEN, token);
 
 		//when - then
-		ResetPasswordRequestDto req = new ResetPasswordRequestDto(otp.getPassword(), "newpassword");
+		ResetPasswordRequestDto req = new ResetPasswordRequestDto(otp.getPassword(), "1q2w3e4r@@Q");
 		String content = objectMapper.writeValueAsString(req);
 
 		mockMvc.perform(put("/api/members/password")

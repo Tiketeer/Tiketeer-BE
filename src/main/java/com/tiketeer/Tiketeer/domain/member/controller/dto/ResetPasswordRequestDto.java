@@ -25,7 +25,7 @@ public class ResetPasswordRequestDto {
 	private String newPassword;
 
 	@Builder
-	public ResetPasswordRequestDto(UUID otp, String newPassword) {
+	public ResetPasswordRequestDto(@NotNull UUID otp, @ValidPassword String newPassword) {
 		this.otp = otp;
 		this.newPassword = newPassword;
 	}

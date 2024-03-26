@@ -47,7 +47,7 @@ public class PurchaseController {
 	}
 
 	@DeleteMapping("/{purchaseId}/tickets")
-	public ResponseEntity deletePurchaseTickets(@PathVariable UUID purchaseId,
+	public ResponseEntity<?> deletePurchaseTickets(@PathVariable UUID purchaseId,
 		@Valid @RequestBody DeletePurchaseTicketsRequestDto request) {
 		var memberEmail = securityContextHelper.getEmailInToken();
 		deletePurchaseTicketsUseCase.deletePurchaseTickets(request.convertToDto(memberEmail, purchaseId));

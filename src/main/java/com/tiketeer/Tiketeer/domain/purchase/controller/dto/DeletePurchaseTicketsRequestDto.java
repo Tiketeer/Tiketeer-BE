@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import com.tiketeer.Tiketeer.domain.purchase.usecase.dto.DeletePurchaseTicketsCommandDto;
 
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,11 +16,11 @@ public class DeletePurchaseTicketsRequestDto {
 	@NotNull
 	private final List<UUID> ticketIds;
 
-	@NotEmpty
+	@NotNull
 	private final UUID purchaseId;
 
 	@Builder
-	public DeletePurchaseTicketsRequestDto(@NotNull List<UUID> ticketIds, @NotEmpty UUID purchaseId) {
+	public DeletePurchaseTicketsRequestDto(@NotNull List<UUID> ticketIds, @NotNull UUID purchaseId) {
 		this.ticketIds = ticketIds;
 		this.purchaseId = purchaseId;
 	}
