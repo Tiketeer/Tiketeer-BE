@@ -64,7 +64,10 @@ public class SendPasswordChangeEmailUseCase {
 	}
 
 	private void deleteOtpWithMember(Member member) {
-		otpRepository.findByMember(member).ifPresent(otpRepository::delete);
+		otpRepository.findByMember(member).ifPresent(otp -> {
+			otpRepository.delete(otp);
+			otpRepository.flush();
+		});
 	}
 
 	private void sendEmail(String email, UUID otp) {
