@@ -10,9 +10,9 @@ import lombok.ToString;
 @ToString
 public class ResetPasswordCommandDto {
 
-	private UUID otp;
+	private final UUID otp;
 
-	private String newPassword;
+	private final String newPassword;
 
 	@Builder
 	public ResetPasswordCommandDto(UUID otp, String newPassword) {

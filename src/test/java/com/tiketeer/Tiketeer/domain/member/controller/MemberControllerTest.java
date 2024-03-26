@@ -178,6 +178,32 @@ class MemberControllerTest {
 
 	@Test
 	@Transactional
+	@DisplayName("유저 회원가입 및 로그인 > 조건에 맞지 않는 비밀번호로 변경 > 변경 실패")
+	void resetPasswordFailInvalidPassword() throws Exception {
+
+		//given
+		var now = now().truncatedTo(ChronoUnit.SECONDS);
+		String token = testHelper.registerAndLoginAndReturnAccessToken("user@example.com", RoleEnum.SELLER);
+		Member member = memberRepository.findAll().getFirst();
+		Otp otp = testHelper.createOtp(member, now().plusDays(1));
+		Cookie cookie = new Cookie(JwtMetadata.ACCESS_TOKEN, token);
+
+		//when - then
+		ResetPasswordRequestDto req = new ResetPasswordRequestDto(otp.getPassword(), "1234");
+		String content = objectMapper.writeValueAsString(req);
+
+		mockMvc.perform(put("/api/members/password")
+			.contextPath("/api")
+			.with(csrf())
+			.contentType(MediaType.APPLICATION_JSON)
+			.characterEncoding("utf-8")
+			.cookie(cookie)
+			.content(content)
+		).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	@Transactional
 	@DisplayName("유저 회원가입 및 로그인 > 만료된 OTP > 변경 실패")
 	void resetPasswordFailExpiredOtp() throws Exception {
 
