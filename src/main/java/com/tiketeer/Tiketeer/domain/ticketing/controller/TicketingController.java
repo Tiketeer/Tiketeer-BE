@@ -51,7 +51,7 @@ public class TicketingController {
 		this.deleteTicketingUseCase = deleteTicketingUseCase;
 	}
 
-	@GetMapping(path = "/")
+	@GetMapping
 	public ResponseEntity<ApiResponse<List<GetAllTicketingsResponseDto>>> getAllTicketings() {
 		var results = ticketingService.getAllTicketings();
 		var responseBody = ApiResponse.wrap(
@@ -63,6 +63,7 @@ public class TicketingController {
 	public ResponseEntity<ApiResponse<GetTicketingResponseDto>> getTicketing(@PathVariable UUID ticketingId) {
 		var result = ticketingService.getTickting(
 			GetTicketingCommandDto.builder().ticketingId(ticketingId).build());
+
 		var responseBody = ApiResponse.wrap(GetTicketingResponseDto.convertFromDto(result));
 		return ResponseEntity.status(HttpStatus.OK).body(responseBody);
 	}

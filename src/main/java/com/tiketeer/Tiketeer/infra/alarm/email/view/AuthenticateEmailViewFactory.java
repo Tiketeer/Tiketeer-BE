@@ -11,15 +11,11 @@ public class AuthenticateEmailViewFactory implements EmailViewFactory {
 	@Value("${custom.service.baseUrl}")
 	private String baseUrl;
 
-	@Value("${server.port}")
-	private String port;
-
 	@Override
 	public String createView(Object data) {
 		CreateEmailViewCommandDto authenticateEmailViewData = (CreateEmailViewCommandDto)data;
 		var url =
 			UriComponentsBuilder.fromHttpUrl(baseUrl)
-				.port(port)
 				.path("/confirm/email")
 				.queryParam("otp", authenticateEmailViewData.getOtp())
 				.queryParam("email", authenticateEmailViewData.getEmail())

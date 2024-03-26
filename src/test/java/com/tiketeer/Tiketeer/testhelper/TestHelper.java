@@ -144,6 +144,11 @@ public class TestHelper {
 	}
 
 	@Transactional
+	public Member createMember(String email, RoleEnum roleEnum) {
+		return createMember(email, "1q2w3e4r!!", roleEnum);
+	}
+
+	@Transactional
 	public Member createMember(String email, String password, RoleEnum roleEnum) {
 		var role = roleRepository.findByName(roleEnum).orElseThrow();
 		return memberRepository.save(Member.builder()

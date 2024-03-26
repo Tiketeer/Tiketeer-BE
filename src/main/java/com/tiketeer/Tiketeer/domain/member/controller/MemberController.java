@@ -6,8 +6,6 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -114,8 +112,7 @@ public class MemberController {
 	@GetMapping("/{memberId}/sale")
 	public ResponseEntity<ApiResponse<List<GetMemberTicketingSalesResponseDto>>> getMemberTicketingSales(
 		@PathVariable UUID memberId) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String email = (String)authentication.getPrincipal();
+		var email = securityContextHelper.getEmailInToken();
 		var result = getMemberTicketingSalesUseCase.getMemberTicketingSales(
 			new GetMemberTicketingSalesCommandDto(memberId, email));
 		var response = result.stream().map(GetMemberTicketingSalesResponseDto::convertFromResult).toList();
