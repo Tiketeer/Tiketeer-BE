@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,12 +25,14 @@ import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterRequestD
 import com.tiketeer.Tiketeer.domain.member.controller.dto.MemberRegisterResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.ResetPasswordRequestDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.ChargeMemberPointUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.DeleteMemberUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberPurchasesUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberTicketingSalesUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.MemberRegisterUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.ResetPasswordUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.SendPasswordChangeEmailUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.DeleteMemberCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberPurchasesCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberTicketingSalesCommandDto;
@@ -49,6 +52,7 @@ public class MemberController {
 	private final GetMemberPurchasesUseCase getMemberPurchasesUseCase;
 	private final ResetPasswordUseCase resetPasswordUseCase;
 	private final SendPasswordChangeEmailUseCase sendPasswordChangeEmailUseCase;
+	private final DeleteMemberUseCase deleteMemberUseCase;
 	private final SecurityContextHelper securityContextHelper;
 
 	@Autowired
@@ -57,6 +61,7 @@ public class MemberController {
 		GetMemberTicketingSalesUseCase getMemberTicketingSalesUseCase,
 		GetMemberUseCase getMemberUseCase, GetMemberPurchasesUseCase getMemberPurchasesUseCase,
 		SendPasswordChangeEmailUseCase sendPasswordChangeEmailUseCase,
+		DeleteMemberUseCase deleteMemberUseCase,
 		SecurityContextHelper securityContextHelper) {
 		this.memberRegisterUseCase = memberRegisterUseCase;
 		this.chargeMemberPointUseCase = chargeMemberPointUseCase;
@@ -65,6 +70,7 @@ public class MemberController {
 		this.resetPasswordUseCase = resetPasswordUseCase;
 		this.getMemberPurchasesUseCase = getMemberPurchasesUseCase;
 		this.sendPasswordChangeEmailUseCase = sendPasswordChangeEmailUseCase;
+		this.deleteMemberUseCase = deleteMemberUseCase;
 		this.securityContextHelper = securityContextHelper;
 	}
 
@@ -131,5 +137,17 @@ public class MemberController {
 		var result = getMemberUseCase.get(GetMemberCommandDto.builder().memberEmail(email).build());
 		var responseBody = ApiResponse.wrap(GetMemberResponseDto.convertFromDto(result));
 		return ResponseEntity.status(HttpStatus.OK).body(responseBody);
+	}
+
+	@DeleteMapping(path = "/{memberId}")
+	public ResponseEntity<?> deleteMember(@PathVariable UUID memberId) {
+		var email = securityContextHelper.getEmailInToken();
+		deleteMemberUseCase.deleteMember(
+			DeleteMemberCommandDto.builder()
+				.memberId(memberId)
+				.email(email)
+				.build()
+		);
+		return ResponseEntity.ok().build();
 	}
 }
