@@ -14,7 +14,7 @@ import lombok.ToString;
 public class DeleteMemberCommandDto {
 	private final UUID memberId;
 	private final String email;
-	private LocalDateTime commandCreatedAt;
+	private LocalDateTime commandCreatedAt = LocalDateTime.now();
 
 	@Builder
 	public DeleteMemberCommandDto(UUID memberId, String email, LocalDateTime commandCreatedAt) {

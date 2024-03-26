@@ -27,9 +27,9 @@ public class DeleteMemberUseCase {
 
 	@Transactional
 	public void deleteMember(DeleteMemberCommandDto command) {
-		var member = memberRepository.findById(command.getMemberId()).orElseThrow(MemberNotFoundException::new);
+		var member = memberRepository.findByEmail(command.getEmail()).orElseThrow(MemberNotFoundException::new);
 
-		if (!member.getEmail().equals(command.getEmail())) {
+		if (!member.getId().equals(command.getMemberId())) {
 			throw new MemberIdAndAuthNotMatchedException();
 		}
 
