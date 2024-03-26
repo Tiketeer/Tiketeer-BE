@@ -18,35 +18,11 @@ import jakarta.annotation.Nullable;
 
 @Component
 public class RequestMatcherHolder {
-	private final ConcurrentHashMap<String, RequestMatcher> reqMatcherCacheMap = new ConcurrentHashMap<>();
-
-	/**
-	 * if role == null, return permitAll Path
-	 */
-	public RequestMatcher getRequestMatchersByMinRole(@Nullable RoleEnum minRole) {
-		var key = getKeyByRole(minRole);
-		if (!reqMatcherCacheMap.containsKey(key)) {
-			var requestMatcherByMinRole = new OrRequestMatcher(REQUEST_INFO_LIST.stream()
-				.filter(reqInfo -> Objects.equals(reqInfo.minRole(), minRole))
-				.map(reqInfo -> new AntPathRequestMatcher(reqInfo.pattern(), reqInfo.method().name()))
-				.toArray(AntPathRequestMatcher[]::new));
-			reqMatcherCacheMap.put(key, requestMatcherByMinRole);
-		}
-		return reqMatcherCacheMap.get(key);
-	}
-
-	private String getKeyByRole(@Nullable RoleEnum minRole) {
-		if (minRole == null) {
-			return "VISITOR";
-		}
-		return minRole.name();
-	}
-
 	private static final List<RequestInfo> REQUEST_INFO_LIST = List.of(
 		// member
 		new RequestInfo(POST, "/members/register", null),
 		new RequestInfo(POST, "/members/password-reset/mail", RoleEnum.BUYER),
-		new RequestInfo(PUT, "/members/password", RoleEnum.BUYER),
+		new RequestInfo(PUT, "/members/password", null),
 		new RequestInfo(DELETE, "/members/*", RoleEnum.BUYER),
 		new RequestInfo(GET, "/members/*", RoleEnum.BUYER),
 		new RequestInfo(GET, "/members", RoleEnum.BUYER),
@@ -74,6 +50,29 @@ public class RequestMatcherHolder {
 		new RequestInfo(GET, "/swagger-ui.html", null),
 		new RequestInfo(GET, "/swagger-ui/**", null)
 	);
+	private final ConcurrentHashMap<String, RequestMatcher> reqMatcherCacheMap = new ConcurrentHashMap<>();
+
+	/**
+	 * if role == null, return permitAll Path
+	 */
+	public RequestMatcher getRequestMatchersByMinRole(@Nullable RoleEnum minRole) {
+		var key = getKeyByRole(minRole);
+		if (!reqMatcherCacheMap.containsKey(key)) {
+			var requestMatcherByMinRole = new OrRequestMatcher(REQUEST_INFO_LIST.stream()
+				.filter(reqInfo -> Objects.equals(reqInfo.minRole(), minRole))
+				.map(reqInfo -> new AntPathRequestMatcher(reqInfo.pattern(), reqInfo.method().name()))
+				.toArray(AntPathRequestMatcher[]::new));
+			reqMatcherCacheMap.put(key, requestMatcherByMinRole);
+		}
+		return reqMatcherCacheMap.get(key);
+	}
+
+	private String getKeyByRole(@Nullable RoleEnum minRole) {
+		if (minRole == null) {
+			return "VISITOR";
+		}
+		return minRole.name();
+	}
 
 	private record RequestInfo(HttpMethod method, String pattern, RoleEnum minRole) {
 	}
