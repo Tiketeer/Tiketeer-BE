@@ -50,8 +50,7 @@ class EmailServiceTest {
 		var viewStrategy = AuthenticateEmailViewStrategy.builder()
 			.email("tiketest@gmail.com")
 			.otp(UUID.randomUUID())
-			.baseUrl("http://mockUrl")
-			.port("9999")
+			.baseUrl("http://mockUrl:9999")
 			.build();
 
 		// when

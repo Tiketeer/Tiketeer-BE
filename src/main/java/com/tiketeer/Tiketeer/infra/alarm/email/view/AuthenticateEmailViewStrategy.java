@@ -10,21 +10,18 @@ public class AuthenticateEmailViewStrategy implements EmailViewStrategy {
 	private final String email;
 	private final UUID otp;
 	private final String baseUrl;
-	private final String port;
 
 	@Builder
-	public AuthenticateEmailViewStrategy(String email, UUID otp, String baseUrl, String port) {
+	public AuthenticateEmailViewStrategy(String email, UUID otp, String baseUrl) {
 		this.email = email;
 		this.otp = otp;
 		this.baseUrl = baseUrl;
-		this.port = port;
 	}
 
 	@Override
 	public String createView() {
 		var url =
 			UriComponentsBuilder.fromHttpUrl(baseUrl)
-				.port(port)
 				.path("/confirm/email")
 				.queryParam("otp", otp)
 				.queryParam("email", email)

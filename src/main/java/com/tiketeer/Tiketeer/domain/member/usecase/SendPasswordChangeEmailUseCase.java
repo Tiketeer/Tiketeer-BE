@@ -22,7 +22,6 @@ public class SendPasswordChangeEmailUseCase {
 	private final OtpRepository otpRepository;
 	private final EmailService emailService;
 	private final String baseUrl;
-	private final String port;
 	private static final String PASSWORD_CHANGE_EMAIL_TITLE = "[tiketeer] 비밀번호 변경";
 
 	@Autowired
@@ -30,14 +29,12 @@ public class SendPasswordChangeEmailUseCase {
 		MemberRepository memberRepository,
 		OtpRepository otpRepository,
 		EmailService emailService,
-		@Value("${custom.service.baseUrl}") String baseUrl,
-		@Value("${server.port}") String port
+		@Value("${custom.service.baseUrl}") String baseUrl
 	) {
 		this.memberRepository = memberRepository;
 		this.otpRepository = otpRepository;
 		this.emailService = emailService;
 		this.baseUrl = baseUrl;
-		this.port = port;
 	}
 
 	@Transactional
@@ -70,7 +67,6 @@ public class SendPasswordChangeEmailUseCase {
 			.email(email)
 			.otp(otp)
 			.baseUrl(baseUrl)
-			.port(port)
 			.build();
 		emailService.sendEmail(email, PASSWORD_CHANGE_EMAIL_TITLE, emailViewStrategy);
 	}
