@@ -1,7 +1,6 @@
 package com.tiketeer.Tiketeer.domain.member.usecase;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -14,7 +13,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.Otp;
-import com.tiketeer.Tiketeer.domain.member.exception.MemberIdAndAuthNotMatchedException;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.SendPwdChangeEmailCommandDto;
@@ -41,13 +39,12 @@ public class SendPasswordChangeEmailUseCaseTest {
 	}
 
 	@Test
-	@DisplayName("존재하지 않은 멤버 ID > 비밀번호 변경 메일 전송 요청 > 실패")
+	@DisplayName("존재하지 않은 멤버 이메일 > 비밀번호 변경 메일 전송 요청 > 실패")
 	void sendEmailFailBecauseMemberNotFound() {
 		// given
-		var invalidMemberId = UUID.randomUUID();
+		var invalidEmail = "test@test.com";
 		var command = SendPwdChangeEmailCommandDto.builder()
-			.memberId(invalidMemberId)
-			.email("test@test.com")
+			.email(invalidEmail)
 			.build();
 
 		Assertions.assertThatThrownBy(() -> {
@@ -55,25 +52,6 @@ public class SendPasswordChangeEmailUseCaseTest {
 			sendPasswordChangeEmailUseCase.sendEmail(command);
 			// then
 		}).isInstanceOf(MemberNotFoundException.class);
-	}
-
-	@Test
-	@DisplayName("이메일과 멤버 ID가 매칭이 되지 않음 > 비밀번호 변경 메일 전송 요청 > 실패")
-	void sendEmailFailBecauseMemberIdAndAuthNotMatched() {
-		// given
-		var email = "test@test.com";
-		var memberId = testHelper.createMember(email).getId();
-
-		var command = SendPwdChangeEmailCommandDto.builder()
-			.memberId(memberId)
-			.email("test2@test.com")
-			.build();
-
-		Assertions.assertThatThrownBy(() -> {
-			// when
-			sendPasswordChangeEmailUseCase.sendEmail(command);
-			// then
-		}).isInstanceOf(MemberIdAndAuthNotMatchedException.class);
 	}
 
 	@Test
@@ -88,7 +66,6 @@ public class SendPasswordChangeEmailUseCaseTest {
 		Assertions.assertThat(otpRepository.findById(otpAlreadyExist.getPassword()).isPresent()).isTrue();
 		var command = SendPwdChangeEmailCommandDto.builder()
 			.email(email)
-			.memberId(member.getId())
 			.build();
 
 		// when
@@ -113,7 +90,6 @@ public class SendPasswordChangeEmailUseCaseTest {
 
 		var command = SendPwdChangeEmailCommandDto.builder()
 			.email(email)
-			.memberId(member.getId())
 			.commandCreatedAt(now)
 			.build();
 

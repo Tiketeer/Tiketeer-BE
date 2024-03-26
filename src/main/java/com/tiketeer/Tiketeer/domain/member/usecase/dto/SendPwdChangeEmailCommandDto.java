@@ -12,13 +12,11 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor(force = true)
 public class SendPwdChangeEmailCommandDto {
-	private final UUID memberId;
 	private final String email;
 	private LocalDateTime commandCreatedAt = LocalDateTime.now();
 
 	@Builder
 	public SendPwdChangeEmailCommandDto(UUID memberId, String email, LocalDateTime commandCreatedAt) {
-		this.memberId = memberId;
 		this.email = email;
 		if (commandCreatedAt != null) {
 			this.commandCreatedAt = commandCreatedAt;

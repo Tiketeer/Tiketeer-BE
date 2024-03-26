@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
-import com.tiketeer.Tiketeer.domain.member.exception.MemberIdAndAuthNotMatchedException;
 import com.tiketeer.Tiketeer.domain.member.exception.MemberNotFoundException;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
@@ -43,11 +42,7 @@ public class SendPasswordChangeEmailUseCase {
 
 	@Transactional
 	public void sendEmail(SendPwdChangeEmailCommandDto command) {
-		var member = memberRepository.findById(command.getMemberId()).orElseThrow(MemberNotFoundException::new);
-
-		if (!member.getEmail().equals(command.getEmail())) {
-			throw new MemberIdAndAuthNotMatchedException();
-		}
+		var member = memberRepository.findByEmail(command.getEmail()).orElseThrow(MemberNotFoundException::new);
 
 		deleteOtpWithMember(member);
 

@@ -83,10 +83,10 @@ public class MemberController {
 	}
 
 	@PostMapping(path = "/password-reset/mail")
-	public ResponseEntity sendPasswordChangeEmail(@PathVariable UUID memberId) {
+	public ResponseEntity sendPasswordChangeEmail() {
 		var email = securityContextHelper.getEmailInToken();
 		sendPasswordChangeEmailUseCase.sendEmail(
-			SendPwdChangeEmailCommandDto.builder().email(email).memberId(memberId).build());
+			SendPwdChangeEmailCommandDto.builder().email(email).build());
 		return ResponseEntity.ok().build();
 	}
 
