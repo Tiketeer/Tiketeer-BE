@@ -12,7 +12,7 @@ public class PasswordValidator implements ConstraintValidator<ValidPassword, Str
 	}
 
 	private static final String PASSWORD_PATTERN =
-		"^(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,16}$";
+		"^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!#%*?&]{8,16}$";
 
 	private final Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
 
