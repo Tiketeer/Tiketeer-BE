@@ -28,7 +28,7 @@ import lombok.ToString;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "refresh_token")
+@Table(name = "refresh_tokens")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @ToString
