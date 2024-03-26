@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 import org.assertj.core.api.Assertions;
@@ -33,6 +34,8 @@ import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.GetAllTicketingsResponseDto;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.GetTicketingResponseDto;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.CreateTicketingUseCase;
+import com.tiketeer.Tiketeer.domain.ticketing.usecase.dto.CreateTicketingCommandDto;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 import com.tiketeer.Tiketeer.testhelper.TestHelper;
 
@@ -54,14 +57,16 @@ public class TicketingControllerTest {
 	private TicketRepository ticketRepository;
 	@Autowired
 	private ObjectMapper objectMapper;
+	@Autowired
+	private CreateTicketingUseCase createTicketingUseCase;
 
 	@BeforeEach
-	void initDB() {
+	void initTable() {
 		testHelper.initDB();
 	}
 
 	@AfterEach
-	void cleanDB() {
+	void cleanTable() {
 		testHelper.cleanDB();
 	}
 
@@ -92,7 +97,6 @@ public class TicketingControllerTest {
 		IntStream.range(0, ticketCnt).forEach(idx -> {
 			Assertions.assertThat(ticketings.get(idx).getTitle()).isEqualTo(idx + "");
 		});
-
 	}
 
 	@Test
@@ -123,6 +127,16 @@ public class TicketingControllerTest {
 		Assertions.assertThat(ticketing.getOwner()).isEqualTo(member.getEmail());
 	}
 
+	@Test
+	@DisplayName("정상 컨디션 > 티케팅 생성 요청 > 성공")
+	void postTicketingSuccess() throws Exception {
+		// given
+		var email = "test@test.com";
+		var accessToken = testHelper.registerAndLoginAndReturnAccessToken(email, RoleEnum.SELLER);
+		// when
+		// then
+	}
+
 	private List<Ticketing> createTicketings(Member member, int count) {
 		List<String> titles = new ArrayList<>(count);
 		for (int i = 0; i < count; i++) {
@@ -148,5 +162,20 @@ public class TicketingControllerTest {
 		return ticketRepository.saveAll(Arrays.stream(new int[stock])
 			.mapToObj(i -> Ticket.builder().ticketing(ticketing).build())
 			.toList());
+	}
+
+	private CreateTicketingCommandDto createCreateTicketingCommand(String email) {
+		var now = LocalDateTime.now();
+		return CreateTicketingCommandDto.builder()
+			.memberEmail(email)
+			.title("타이틀" + UUID.randomUUID())
+			.price(1000L)
+			.category("카테고리")
+			.location("서울")
+			.stock(5)
+			.runningMinutes(100)
+			.saleStart(now.plusYears(1))
+			.saleEnd(now.plusYears(2))
+			.eventTime(now.plusYears(3)).build();
 	}
 }
