@@ -13,7 +13,7 @@
   DB_DATABASE= # DB database name
   DB_PASSWORD= # DB Password
   ```
-  
+
 - application.yml 추가
   ```yml
   # src/main/resources/application.yml
@@ -58,6 +58,7 @@
   jwt:
         secret-key: ${SECRET_KEY}
         access-key-expiration-ms: ${ACCESS_KEY_EXPIRATION}
+        refresh-key-expiration-ms: ${ACCESS_KEY_EXPIRATION}
   
   custom:
     service:

@@ -9,4 +9,3 @@ public class SecurityContextHelper {
 		return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
 	}
 }
-

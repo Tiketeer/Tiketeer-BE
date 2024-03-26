@@ -6,10 +6,12 @@ import com.tiketeer.Tiketeer.domain.member.usecase.dto.ChargePointCommandDto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @ToString
+@NoArgsConstructor(force = true)
 public class ChargePointRequestDto {
 	private final Long pointForCharge;
 

@@ -1,6 +1,9 @@
-package com.tiketeer.Tiketeer.domain.member.service;
+package com.tiketeer.Tiketeer.domain.member.usecase;
 
 import static org.assertj.core.api.Assertions.*;
+
+import java.time.LocalDateTime;
+import java.time.Period;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -11,10 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
-import com.tiketeer.Tiketeer.auth.jwt.JwtPayload;
+import com.tiketeer.Tiketeer.auth.jwt.AccessTokenPayload;
 import com.tiketeer.Tiketeer.auth.jwt.JwtService;
+import com.tiketeer.Tiketeer.auth.jwt.RefreshTokenPayload;
+import com.tiketeer.Tiketeer.domain.member.RefreshToken;
 import com.tiketeer.Tiketeer.domain.member.exception.InvalidLoginException;
-import com.tiketeer.Tiketeer.domain.member.usecase.LoginUseCase;
+import com.tiketeer.Tiketeer.domain.member.repository.RefreshTokenRepository;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginResultDto;
 import com.tiketeer.Tiketeer.domain.role.constant.RoleEnum;
@@ -25,6 +30,8 @@ import com.tiketeer.Tiketeer.testhelper.TestHelper;
 class LoginUseCaseTest {
 	@Autowired
 	private TestHelper testHelper;
+	@Autowired
+	private RefreshTokenRepository refreshTokenRepository;
 	@Autowired
 	private LoginUseCase loginUseCase;
 	@Autowired
@@ -54,9 +61,22 @@ class LoginUseCaseTest {
 		LoginResultDto loginResult = loginUseCase.login(command);
 
 		//then
-		JwtPayload jwtPayload = jwtService.verifyToken(loginResult.getAccessToken());
-		assertThat(jwtPayload.email()).isEqualTo("user@example.com");
-		assertThat(jwtPayload.roleEnum()).isEqualTo(RoleEnum.BUYER);
+		AccessTokenPayload accessTokenPayload = jwtService.createAccessTokenPayload(
+			jwtService.verifyToken(loginResult.getAccessToken()));
+		assertThat(accessTokenPayload.email()).isEqualTo("user@example.com");
+		assertThat(accessTokenPayload.roleEnum()).isEqualTo(RoleEnum.BUYER);
+
+		RefreshTokenPayload refreshTokenPayload = jwtService.createRefreshTokenPayload(
+			jwtService.verifyToken(loginResult.getRefreshToken()));
+
+		RefreshToken refreshToken = refreshTokenRepository.findAll().getFirst();
+
+		assertThat(refreshToken).isNotNull();
+		assertThat(refreshTokenPayload.tokenId()).isEqualTo(refreshToken.getId().toString());
+		assertThat(
+			Period.between(LocalDateTime.now().toLocalDate(), refreshToken.getExpiredAt().toLocalDate())
+				.getDays()).isEqualTo(
+			7);
 	}
 
 	@Test

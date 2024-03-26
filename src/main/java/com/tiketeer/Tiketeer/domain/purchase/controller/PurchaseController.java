@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tiketeer.Tiketeer.auth.SecurityContextHelper;
 import com.tiketeer.Tiketeer.domain.purchase.controller.dto.DeletePurchaseTicketsRequestDto;
 import com.tiketeer.Tiketeer.domain.purchase.controller.dto.PostPurchaseRequestDto;
 import com.tiketeer.Tiketeer.domain.purchase.controller.dto.PostPurchaseResponseDto;
@@ -26,27 +27,29 @@ import jakarta.validation.Valid;
 public class PurchaseController {
 	private final CreatePurchaseUseCase createPurchaseUseCase;
 	private final DeletePurchaseTicketsUseCase deletePurchaseTicketsUseCase;
+	private final SecurityContextHelper securityContextHelper;
 
 	@Autowired
 	PurchaseController(CreatePurchaseUseCase createPurchaseUseCase,
-		DeletePurchaseTicketsUseCase deletePurchaseTicketsUseCase) {
+		DeletePurchaseTicketsUseCase deletePurchaseTicketsUseCase, SecurityContextHelper securityContextHelper) {
 		this.createPurchaseUseCase = createPurchaseUseCase;
 		this.deletePurchaseTicketsUseCase = deletePurchaseTicketsUseCase;
+		this.securityContextHelper = securityContextHelper;
 	}
 
-	@PostMapping("/")
+	@PostMapping
 	public ResponseEntity<ApiResponse<PostPurchaseResponseDto>> postPurchase(
 		@Valid @RequestBody PostPurchaseRequestDto request) {
-		var memberEmail = "mock@mock.com";
+		var memberEmail = securityContextHelper.getEmailInToken();
 		var result = createPurchaseUseCase.createPurchase(request.convertToDto(memberEmail));
 		var responseBody = ApiResponse.wrap(PostPurchaseResponseDto.converFromDto(result));
 		return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
 	}
 
 	@DeleteMapping("/{purchaseId}/tickets")
-	public ResponseEntity deletePurchaseTickets(@PathVariable UUID purchaseId, @Valid @RequestBody
-	DeletePurchaseTicketsRequestDto request) {
-		var memberEmail = "mock@mock.com";
+	public ResponseEntity<?> deletePurchaseTickets(@PathVariable UUID purchaseId,
+		@Valid @RequestBody DeletePurchaseTicketsRequestDto request) {
+		var memberEmail = securityContextHelper.getEmailInToken();
 		deletePurchaseTicketsUseCase.deletePurchaseTickets(request.convertToDto(memberEmail, purchaseId));
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}

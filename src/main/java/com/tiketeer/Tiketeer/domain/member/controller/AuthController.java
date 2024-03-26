@@ -11,10 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tiketeer.Tiketeer.auth.constant.JwtMetadata;
-import com.tiketeer.Tiketeer.domain.member.constant.CookieConfig;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.LoginRequestDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.LoginResponseDto;
 import com.tiketeer.Tiketeer.domain.member.controller.dto.SetPasswordWithOtpRequestDto;
@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
+@RequestMapping("/auth")
 public class AuthController {
 	private final InitPasswordWithOtpUseCase initPasswordWithOtp;
 	private final RefreshAccessTokenUseCase refreshAccessToken;
@@ -42,6 +43,9 @@ public class AuthController {
 
 	@Value("${jwt.access-key-expiration-ms}")
 	private long accessKeyExpirationInMs;
+
+	@Value("${server.servlet.context-path}")
+	private String contextPath;
 
 	@Autowired
 	public AuthController(InitPasswordWithOtpUseCase initPasswordWithOtp, RefreshAccessTokenUseCase refreshAccessToken,
@@ -63,7 +67,7 @@ public class AuthController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PostMapping(path = "/auth/login")
+	@PostMapping(path = "/login")
 	public ResponseEntity<ApiResponse<LoginResponseDto>> login(@Valid @RequestBody final LoginRequestDto request) {
 		LoginResultDto loginResult = loginUseCase.login(request.toCommand());
 		log.info("user {} logged in", request.getEmail());
@@ -71,16 +75,18 @@ public class AuthController {
 		var responseBody = ApiResponse.wrap(LoginResultDto.convertFromDto(loginResult));
 
 		return ResponseEntity.status(HttpStatus.OK)
-			.header(HttpHeaders.SET_COOKIE, createCookie(loginResult).toString())
+			.header(HttpHeaders.SET_COOKIE, createCookie(loginResult.getAccessToken()).toString())
+			.header(HttpHeaders.AUTHORIZATION, "Bearer " + loginResult.getRefreshToken())
 			.body(responseBody);
-
 	}
 
-	private ResponseCookie createCookie(LoginResultDto loginResult) {
-		return ResponseCookie.from(JwtMetadata.ACCESS_TOKEN, loginResult.getAccessToken())
+	private ResponseCookie createCookie(String accessToken) {
+		return ResponseCookie.from(JwtMetadata.ACCESS_TOKEN, accessToken)
 			.httpOnly(true)
 			.secure(true)
 			.maxAge(Duration.ofMillis(accessKeyExpirationInMs))
+			.path(contextPath)
+			.sameSite("Strict")
 			.build();
 	}
 
@@ -92,11 +98,9 @@ public class AuthController {
 		RefreshAccessTokenResultDto refreshAccessTokenResultDto = refreshAccessToken.refresh(
 			RefreshAccessTokenCommandDto.builder().refreshToken(refreshToken).build());
 
-		Cookie cookie = setCookie(JwtMetadata.ACCESS_TOKEN, refreshAccessTokenResultDto.getAccessToken(),
-			new CookieOptions(true, "/", CookieConfig.MAX_AGE));
-		response.addCookie(cookie);
-
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok()
+			.header(HttpHeaders.SET_COOKIE, createCookie(refreshAccessTokenResultDto.getAccessToken()).toString())
+			.build();
 	}
 
 	private String getRefreshToken(String authorizationHeader) {

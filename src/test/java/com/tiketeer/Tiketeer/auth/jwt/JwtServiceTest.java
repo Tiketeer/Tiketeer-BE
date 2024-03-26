@@ -26,19 +26,15 @@ import io.jsonwebtoken.security.SignatureException;
 @DisplayName("JWT Service Test")
 class JwtServiceTest {
 
-	@Autowired
-	private JwtService jwtService;
-
 	private final SecretKey secretKey;
-
-	@Value("${spring.application.name}")
-	private String issuer;
-
-	@Value("${jwt.access-key-expiration-ms}")
-	private long accessKeyExpirationInMs;
-
 	private final String email = "tiketeer@gmail.com";
 	private final RoleEnum roleEnum = RoleEnum.BUYER;
+	@Autowired
+	private JwtService jwtService;
+	@Value("${spring.application.name}")
+	private String issuer;
+	@Value("${jwt.access-key-expiration-ms}")
+	private long accessKeyExpirationInMs;
 
 	public JwtServiceTest(@Value("${jwt.secret-key}") String secretKey) {
 		this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
@@ -54,10 +50,10 @@ class JwtServiceTest {
 	void createTokenSuccess() {
 		//given
 		Date issueDate = new Date(System.currentTimeMillis());
-		JwtPayload jwtPayload = new JwtPayload(email, roleEnum, issueDate);
+		AccessTokenPayload jwtPayload = new AccessTokenPayload(email, roleEnum, issueDate);
 
 		//when
-		String accessToken = jwtService.createToken(jwtPayload);
+		String accessToken = jwtService.createAccessToken(jwtPayload);
 		assertThat(accessToken).isNotNull();
 
 		Claims payload = Jwts.parser()
@@ -79,11 +75,12 @@ class JwtServiceTest {
 	void verifyTokenSuccess() {
 		//given
 		Date issueDate = new Date(System.currentTimeMillis());
-		JwtPayload jwtPayload = new JwtPayload(email, roleEnum, issueDate);
+		AccessTokenPayload jwtPayload = new AccessTokenPayload(email, roleEnum, issueDate);
 
 		//when
-		String accessToken = jwtService.createToken(jwtPayload);
-		JwtPayload decodedJwtPayload = jwtService.verifyToken(accessToken);
+		String accessToken = jwtService.createAccessToken(jwtPayload);
+		Claims claims = jwtService.verifyToken(accessToken);
+		AccessTokenPayload decodedJwtPayload = jwtService.createAccessTokenPayload(claims);
 
 		//then
 		Assertions.assertThat(decodedJwtPayload.email()).isEqualTo(email);
@@ -94,7 +91,7 @@ class JwtServiceTest {
 	void verifyTokenFailBadSecretKey() {
 		//given
 		Date issueDate = new Date(System.currentTimeMillis());
-		JwtPayload jwtPayload = new JwtPayload(email, roleEnum, issueDate);
+		AccessTokenPayload jwtPayload = new AccessTokenPayload(email, roleEnum, issueDate);
 
 		//when
 		String accessToken = Jwts.builder()
@@ -115,7 +112,7 @@ class JwtServiceTest {
 	void verifyTokenFailExpired() {
 		//given
 		Date issueDate = new Date(System.currentTimeMillis());
-		JwtPayload jwtPayload = new JwtPayload(email, roleEnum, issueDate);
+		AccessTokenPayload jwtPayload = new AccessTokenPayload(email, roleEnum, issueDate);
 
 		//when
 		String accessToken = Jwts.builder()

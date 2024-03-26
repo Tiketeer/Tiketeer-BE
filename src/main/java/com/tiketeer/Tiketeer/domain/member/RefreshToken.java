@@ -15,7 +15,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -24,37 +24,38 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "otps")
+@Table(name = "refresh_tokens")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
-public class Otp {
+@ToString
+public class RefreshToken {
 	@Id
 	@UuidGenerator
-	@Column(name = "password", nullable = false, updatable = false)
-	private UUID password;
+	@Column(name = "refresh_token_id", nullable = false, updatable = false)
+	private UUID id;
+
+	@Setter
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "member_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	private Member member;
 
 	@CreatedDate
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;
 
+	@Setter
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "expired_at", nullable = false)
 	private LocalDateTime expiredAt;
 
-	@OneToOne(fetch = FetchType.LAZY)
-	@Setter
-	@JoinColumn(name = "member_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-	private Member member;
-
 	@Builder
-	public Otp(LocalDateTime expiredAt, Member member) {
-		this.expiredAt = expiredAt;
+	public RefreshToken(Member member, LocalDateTime expiredAt) {
 		this.member = member;
+		this.expiredAt = expiredAt;
 	}
-
-	public static final int OTP_VALID_MINUTE = 30;
 }

@@ -42,17 +42,19 @@ dependencies {
 	testRuntimeOnly 'com.h2database:h2'
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-mysql'
-	
+
 	// Util
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
 	ext {
 		JJWT_VERSION = "0.12.5"
 	}
 	implementation "io.jsonwebtoken:jjwt-api:${JJWT_VERSION}"
 	runtimeOnly "io.jsonwebtoken:jjwt-gson:${JJWT_VERSION}"
 	runtimeOnly "io.jsonwebtoken:jjwt-impl:${JJWT_VERSION}"
-
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	// ETC
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 

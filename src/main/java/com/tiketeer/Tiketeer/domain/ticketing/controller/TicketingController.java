@@ -63,6 +63,7 @@ public class TicketingController {
 	public ResponseEntity<ApiResponse<GetTicketingResponseDto>> getTicketing(@PathVariable UUID ticketingId) {
 		var result = ticketingService.getTickting(
 			GetTicketingCommandDto.builder().ticketingId(ticketingId).build());
+
 		var responseBody = ApiResponse.wrap(GetTicketingResponseDto.convertFromDto(result));
 		return ResponseEntity.status(HttpStatus.OK).body(responseBody);
 	}

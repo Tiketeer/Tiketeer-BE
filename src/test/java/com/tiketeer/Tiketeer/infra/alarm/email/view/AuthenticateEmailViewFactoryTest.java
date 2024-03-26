@@ -36,7 +36,7 @@ class AuthenticateEmailViewFactoryTest {
 
 		// then
 		var url =
-			baseUrl + ":4080/confirm/email?otp=" + createEmailViewCommandDto.getOtp() + "&email="
+			baseUrl + "/confirm/email?otp=" + createEmailViewCommandDto.getOtp() + "&email="
 				+ createEmailViewCommandDto.getEmail();
 
 		var expected = "<!DOCTYPE html>"

@@ -16,8 +16,10 @@ import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
+import com.tiketeer.Tiketeer.domain.member.repository.RefreshTokenRepository;
 import com.tiketeer.Tiketeer.domain.member.usecase.LoginUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginResultDto;
 import com.tiketeer.Tiketeer.domain.purchase.repository.PurchaseRepository;
 import com.tiketeer.Tiketeer.domain.role.Permission;
 import com.tiketeer.Tiketeer.domain.role.Role;
@@ -30,6 +32,7 @@ import com.tiketeer.Tiketeer.domain.role.repository.RoleRepository;
 import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
 import com.tiketeer.Tiketeer.response.ApiResponse;
+import com.tiketeer.Tiketeer.testhelper.dto.TestLoginResultDto;
 
 @TestComponent
 public class TestHelper {
@@ -41,6 +44,7 @@ public class TestHelper {
 	private final PurchaseRepository purchaseRepository;
 	private final TicketRepository ticketRepository;
 	private final TicketingRepository ticketingRepository;
+	private final RefreshTokenRepository refreshTokenRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final LoginUseCase loginUseCase;
 	private final ObjectMapper objectMapper;
@@ -55,6 +59,7 @@ public class TestHelper {
 		PurchaseRepository purchaseRepository,
 		TicketRepository ticketRepository,
 		TicketingRepository ticketingRepository,
+		RefreshTokenRepository refreshTokenRepository,
 		PasswordEncoder passwordEncoder,
 		LoginUseCase loginUseCase,
 		ObjectMapper objectMapper
@@ -67,6 +72,7 @@ public class TestHelper {
 		this.purchaseRepository = purchaseRepository;
 		this.ticketRepository = ticketRepository;
 		this.ticketingRepository = ticketingRepository;
+		this.refreshTokenRepository = refreshTokenRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.loginUseCase = loginUseCase;
 		this.objectMapper = objectMapper;
@@ -97,6 +103,7 @@ public class TestHelper {
 			purchaseRepository,
 			ticketingRepository,
 			otpRepository,
+			refreshTokenRepository,
 			memberRepository,
 			rolePermissionRepository,
 			roleRepository,
@@ -118,6 +125,15 @@ public class TestHelper {
 	}
 
 	@Transactional
+	public TestLoginResultDto registerAndLoginAndReturnAccessTokenAndRefreshToken(String email, RoleEnum roleEnum) {
+		String password = "1q2w3e4r!!";
+		createMember(email, password, roleEnum);
+		LoginResultDto login = loginUseCase.login(LoginCommandDto.builder().email(email).password(password).build());
+
+		return new TestLoginResultDto(login.getAccessToken(), login.getRefreshToken(), login.getMember());
+	}
+
+	@Transactional
 	public Member createMember(String email) {
 		return createMember(email, "1q2w3e4r!!");
 	}
@@ -125,6 +141,11 @@ public class TestHelper {
 	@Transactional
 	public Member createMember(String email, String password) {
 		return createMember(email, password, RoleEnum.BUYER);
+	}
+
+	@Transactional
+	public Member createMember(String email, RoleEnum roleEnum) {
+		return createMember(email, "1q2w3e4r!!", roleEnum);
 	}
 
 	@Transactional
