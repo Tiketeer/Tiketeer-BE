@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -36,6 +38,8 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "members")
 @EntityListeners(AuditingEntityListener.class)
+@SQLDelete(sql = "UPDATE members SET deleted_at = now() WHERE id = ?")
+@SQLRestriction("deleted_at is null")
 @Getter
 @ToString
 public class Member {
@@ -81,6 +85,10 @@ public class Member {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "role_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	private Role role;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "deleted_at")
+	private LocalDateTime deletedAt;
 
 	@Builder
 	public Member(String email, String password, long point, boolean enabled, String profileUrl, Role role) {
