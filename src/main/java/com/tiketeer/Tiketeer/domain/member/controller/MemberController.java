@@ -29,10 +29,12 @@ import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberTicketingSalesUseCas
 import com.tiketeer.Tiketeer.domain.member.usecase.GetMemberUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.MemberRegisterUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.ResetPasswordUseCase;
+import com.tiketeer.Tiketeer.domain.member.usecase.SendPasswordChangeEmailUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberPurchasesCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberTicketingSalesCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.MemberRegisterCommandDto;
+import com.tiketeer.Tiketeer.domain.member.usecase.dto.SendPwdChangeEmailCommandDto;
 import com.tiketeer.Tiketeer.response.ApiResponse;
 
 import jakarta.validation.Valid;
@@ -42,13 +44,11 @@ import jakarta.validation.Valid;
 public class MemberController {
 	private final MemberRegisterUseCase memberRegisterUseCase;
 	private final ChargeMemberPointUseCase chargeMemberPointUseCase;
-
 	private final GetMemberTicketingSalesUseCase getMemberTicketingSalesUseCase;
-
 	private final GetMemberUseCase getMemberUseCase;
 	private final GetMemberPurchasesUseCase getMemberPurchasesUseCase;
-
 	private final ResetPasswordUseCase resetPasswordUseCase;
+	private final SendPasswordChangeEmailUseCase sendPasswordChangeEmailUseCase;
 	private final SecurityContextHelper securityContextHelper;
 
 	@Autowired
@@ -56,6 +56,7 @@ public class MemberController {
 		ChargeMemberPointUseCase chargeMemberPointUseCase, ResetPasswordUseCase resetPasswordUseCase,
 		GetMemberTicketingSalesUseCase getMemberTicketingSalesUseCase,
 		GetMemberUseCase getMemberUseCase, GetMemberPurchasesUseCase getMemberPurchasesUseCase,
+		SendPasswordChangeEmailUseCase sendPasswordChangeEmailUseCase,
 		SecurityContextHelper securityContextHelper) {
 		this.memberRegisterUseCase = memberRegisterUseCase;
 		this.chargeMemberPointUseCase = chargeMemberPointUseCase;
@@ -63,6 +64,7 @@ public class MemberController {
 		this.getMemberUseCase = getMemberUseCase;
 		this.resetPasswordUseCase = resetPasswordUseCase;
 		this.getMemberPurchasesUseCase = getMemberPurchasesUseCase;
+		this.sendPasswordChangeEmailUseCase = sendPasswordChangeEmailUseCase;
 		this.securityContextHelper = securityContextHelper;
 	}
 
@@ -76,6 +78,14 @@ public class MemberController {
 				.build()
 			))
 		);
+	}
+
+	@PostMapping(path = "/password-reset/mail")
+	public ResponseEntity sendPasswordChangeEmail() {
+		var email = securityContextHelper.getEmailInToken();
+		sendPasswordChangeEmailUseCase.sendEmail(
+			SendPwdChangeEmailCommandDto.builder().email(email).build());
+		return ResponseEntity.ok().build();
 	}
 
 	@PostMapping(path = "/{memberId}/points")

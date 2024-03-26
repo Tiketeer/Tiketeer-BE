@@ -50,7 +50,6 @@ import jakarta.servlet.http.Cookie;
 @SpringBootTest
 @AutoConfigureMockMvc
 class MemberControllerTest {
-
 	@Autowired
 	private MockMvc mockMvc;
 	@Autowired
@@ -225,6 +224,41 @@ class MemberControllerTest {
 	}
 
 	@Test
+	@DisplayName("유효하지 않은 액세스 토큰 내 이메일 > EP 요청 > NOT_FOUND")
+	@Transactional
+	void sendPasswordChangeEmailFailBecauseInvalidEmailInToken() throws Exception {
+		// given
+		var email = "test@test.com";
+		var accessToken = testHelper.registerAndLoginAndReturnAccessToken(email, RoleEnum.BUYER);
+		var member = memberRepository.findByEmail(email).orElseThrow();
+		memberRepository.delete(member);
+
+		// when
+		mockMvc.perform(
+				post("/api/members/password-reset/mail")
+					.contextPath("/api")
+					.cookie(new Cookie(JwtMetadata.ACCESS_TOKEN, accessToken))
+			)
+			// then
+			.andExpect(status().isNotFound());
+	}
+
+	@Test
+	@DisplayName("정상 컨디션 > 비밀번호 변경 메일 전송 요청 > 성공")
+	void sendPasswordChangeEmailSuccess() throws Exception {
+		// given
+		var email = "test@test.com";
+		var accessToken = testHelper.registerAndLoginAndReturnAccessToken(email, RoleEnum.BUYER);
+
+		// when
+		mockMvc.perform(
+			post("/api/members/password-reset/mail")
+				.cookie(new Cookie(JwtMetadata.ACCESS_TOKEN, accessToken))
+				.contextPath("/api")
+			// then
+		).andExpect(status().is2xxSuccessful());
+	}
+
 	@DisplayName("정상 조건 > 멤버 조회 > 성공")
 	void getMemberSuccess() throws Exception {
 		//given

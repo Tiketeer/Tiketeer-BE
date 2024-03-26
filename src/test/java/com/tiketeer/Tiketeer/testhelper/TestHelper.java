@@ -16,6 +16,7 @@ import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.Otp;
 import com.tiketeer.Tiketeer.domain.member.repository.MemberRepository;
 import com.tiketeer.Tiketeer.domain.member.repository.OtpRepository;
+import com.tiketeer.Tiketeer.domain.member.repository.RefreshTokenRepository;
 import com.tiketeer.Tiketeer.domain.member.usecase.LoginUseCase;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginCommandDto;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.LoginResultDto;
@@ -43,6 +44,7 @@ public class TestHelper {
 	private final PurchaseRepository purchaseRepository;
 	private final TicketRepository ticketRepository;
 	private final TicketingRepository ticketingRepository;
+	private final RefreshTokenRepository refreshTokenRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final LoginUseCase loginUseCase;
 	private final ObjectMapper objectMapper;
@@ -57,6 +59,7 @@ public class TestHelper {
 		PurchaseRepository purchaseRepository,
 		TicketRepository ticketRepository,
 		TicketingRepository ticketingRepository,
+		RefreshTokenRepository refreshTokenRepository,
 		PasswordEncoder passwordEncoder,
 		LoginUseCase loginUseCase,
 		ObjectMapper objectMapper
@@ -69,6 +72,7 @@ public class TestHelper {
 		this.purchaseRepository = purchaseRepository;
 		this.ticketRepository = ticketRepository;
 		this.ticketingRepository = ticketingRepository;
+		this.refreshTokenRepository = refreshTokenRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.loginUseCase = loginUseCase;
 		this.objectMapper = objectMapper;
@@ -99,6 +103,7 @@ public class TestHelper {
 			purchaseRepository,
 			ticketingRepository,
 			otpRepository,
+			refreshTokenRepository,
 			memberRepository,
 			rolePermissionRepository,
 			roleRepository,
