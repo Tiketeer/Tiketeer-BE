@@ -38,7 +38,7 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "members")
 @EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = "UPDATE members SET deleted_at = now() WHERE id = ?")
+@SQLDelete(sql = "UPDATE members SET deleted_at = now() WHERE member_id = ?")
 @SQLRestriction("deleted_at is null")
 @Getter
 @ToString
