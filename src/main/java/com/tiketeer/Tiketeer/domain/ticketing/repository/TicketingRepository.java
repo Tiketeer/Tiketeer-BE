@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.tiketeer.Tiketeer.domain.member.Member;
 import com.tiketeer.Tiketeer.domain.member.usecase.dto.GetMemberTicketingSalesResultDto;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 
@@ -25,6 +26,7 @@ public interface TicketingRepository extends JpaRepository<Ticketing, UUID> {
 		where t.member.email = :email
 		"""
 	)
-	public List<GetMemberTicketingSalesResultDto> findTicketingWithTicketStock(@Param("email") String email);
+	List<GetMemberTicketingSalesResultDto> findTicketingWithTicketStock(@Param("email") String email);
 
+	List<Ticketing> findAllByMember(Member member);
 }

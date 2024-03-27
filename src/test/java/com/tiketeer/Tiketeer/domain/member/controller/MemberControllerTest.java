@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
@@ -363,5 +364,105 @@ class MemberControllerTest {
 		Assertions.assertThat(findPurchase2.getFirst().getTitle()).isEqualTo(ticketing2.getTitle());
 		Assertions.assertThat(findPurchase1.getFirst().getCount()).isEqualTo(2);
 		Assertions.assertThat(findPurchase2.getFirst().getCount()).isEqualTo(1);
+	}
+
+	@Test
+	@DisplayName("존재하지 않는 멤버 > 삭제 요청 > NOT_FOUND")
+	void deleteMemberFailBecauseNotExistMember() throws Exception {
+		// given
+		var email = "test@test.com";
+		var accessToken = testHelper.registerAndLoginAndReturnAccessToken(email, RoleEnum.BUYER);
+		var member = memberRepository.findByEmail(email).orElseThrow();
+		memberRepository.delete(member);
+		Assertions.assertThat(memberRepository.findByEmail(email).isPresent()).isFalse();
+
+		// when
+		mockMvc.perform(
+				delete("/api/members/" + member.getId())
+					.contextPath("/api")
+					.cookie(new Cookie(JwtMetadata.ACCESS_TOKEN, accessToken))
+			)
+			// then
+			.andExpect(status().isNotFound());
+	}
+
+	@Test
+	@DisplayName("토큰의 메일과 PathVariable이 불일치 > 멤버 삭제 요청 > FORBIDDEN")
+	void deleteMemberFailBecauseMemberIdAndAuthNotMatched() throws Exception {
+		// given
+		var email = "test@test.com";
+		var accessToken = testHelper.registerAndLoginAndReturnAccessToken(email, RoleEnum.BUYER);
+		var memberId = memberRepository.findByEmail(email).orElseThrow().getId();
+
+		// when
+		mockMvc.perform(
+			delete("/api/members/" + UUID.randomUUID())
+				.contextPath("/api")
+				.cookie(new Cookie(JwtMetadata.ACCESS_TOKEN, accessToken))
+			// then
+		).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	@DisplayName("종료되지 않은 티케팅이 존재 > 판매자 삭제 요청 > FORBIDDEN")
+	@Transactional
+	void deleteMemberFailBecauseNonFulfilledEventExist() throws Exception {
+		// given
+		var now = LocalDateTime.now();
+		var email = "test@test.com";
+		var accessToken = testHelper.registerAndLoginAndReturnAccessToken(email, RoleEnum.SELLER);
+		var member = memberRepository.findByEmail(email).orElseThrow();
+		ticketingRepository.save(Ticketing.builder()
+			.member(member)
+			.category("카테고리")
+			.price(10000)
+			.title("제목")
+			.saleStart(now)
+			.saleEnd(now.plusDays(7))
+			.eventTime(now.plusYears(1))
+			.runningMinutes(100)
+			.location("서울")
+			.build());
+
+		// when
+		mockMvc.perform(
+			delete("/api/members/" + member.getId())
+				.contextPath("/api")
+				.cookie(new Cookie(JwtMetadata.ACCESS_TOKEN, accessToken))
+			// then
+		).andExpect(status().isForbidden());
+	}
+
+	@Test
+	@DisplayName("정상 컨디션 > 멤버 삭제 요청 > 성공")
+	void deleteMemberSuccess() throws Exception {
+		// given
+		var now = LocalDateTime.now();
+		var email = "test@test.com";
+		var accessToken = testHelper.registerAndLoginAndReturnAccessToken(email, RoleEnum.SELLER);
+		var member = memberRepository.findByEmail(email).orElseThrow();
+		ticketingRepository.save(Ticketing.builder()
+			.member(member)
+			.category("카테고리")
+			.price(10000)
+			.title("제목")
+			.saleStart(now.minusDays(30))
+			.saleEnd(now.minusDays(23))
+			.eventTime(now.minusDays(7))
+			.runningMinutes(100)
+			.location("서울")
+			.build());
+
+		// when
+		mockMvc.perform(
+			delete("/api/members/" + member.getId())
+				.contextPath("/api")
+				.cookie(new Cookie(JwtMetadata.ACCESS_TOKEN, accessToken))
+
+			// then
+		).andExpect(status().is2xxSuccessful());
+		
+		var memberInDB = memberRepository.findByEmail(email);
+		Assertions.assertThat(memberInDB.isPresent()).isFalse();
 	}
 }
