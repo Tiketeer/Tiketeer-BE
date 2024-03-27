@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.IntStream;
 
 import org.assertj.core.api.Assertions;
@@ -35,6 +34,7 @@ import com.tiketeer.Tiketeer.domain.ticket.repository.TicketRepository;
 import com.tiketeer.Tiketeer.domain.ticketing.Ticketing;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.GetAllTicketingsResponseDto;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.GetTicketingResponseDto;
+import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PatchTicketingRequestDto;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PostTicketingRequestDto;
 import com.tiketeer.Tiketeer.domain.ticketing.controller.dto.PostTicketingResponseDto;
 import com.tiketeer.Tiketeer.domain.ticketing.repository.TicketingRepository;
@@ -172,6 +172,86 @@ public class TicketingControllerTest {
 			});
 	}
 
+	@Test
+	@DisplayName(
+		"이미 생성된 티케팅 존재 (제목: 음악회, 러닝타임: 100분, 재고:20)"
+			+ " > 티케팅 수정 요청 (제목: 음악회1, 러닝타임: 120분, 재고:50) > 성공"
+	)
+	void patchTicketingSuccess() throws Exception {
+		// given
+		var email = "test@test.com";
+		var accessToken = testHelper.registerAndLoginAndReturnAccessToken(email, RoleEnum.SELLER);
+
+		var title = "음악회";
+		var runningMinutes = 100;
+		var stock = 20;
+		var createTicketingCmd = createCreateTicketingCommand(email, title, runningMinutes, stock);
+		var ticketingId = createTicketingUseCase.createTicketing(createTicketingCmd).getTicketingId();
+
+		var updatedTitle = "음악회1";
+		var updatedRunningMinutes = 120;
+		var updatedStock = 50;
+		var req = PatchTicketingRequestDto.builder()
+			.title(updatedTitle)
+			.description(createTicketingCmd.getDescription())
+			.location(createTicketingCmd.getLocation())
+			.category(createTicketingCmd.getCategory())
+			.runningMinutes(updatedRunningMinutes)
+			.price(createTicketingCmd.getPrice())
+			.stock(updatedStock)
+			.eventTime(createTicketingCmd.getEventTime())
+			.saleStart(createTicketingCmd.getSaleStart())
+			.saleEnd(createTicketingCmd.getSaleEnd())
+			.build();
+
+		// when
+		mockMvc.perform(
+			patch("/api/ticketings/" + ticketingId)
+				.contextPath("/api")
+				.cookie(new Cookie(JwtMetadata.ACCESS_TOKEN, accessToken))
+				.contentType(MediaType.APPLICATION_JSON)
+				.characterEncoding(StandardCharsets.UTF_8)
+				.content(objectMapper.writeValueAsString(req))
+		).andExpect(status().is2xxSuccessful());
+
+		// then
+		var ticketingInfoList = ticketingRepository.findTicketingWithTicketStock(email);
+		Assertions.assertThat(ticketingInfoList.size()).isEqualTo(1);
+
+		var ticketingInfo = ticketingInfoList.getFirst();
+		Assertions.assertThat(ticketingInfo.getTicketingId()).isEqualTo(ticketingId);
+		Assertions.assertThat(ticketingInfo.getPrice()).isEqualTo(createTicketingCmd.getPrice());
+		Assertions.assertThat(ticketingInfo.getCategory()).isEqualTo(createTicketingCmd.getCategory());
+		Assertions.assertThat(ticketingInfo.getTitle()).isEqualTo(updatedTitle);
+		Assertions.assertThat(ticketingInfo.getRemainStock()).isEqualTo(updatedStock);
+		Assertions.assertThat(ticketingInfo.getRunningMinutes()).isEqualTo(updatedRunningMinutes);
+	}
+
+	@Test
+	@DisplayName("이미 생성된 티케팅 존재 > 티케팅 삭제 요청 > 성공")
+	void deleteTicketingSuccess() throws Exception {
+		// given
+		var email = "test@test.com";
+		var accessToken = testHelper.registerAndLoginAndReturnAccessToken(email, RoleEnum.SELLER);
+
+		var title = "음악회";
+		var runningMinutes = 100;
+		var stock = 20;
+		var createTicketingCmd = createCreateTicketingCommand(email, title, runningMinutes, stock);
+		var ticketingId = createTicketingUseCase.createTicketing(createTicketingCmd).getTicketingId();
+
+		// when
+		mockMvc.perform(
+			delete("/api/ticketings/" + ticketingId)
+				.contextPath("/api")
+				.cookie(new Cookie(JwtMetadata.ACCESS_TOKEN, accessToken))
+		).andExpect(status().is2xxSuccessful());
+
+		// then
+		var ticketingOpt = ticketingRepository.findById(ticketingId);
+		Assertions.assertThat(ticketingOpt.isPresent()).isFalse();
+	}
+
 	private List<Ticketing> createTicketings(Member member, int count) {
 		List<String> titles = new ArrayList<>(count);
 		for (int i = 0; i < count; i++) {
@@ -199,16 +279,17 @@ public class TicketingControllerTest {
 			.toList());
 	}
 
-	private CreateTicketingCommandDto createCreateTicketingCommand(String email) {
+	private CreateTicketingCommandDto createCreateTicketingCommand(String email, String title, int runningMinutes,
+		int stock) {
 		var now = LocalDateTime.now();
 		return CreateTicketingCommandDto.builder()
 			.memberEmail(email)
-			.title("타이틀" + UUID.randomUUID())
+			.title(title)
 			.price(1000L)
 			.category("카테고리")
 			.location("서울")
-			.stock(5)
-			.runningMinutes(100)
+			.stock(stock)
+			.runningMinutes(runningMinutes)
 			.saleStart(now.plusYears(1))
 			.saleEnd(now.plusYears(2))
 			.eventTime(now.plusYears(3)).build();
