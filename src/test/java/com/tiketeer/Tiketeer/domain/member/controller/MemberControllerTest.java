@@ -285,6 +285,7 @@ class MemberControllerTest {
 		).andExpect(status().is2xxSuccessful());
 	}
 
+	@Test
 	@DisplayName("정상 조건 > 멤버 조회 > 성공")
 	void getMemberSuccess() throws Exception {
 		//given
