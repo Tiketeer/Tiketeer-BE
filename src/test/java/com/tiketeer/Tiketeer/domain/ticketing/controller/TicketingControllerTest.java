@@ -229,6 +229,7 @@ public class TicketingControllerTest {
 
 	@Test
 	@DisplayName("이미 생성된 티케팅 존재 > 티케팅 삭제 요청 > 성공")
+	@Transactional
 	void deleteTicketingSuccess() throws Exception {
 		// given
 		var email = "test@test.com";
@@ -250,6 +251,8 @@ public class TicketingControllerTest {
 		// then
 		var ticketingOpt = ticketingRepository.findById(ticketingId);
 		Assertions.assertThat(ticketingOpt.isPresent()).isFalse();
+		var tickets = ticketRepository.findAll();
+		Assertions.assertThat(tickets.size()).isEqualTo(0);
 	}
 
 	private List<Ticketing> createTicketings(Member member, int count) {
