@@ -68,7 +68,7 @@ public class TicketingController {
 		return ResponseEntity.status(HttpStatus.OK).body(responseBody);
 	}
 
-	@PostMapping(path = "/")
+	@PostMapping
 	public ResponseEntity<ApiResponse<PostTicketingResponseDto>> postTicketing(
 		@Valid @RequestBody PostTicketingRequestDto request) {
 		var memberEmail = securityContextHelper.getEmailInToken();

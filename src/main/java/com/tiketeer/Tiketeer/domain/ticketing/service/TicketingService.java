@@ -35,7 +35,6 @@ public class TicketingService {
 		this.ticketRepository = ticketRepository;
 	}
 
-	@Transactional(readOnly = true)
 	public List<GetAllTicketingsResultDto> getAllTicketings() {
 		var ticketings = ticketingRepository.findAll()
 			.stream()
@@ -60,9 +59,8 @@ public class TicketingService {
 		return ticketings;
 	}
 
-	@Transactional
 	public GetTicketingResultDto getTickting(GetTicketingCommandDto command) {
-		var ticketing = ticketingRepository.getReferenceById(command.getTicketingId());
+		var ticketing = findById(command.getTicketingId());
 		var tickets = ticketService.listTicketByTicketingId(ticketing.getId());
 		var numOfRemainedTickets = (int)tickets.stream().filter(ticket -> ticket.getPurchase() == null).count();
 		return GetTicketingResultDto.builder().ticketingId(ticketing.getId())
