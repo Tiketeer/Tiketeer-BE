@@ -23,6 +23,6 @@ public class LoginResultDto {
 	}
 
 	public static LoginResponseDto convertFromDto(LoginResultDto dto) {
-		return new LoginResponseDto(dto.member.getEmail());
+		return new LoginResponseDto(dto.member.getEmail(), dto.member.getRole().getName());
 	}
 }
